@@ -185,4 +185,46 @@ assessmentsRouter.post(
   }
 );
 
+// POST /api/assessments/:id/analyze - AI-powered analysis
+assessmentsRouter.post("/:id/analyze", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+
+  // Verify that the assessment belongs to this user
+  const assessment = await db.assessment.findFirst({
+    where: { id, userId: user.id },
+    include: {
+      media: true,
+      client: true,
+    },
+  });
+
+  if (!assessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  // TODO: Implement actual AI analysis using OpenAI API
+  // For now, generate a simple summary
+  const aiSummary = `Assessment for ${assessment.client.name} (${assessment.assessmentType}).
+Captured ${assessment.media.length} media items.
+Status: ${assessment.status}.
+${assessment.location ? `Location: ${assessment.location}.` : ""}
+Recommendation: Complete equipment evaluation and generate quote.`;
+
+  // Update assessment with AI summary
+  await db.assessment.update({
+    where: { id },
+    data: { aiSummary },
+  });
+
+  return c.json({
+    success: true,
+    summary: aiSummary,
+  });
+});
+
 export default assessmentsRouter;

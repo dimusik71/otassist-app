@@ -54,13 +54,13 @@ This app enables OT/AH professionals to:
    - Pricing and supplier information
 
 #### Stack Screens (Coming Soon)
-- **CreateAssessment** - AI-guided assessment creation with media capture
-- **AssessmentDetail** - View/edit assessment details and media
-- **CreateClient** - Add new client form
-- **ClientDetail** - View/edit client information
-- **EquipmentDetail** - Detailed equipment specifications
+- **CreateAssessment** ✅ - Select client and assessment type
+- **AssessmentDetail** ✅ - Capture photos, video, audio with AI analysis
+- **CreateClient** ✅ - Add new client form with all contact info
+- **ClientDetail** - View/edit client information and assessment history
+- **EquipmentDetail** - Detailed equipment specifications and pricing
 - **AddEquipment** - Add new equipment to catalog
-- **LoginModalScreen** - Email/password authentication
+- **LoginModalScreen** ✅ - Email/password authentication
 
 ### Database Schema
 
@@ -86,6 +86,7 @@ All routes require authentication except `/health` and `/api/auth/*`
 - `GET /api/assessments/:id` - Get assessment details with media and equipment
 - `POST /api/assessments` - Create new assessment
 - `POST /api/assessments/:id/media` - Upload media for assessment
+- `POST /api/assessments/:id/analyze` - AI-powered analysis of assessment
 
 #### Equipment
 - `GET /api/equipment` - List all equipment items
@@ -192,19 +193,62 @@ bun run typecheck
 bun run lint
 ```
 
-## Key Features (Roadmap)
+## Key Features
 
-### Phase 1 (Current)
-- ✅ User authentication
-- ✅ Client management
-- ✅ Assessment tracking
-- ✅ Equipment catalog
-- ✅ Backend API routes
+### Completed Features
 
-### Phase 2 (Next)
-- 🔲 Camera/photo/video capture for assessments
-- 🔲 Audio notes with transcription
-- 🔲 AI-powered assessment analysis
+**User Management:**
+- Email/password authentication
+- Session management with Better Auth
+- User-specific data isolation
+
+**Client Management:**
+- Create clients with full contact information
+- View client list with search/filtering
+- Track client history and assessments
+- Store notes and dates of birth
+
+**Assessment Workflow:**
+- Create assessments linked to clients
+- Choose assessment type (home, assistive tech, general)
+- Capture photos using device camera
+- Select photos/videos from gallery
+- Record audio notes (ready for transcription)
+- AI-powered analysis of assessments
+- View assessment details with media gallery
+- Track assessment status (draft/completed/approved)
+
+**Equipment Catalog:**
+- Browse equipment by category
+- View pricing and government approvals
+- Track supplier pricing and margins
+- Equipment specifications storage
+
+### In Development
+
+**Media Processing:**
+- Audio transcription with Whisper API
+- AI vision analysis of photos/videos
+- Automated equipment recommendations from photos
+- Generate assessment reports from media
+
+### Phase 1 (Completed)
+- ✅ User authentication with Better Auth
+- ✅ Client management (list, create)
+- ✅ Assessment tracking (list, create, view details)
+- ✅ Equipment catalog (list, browse)
+- ✅ Backend API routes (6 modules)
+- ✅ Database schema with all models
+
+### Phase 2 (Current - In Progress)
+- ✅ Camera photo capture for assessments
+- ✅ Image picker for gallery photos/videos
+- ✅ Audio recording with permissions
+- ✅ AI-powered assessment analysis (basic)
+- ✅ Assessment detail screen with media gallery
+- ✅ Client and assessment creation forms
+- 🔲 Audio transcription with Whisper API
+- 🔲 Advanced AI analysis with OpenAI Vision
 - 🔲 Quote generation (3 options per assessment)
 - 🔲 Invoice creation with hourly rates
 - 🔲 PDF report generation

@@ -11,6 +11,9 @@ import AssessmentsScreen from "@/screens/AssessmentsScreen";
 import ClientsScreen from "@/screens/ClientsScreen";
 import EquipmentScreen from "@/screens/EquipmentScreen";
 import LoginModalScreen from "@/screens/LoginModalScreen";
+import CreateClientScreen from "@/screens/CreateClientScreen";
+import CreateAssessmentScreen from "@/screens/CreateAssessmentScreen";
+import AssessmentDetailScreen from "@/screens/AssessmentDetailScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -26,21 +29,20 @@ const RootNavigator = () => {
         component={LoginModalScreen}
         options={{ presentation: "modal", title: "Login" }}
       />
-      {/* Additional screens will be created as placeholders */}
       <RootStack.Screen
         name="CreateAssessment"
-        component={PlaceholderScreen}
-        options={{ title: "New Assessment" }}
+        component={CreateAssessmentScreen}
+        options={{ title: "New Assessment", headerShown: false }}
       />
       <RootStack.Screen
         name="AssessmentDetail"
-        component={PlaceholderScreen}
-        options={{ title: "Assessment Details" }}
+        component={AssessmentDetailScreen}
+        options={{ title: "Assessment Details", headerShown: false }}
       />
       <RootStack.Screen
         name="CreateClient"
-        component={PlaceholderScreen}
-        options={{ title: "New Client" }}
+        component={CreateClientScreen}
+        options={{ title: "New Client", headerShown: false }}
       />
       <RootStack.Screen
         name="ClientDetail"
