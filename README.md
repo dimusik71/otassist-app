@@ -370,4 +370,4 @@ bun run lint
 - Invoice/quote items stored as JSON strings
 - Safe area handling is automatic via React Navigation
 - Authentication required for all client data access
-- Bottom tab screens destructure navigation from props object (not function params) to avoid React Navigation 7 context issues
+- Bottom tab screens use `useNavigation` hook with root stack typing to access parent navigator screens
