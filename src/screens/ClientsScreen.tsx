@@ -42,13 +42,13 @@ function ClientsScreen({ navigation }: Props) {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <SafeAreaView edges={['top']}>
+      <SafeAreaView edges={['top']} style={{ backgroundColor: "#0D9488" }}>
         {/* Header */}
         <LinearGradient
           colors={["#0D9488", "#1D4ED8"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="px-6 py-8"
+          style={{ paddingHorizontal: 24, paddingVertical: 32, paddingTop: 8 }}
         >
           <Text className="text-3xl font-bold text-white mb-2">Clients</Text>
           <Text style={{ color: "#CCFBF1" }}>Manage your client information</Text>

@@ -42,13 +42,13 @@ function EquipmentScreen({ navigation }: Props) {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <SafeAreaView edges={['top']}>
+      <SafeAreaView edges={['top']} style={{ backgroundColor: "#EA580C" }}>
         {/* Header */}
         <LinearGradient
           colors={["#EA580C", "#DB2777"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="px-6 py-8"
+          style={{ paddingHorizontal: 24, paddingVertical: 32, paddingTop: 8 }}
         >
           <Text className="text-3xl font-bold text-white mb-2">Equipment</Text>
           <Text style={{ color: "#FFEDD5" }}>Browse available equipment and pricing</Text>
