@@ -120,7 +120,7 @@ function ClientsScreen({ navigation }: Props) {
       {/* Floating Action Button */}
       <Pressable
         onPress={() => navigation.navigate("CreateClient")}
-        className="absolute bottom-6 right-6 bg-teal-600 w-16 h-16 rounded-full items-center justify-center"
+        className="absolute bottom-24 right-6 bg-teal-600 w-16 h-16 rounded-full items-center justify-center"
         style={{
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 8 },

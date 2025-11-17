@@ -126,7 +126,7 @@ function AssessmentsScreen({ navigation }: Props) {
       {/* Floating Action Button */}
       <Pressable
         onPress={() => navigation.navigate("CreateAssessment", {})}
-        className="absolute bottom-6 right-6 bg-blue-600 w-16 h-16 rounded-full items-center justify-center"
+        className="absolute bottom-24 right-6 bg-blue-600 w-16 h-16 rounded-full items-center justify-center"
         style={{
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 8 },
