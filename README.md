@@ -370,4 +370,4 @@ bun run lint
 - Invoice/quote items stored as JSON strings
 - Safe area handling is automatic via React Navigation
 - Authentication required for all client data access
-- Bottom tab screens use navigation prop from `BottomTabScreenProps` for type-safe navigation
+- Bottom tab screens wrapped with React.memo to avoid NativeWind serialization issues with navigation context

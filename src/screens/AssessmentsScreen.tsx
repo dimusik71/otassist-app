@@ -10,8 +10,9 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"AssessmentsTab">;
 
-function AssessmentsScreen({ navigation }: Props) {
+const AssessmentsScreen = React.memo<Props>(function AssessmentsScreen(props) {
   const { data: session } = useSession();
+  const navigation = props.navigation;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["assessments"],
@@ -115,6 +116,6 @@ function AssessmentsScreen({ navigation }: Props) {
       </Pressable>
     </View>
   );
-}
+});
 
 export default AssessmentsScreen;
