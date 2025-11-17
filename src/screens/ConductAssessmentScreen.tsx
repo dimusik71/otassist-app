@@ -206,32 +206,33 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
   const progress = (completedQuestions / totalQuestions) * 100;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#1D4ED8" }}>
-      <SafeAreaView edges={["top"]} style={{ backgroundColor: "#1D4ED8" }} />
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       {/* Header with gradient */}
-      <LinearGradient
-        colors={["#1D4ED8", "#0D9488"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ paddingBottom: 16, paddingHorizontal: 24, paddingTop: 8 }}
-      >
-        <View className="flex-row items-center justify-between mb-3">
-          <Pressable onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
-            <ChevronLeft size={24} color="white" />
-            <Text className="text-white font-semibold">Back</Text>
-          </Pressable>
-          <Text className="text-white font-semibold">
-            {completedQuestions + 1} / {totalQuestions}
-          </Text>
-        </View>
+      <SafeAreaView edges={["top"]} style={{ backgroundColor: "#1D4ED8" }}>
+        <LinearGradient
+          colors={["#1D4ED8", "#0D9488"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ paddingBottom: 16, paddingHorizontal: 24, paddingTop: 8 }}
+        >
+          <View className="flex-row items-center justify-between mb-3">
+            <Pressable onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
+              <ChevronLeft size={24} color="white" />
+              <Text className="text-white font-semibold">Back</Text>
+            </Pressable>
+            <Text className="text-white font-semibold">
+              {completedQuestions + 1} / {totalQuestions}
+            </Text>
+          </View>
 
-        {/* Progress Bar */}
-        <View className="h-2 bg-white/20 rounded-full overflow-hidden">
-          <View style={{ width: `${progress}%`, height: "100%", backgroundColor: "white" }} />
-        </View>
+          {/* Progress Bar */}
+          <View className="h-2 bg-white/20 rounded-full overflow-hidden">
+            <View style={{ width: `${progress}%`, height: "100%", backgroundColor: "white" }} />
+          </View>
 
-        <Text className="text-white/80 text-sm mt-2">{Math.round(progress)}% Complete</Text>
-      </LinearGradient>
+          <Text className="text-white/80 text-sm mt-2">{Math.round(progress)}% Complete</Text>
+        </LinearGradient>
+      </SafeAreaView>
 
       <ScrollView style={{ flex: 1, backgroundColor: "#FFFFFF" }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
         {/* Section Badge */}

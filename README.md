@@ -271,6 +271,20 @@ The app includes a comprehensive, structured environmental assessment form based
 - Can exit and resume assessment anytime
 - Completed responses highlighted for easy tracking
 
+### Recent Updates
+
+**SafeAreaView Implementation (iPhone Notch Support):**
+- Fixed header layout for iPhone 17 Pro Max and all devices with notches
+- Wrapped LinearGradient headers inside SafeAreaView for proper safe area handling
+- Consistent structure across all main screens (Assessments, Clients, Equipment)
+- Proper background color handling to prevent white gaps behind notch
+
+**Audio Transcription:**
+- Fixed file upload format for React Native compatibility
+- Switched from fetch/Blob to XMLHttpRequest with proper FormData structure
+- Audio files now successfully transcribe using OpenAI Whisper API
+- Format: `{uri, name, type: "audio/m4a"}` structure required for React Native
+
 ### Completed Features
 
 **User Management:**
