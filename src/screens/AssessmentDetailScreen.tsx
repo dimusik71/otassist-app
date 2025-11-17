@@ -10,7 +10,7 @@ import {
   Image,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles } from "lucide-react-native";
+import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 
@@ -144,7 +144,30 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
       setRecording(null);
-      Alert.alert("Recording saved", "Audio will be transcribed and uploaded");
+
+      if (uri) {
+        // Transcribe audio
+        Alert.alert(
+          "Processing Audio",
+          "Transcribing your audio note...",
+          [{ text: "OK" }],
+          { cancelable: false }
+        );
+
+        // Import transcription function
+        const { transcribeAudio } = await import("@/lib/audioTranscription");
+        const result = await transcribeAudio(uri);
+
+        if (result.success && result.transcription) {
+          Alert.alert(
+            "Transcription Complete",
+            `Transcribed: "${result.transcription.substring(0, 100)}${result.transcription.length > 100 ? "..." : ""}"`
+          );
+          // TODO: Save transcription to assessment
+        } else {
+          Alert.alert("Error", result.error || "Failed to transcribe audio");
+        }
+      }
     } catch (err) {
       Alert.alert("Error", "Failed to stop recording");
     }
@@ -256,6 +279,36 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
             {analyzingAI ? "Analyzing..." : "Analyze with AI"}
           </Text>
         </Pressable>
+
+        {/* Phase 3 Features - AI-Powered Actions */}
+        <View className="mb-6">
+          <Text className="text-sm font-semibold text-gray-700 mb-3">AI-Powered Features</Text>
+          <View className="gap-3">
+            <Pressable
+              onPress={() => navigation.navigate("EquipmentRecommendations", { assessmentId })}
+              className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl py-4 items-center flex-row justify-center"
+            >
+              <Package size={20} color="white" />
+              <Text className="text-white font-semibold ml-2">Equipment Recommendations</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => navigation.navigate("GenerateQuote", { assessmentId })}
+              className="bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl py-4 items-center flex-row justify-center"
+            >
+              <FileText size={20} color="white" />
+              <Text className="text-white font-semibold ml-2">Generate Quote (3 Options)</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => navigation.navigate("GenerateInvoice", { assessmentId })}
+              className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl py-4 items-center flex-row justify-center"
+            >
+              <DollarSign size={20} color="white" />
+              <Text className="text-white font-semibold ml-2">Generate Invoice</Text>
+            </Pressable>
+          </View>
+        </View>
 
         {/* Media Gallery */}
         {assessment.media.length > 0 && (

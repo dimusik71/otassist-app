@@ -14,6 +14,9 @@ import LoginModalScreen from "@/screens/LoginModalScreen";
 import CreateClientScreen from "@/screens/CreateClientScreen";
 import CreateAssessmentScreen from "@/screens/CreateAssessmentScreen";
 import AssessmentDetailScreen from "@/screens/AssessmentDetailScreen";
+import GenerateQuoteScreen from "@/screens/GenerateQuoteScreen";
+import GenerateInvoiceScreen from "@/screens/GenerateInvoiceScreen";
+import EquipmentRecommendationsScreen from "@/screens/EquipmentRecommendationsScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -58,6 +61,21 @@ const RootNavigator = () => {
         name="AddEquipment"
         component={PlaceholderScreen}
         options={{ title: "Add Equipment" }}
+      />
+      <RootStack.Screen
+        name="GenerateQuote"
+        component={GenerateQuoteScreen}
+        options={{ title: "Generate Quote", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="GenerateInvoice"
+        component={GenerateInvoiceScreen}
+        options={{ title: "Generate Invoice", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="EquipmentRecommendations"
+        component={EquipmentRecommendationsScreen}
+        options={{ title: "Equipment Recommendations", headerShown: false }}
       />
     </RootStack.Navigator>
   );

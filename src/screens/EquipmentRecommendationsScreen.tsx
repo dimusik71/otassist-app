@@ -4,7 +4,7 @@ import { Sparkles, ArrowLeft, Package } from "lucide-react-native";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 
-type Props = RootStackScreenProps<"AssessmentDetail">;
+type Props = RootStackScreenProps<"EquipmentRecommendations">;
 
 const EquipmentRecommendationsScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;

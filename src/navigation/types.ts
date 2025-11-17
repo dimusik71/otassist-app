@@ -18,6 +18,9 @@ export type RootStackParamList = {
   ClientDetail: { clientId: string };
   EquipmentDetail: { equipmentId: string };
   AddEquipment: undefined;
+  GenerateQuote: { assessmentId: string };
+  GenerateInvoice: { assessmentId: string };
+  EquipmentRecommendations: { assessmentId: string };
 };
 
 export type BottomTabParamList = {
