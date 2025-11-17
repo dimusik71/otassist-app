@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Mail, Phone, MapPin } from "lucide-react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -21,28 +22,32 @@ function ClientsScreen({ navigation }: Props) {
 
   if (!session) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50 px-6">
-        <Text className="text-xl font-semibold text-gray-900 mb-2">Client Management</Text>
-        <Text className="text-gray-600 text-center mb-6">
-          Please log in to manage your clients
-        </Text>
-        <Pressable
-          onPress={() => navigation.navigate("LoginModalScreen")}
-          className="bg-blue-600 px-6 py-3 rounded-xl"
-        >
-          <Text className="text-white font-semibold">Login</Text>
-        </Pressable>
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }} edges={['top', 'bottom']}>
+        <View className="flex-1 items-center justify-center bg-gray-50 px-6">
+          <Text className="text-xl font-semibold text-gray-900 mb-2">Client Management</Text>
+          <Text className="text-gray-600 text-center mb-6">
+            Please log in to manage your clients
+          </Text>
+          <Pressable
+            onPress={() => navigation.navigate("LoginModalScreen")}
+            className="bg-blue-600 px-6 py-3 rounded-xl"
+          >
+            <Text className="text-white font-semibold">Login</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="bg-gradient-to-br from-teal-600 to-blue-700 px-6 py-8">
-        <Text className="text-3xl font-bold text-white mb-2">Clients</Text>
-        <Text className="text-teal-100">Manage your client information</Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+      <SafeAreaView edges={['top']}>
+        {/* Header */}
+        <View className="bg-gradient-to-br from-teal-600 to-blue-700 px-6 py-8">
+          <Text className="text-3xl font-bold text-white mb-2">Clients</Text>
+          <Text className="text-teal-100">Manage your client information</Text>
+        </View>
+      </SafeAreaView>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
