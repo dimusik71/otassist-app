@@ -12,6 +12,7 @@ import assessmentsRouter from "./routes/assessments";
 import equipmentRouter from "./routes/equipment";
 import quotesRouter from "./routes/quotes";
 import invoicesRouter from "./routes/invoices";
+import aiRouter from "./routes/ai";
 import { type AppType } from "./types";
 
 // AppType context adds user and session to the context, will be null if the user or session is null
@@ -61,6 +62,9 @@ app.route("/api/quotes", quotesRouter);
 console.log("📄 Mounting invoices routes at /api/invoices");
 app.route("/api/invoices", invoicesRouter);
 
+console.log("🤖 Mounting AI routes at /api/ai");
+app.route("/api/ai", aiRouter);
+
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running
 app.get("/health", (c) => {
@@ -84,6 +88,7 @@ serve({ fetch: app.fetch, port: Number(env.PORT) }, () => {
   console.log("  🛠️  Equipment:  GET/POST /api/equipment");
   console.log("  💰 Quotes:     POST /api/quotes");
   console.log("  📄 Invoices:   POST /api/invoices");
+  console.log("  🤖 AI:         POST /api/ai/*");
   console.log("  💚 Health:     GET /health");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 });

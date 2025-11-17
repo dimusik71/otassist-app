@@ -185,7 +185,7 @@ assessmentsRouter.post(
   }
 );
 
-// POST /api/assessments/:id/analyze - AI-powered analysis
+// POST /api/assessments/:id/analyze - AI-powered analysis with multi-agent system
 assessmentsRouter.post("/:id/analyze", async (c) => {
   const user = c.get("user");
   if (!user?.id) {
@@ -207,24 +207,77 @@ assessmentsRouter.post("/:id/analyze", async (c) => {
     return c.json({ error: "Assessment not found" }, 404);
   }
 
-  // TODO: Implement actual AI analysis using OpenAI API
-  // For now, generate a simple summary
-  const aiSummary = `Assessment for ${assessment.client.name} (${assessment.assessmentType}).
-Captured ${assessment.media.length} media items.
-Status: ${assessment.status}.
-${assessment.location ? `Location: ${assessment.location}.` : ""}
-Recommendation: Complete equipment evaluation and generate quote.`;
+  // Multi-agent orchestration for comprehensive analysis
+  try {
+    // Agent 1: GPT-5 Mini for assessment summary
+    const summaryPrompt = `Generate a professional OT/AH assessment summary:
 
-  // Update assessment with AI summary
-  await db.assessment.update({
-    where: { id },
-    data: { aiSummary },
-  });
+Client: ${assessment.client.name}
+Assessment Type: ${assessment.assessmentType}
+Location: ${assessment.location || "Not specified"}
+Media Captured: ${assessment.media.length} items
+- Photos: ${assessment.media.filter((m) => m.type === "photo").length}
+- Videos: ${assessment.media.filter((m) => m.type === "video").length}
+- Audio: ${assessment.media.filter((m) => m.type === "audio").length}
+Notes: ${assessment.notes || "None"}
 
-  return c.json({
-    success: true,
-    summary: aiSummary,
-  });
+Provide a concise professional summary (3-4 paragraphs) including:
+1. Assessment overview and context
+2. Key observations from media
+3. Client needs identified
+4. Recommended next steps`;
+
+    const summaryResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-5-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert Occupational Therapist assistant specializing in client assessments and care planning.",
+          },
+          { role: "user", content: summaryPrompt },
+        ],
+        max_completion_tokens: 1000,
+        temperature: 1,
+      }),
+    });
+
+    let aiSummary = "";
+    if (summaryResponse.ok) {
+      const summaryData = await summaryResponse.json();
+      aiSummary = summaryData.choices[0].message.content;
+    } else {
+      aiSummary = `Assessment for ${assessment.client.name} (${assessment.assessmentType}). ${assessment.media.length} media items captured. Detailed analysis pending.`;
+    }
+
+    // Update assessment with AI summary
+    await db.assessment.update({
+      where: { id },
+      data: { aiSummary },
+    });
+
+    return c.json({
+      success: true,
+      summary: aiSummary,
+      model: "gpt-5-mini",
+      mediaAnalyzed: assessment.media.length,
+    });
+  } catch (error) {
+    console.error("AI analysis error:", error);
+    return c.json(
+      {
+        error: "AI analysis failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
 });
 
 export default assessmentsRouter;

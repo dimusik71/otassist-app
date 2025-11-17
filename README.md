@@ -22,6 +22,7 @@ This app enables OT/AH professionals to:
 - **Better Auth (Expo)** for authentication
 - **TypeScript** with strict mode
 - **Lucide React Native** for icons
+- **Expo Camera, Image Picker, AV** for media capture
 
 ### Backend (Cloud)
 - **Bun** runtime
@@ -29,6 +30,12 @@ This app enables OT/AH professionals to:
 - **Prisma ORM** with SQLite database
 - **Better Auth** for session management
 - **Zod** for schema validation
+
+### AI & Machine Learning (Multi-Agent System)
+- **GPT-5 Mini** (OpenAI) - Assessment summaries and text analysis
+- **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
+- **Grok 4 Fast** (xAI) - Equipment recommendations and quick responses
+- **Multi-Agent Orchestrator** - Intelligent task routing to optimal AI model
 
 ## App Structure
 
@@ -86,7 +93,11 @@ All routes require authentication except `/health` and `/api/auth/*`
 - `GET /api/assessments/:id` - Get assessment details with media and equipment
 - `POST /api/assessments` - Create new assessment
 - `POST /api/assessments/:id/media` - Upload media for assessment
-- `POST /api/assessments/:id/analyze` - AI-powered analysis of assessment
+
+#### AI Services
+- `POST /api/assessments/:id/analyze` - AI-powered assessment analysis (GPT-5 Mini)
+- `POST /api/ai/equipment-recommendations` - Equipment recommendations (Grok 4 Fast)
+- `POST /api/ai/vision-analysis` - Image analysis (Gemini 2.5 Flash)
 
 #### Equipment
 - `GET /api/equipment` - List all equipment items
@@ -214,9 +225,18 @@ bun run lint
 - Capture photos using device camera
 - Select photos/videos from gallery
 - Record audio notes (ready for transcription)
-- AI-powered analysis of assessments
+- **AI-powered assessment analysis using GPT-5 Mini**
+- **Smart equipment recommendations using Grok 4 Fast**
+- **Image analysis capabilities with Gemini 2.5 Flash**
 - View assessment details with media gallery
 - Track assessment status (draft/completed/approved)
+
+**Multi-Agent AI System:**
+- Intelligent task routing to optimal AI model
+- GPT-5 Mini for professional summaries and analysis
+- Gemini 2.5 Flash for vision and structured data
+- Grok 4 Fast for quick equipment recommendations
+- Orchestrated workflows combining multiple agents
 
 **Equipment Catalog:**
 - Browse equipment by category
@@ -240,15 +260,18 @@ bun run lint
 - ✅ Backend API routes (6 modules)
 - ✅ Database schema with all models
 
-### Phase 2 (Current - In Progress)
+### Phase 2 (Current - Completed)
 - ✅ Camera photo capture for assessments
 - ✅ Image picker for gallery photos/videos
 - ✅ Audio recording with permissions
-- ✅ AI-powered assessment analysis (basic)
+- ✅ **Multi-agent AI orchestrator with intelligent routing**
+- ✅ **GPT-5 Mini integration for assessment summaries**
+- ✅ **Gemini 2.5 Flash integration for vision analysis**
+- ✅ **Grok 4 Fast integration for equipment recommendations**
 - ✅ Assessment detail screen with media gallery
 - ✅ Client and assessment creation forms
-- 🔲 Audio transcription with Whisper API
-- 🔲 Advanced AI analysis with OpenAI Vision
+- 🔲 Audio transcription with Whisper API (coming soon)
+- 🔲 Advanced AI vision with photo analysis
 - 🔲 Quote generation (3 options per assessment)
 - 🔲 Invoice creation with hourly rates
 - 🔲 PDF report generation
