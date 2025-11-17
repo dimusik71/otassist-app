@@ -362,6 +362,14 @@ bun run lint
 - 🔲 Integration with XERO/accounting software
 - 🔲 Multi-user collaboration
 
+## Recent Bug Fixes
+
+### Authentication Client Error (Fixed)
+- **Issue**: "Failed to load client" error on app startup
+- **Cause**: Frontend auth client was configured with `emailOTPClient()` plugin, but backend only supports email/password authentication
+- **Fix**: Removed unnecessary `emailOTPClient()` plugin from `src/lib/authClient.ts`
+- **Result**: Auth client now properly initializes with only the Expo plugin matching backend configuration
+
 ## Notes
 
 - All dates are stored as ISO strings in API responses
@@ -371,3 +379,4 @@ bun run lint
 - Safe area handling is automatic via React Navigation
 - Authentication required for all client data access
 - Tab screens use inline shadow styles instead of NativeWind shadow classes to avoid runtime CSS parsing issues
+- Auth client uses only Expo plugin (no OTP) to match backend email/password setup
