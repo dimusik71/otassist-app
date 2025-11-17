@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign, Edit2, Save, X, CheckCircle, Clock, AlertCircle } from "lucide-react-native";
+import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign, Edit2, Save, X, CheckCircle, Clock, AlertCircle, Home } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 
@@ -549,6 +549,23 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
         <View className="mb-6">
           <Text className="text-sm font-semibold text-gray-700 mb-3">AI-Powered Features</Text>
           <View className="gap-3">
+            <LinearGradient
+              colors={["#0EA5E9", "#06B6D4"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="rounded-xl"
+            >
+              <Pressable
+                onPress={() => navigation.navigate("HouseMapping", { assessmentId })}
+                className="py-4 items-center flex-row justify-center"
+              >
+                <Home size={20} color="white" />
+                <Text className="text-white font-semibold ml-2">
+                  3D House Mapping & IoT Devices
+                </Text>
+              </Pressable>
+            </LinearGradient>
+
             <LinearGradient
               colors={["#9333EA", "#DB2777"]}
               start={{ x: 0, y: 0 }}

@@ -22,6 +22,9 @@ export type RootStackParamList = {
   GenerateQuote: { assessmentId: string };
   GenerateInvoice: { assessmentId: string };
   EquipmentRecommendations: { assessmentId: string };
+  HouseMapping: { assessmentId: string };
+  IoTDeviceLibrary: { houseMapId: string; assessmentId: string };
+  DevicePlacement: { houseMapId: string; assessmentId: string };
 };
 
 export type BottomTabParamList = {

@@ -21,6 +21,7 @@ import EquipmentRecommendationsScreen from "@/screens/EquipmentRecommendationsSc
 import ClientDetailScreen from "@/screens/ClientDetailScreen";
 import EquipmentDetailScreen from "@/screens/EquipmentDetailScreen";
 import AddEquipmentScreen from "@/screens/AddEquipmentScreen";
+import HouseMappingScreen from "@/screens/HouseMappingScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -85,6 +86,11 @@ const RootNavigator = () => {
         name="EquipmentRecommendations"
         component={EquipmentRecommendationsScreen}
         options={{ title: "Equipment Recommendations", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="HouseMapping"
+        component={HouseMappingScreen}
+        options={{ title: "House Mapping", headerShown: false }}
       />
     </RootStack.Navigator>
   );
