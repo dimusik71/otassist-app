@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Calendar } from "lucide-react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
@@ -14,6 +14,7 @@ type Props = BottomTabScreenProps<"AssessmentsTab">;
 
 function AssessmentsScreen({ navigation }: Props) {
   const { data: session } = useSession();
+  const insets = useSafeAreaInsets();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["assessments"],
@@ -23,7 +24,7 @@ function AssessmentsScreen({ navigation }: Props) {
 
   if (!session) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }} edges={['top', 'bottom']}>
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB", paddingTop: insets.top, paddingBottom: insets.bottom }}>
         <View className="flex-1 items-center justify-center bg-gray-50 px-6">
           <Text className="text-xl font-semibold text-gray-900 mb-2">Welcome to OT/AH Assessment</Text>
           <Text className="text-gray-600 text-center mb-6">
@@ -36,26 +37,22 @@ function AssessmentsScreen({ navigation }: Props) {
             <Text className="text-white font-semibold">Login</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <View style={{ backgroundColor: "#1D4ED8" }}>
-        <SafeAreaView edges={['top']}>
-          {/* Header */}
-          <LinearGradient
-            colors={["#1D4ED8", "#0D9488"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ paddingHorizontal: 24, paddingBottom: 32 }}
-          >
-            <Text className="text-3xl font-bold text-white mb-2">Assessments</Text>
-            <Text style={{ color: "#DBEAFE" }}>Manage client assessments and reports</Text>
-          </LinearGradient>
-        </SafeAreaView>
-      </View>
+      {/* Header */}
+      <LinearGradient
+        colors={["#1D4ED8", "#0D9488"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+      >
+        <Text className="text-3xl font-bold text-white mb-2">Assessments</Text>
+        <Text style={{ color: "#DBEAFE" }}>Manage client assessments and reports</Text>
+      </LinearGradient>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

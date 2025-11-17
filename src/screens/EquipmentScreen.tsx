@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, DollarSign, CheckCircle, XCircle } from "lucide-react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
@@ -14,6 +14,7 @@ type Props = BottomTabScreenProps<"EquipmentTab">;
 
 function EquipmentScreen({ navigation }: Props) {
   const { data: session } = useSession();
+  const insets = useSafeAreaInsets();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["equipment"],
@@ -23,7 +24,7 @@ function EquipmentScreen({ navigation }: Props) {
 
   if (!session) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#F9FAFB" }} edges={['top', 'bottom']}>
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB", paddingTop: insets.top, paddingBottom: insets.bottom }}>
         <View className="flex-1 items-center justify-center bg-gray-50 px-6">
           <Text className="text-xl font-semibold text-gray-900 mb-2">Equipment Catalog</Text>
           <Text className="text-gray-600 text-center mb-6">
@@ -36,26 +37,22 @@ function EquipmentScreen({ navigation }: Props) {
             <Text className="text-white font-semibold">Login</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <View style={{ backgroundColor: "#EA580C" }}>
-        <SafeAreaView edges={['top']}>
-          {/* Header */}
-          <LinearGradient
-            colors={["#EA580C", "#DB2777"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ paddingHorizontal: 24, paddingBottom: 32 }}
-          >
-            <Text className="text-3xl font-bold text-white mb-2">Equipment</Text>
-            <Text style={{ color: "#FFEDD5" }}>Browse available equipment and pricing</Text>
-          </LinearGradient>
-        </SafeAreaView>
-      </View>
+      {/* Header */}
+      <LinearGradient
+        colors={["#EA580C", "#DB2777"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+      >
+        <Text className="text-3xl font-bold text-white mb-2">Equipment</Text>
+        <Text style={{ color: "#FFEDD5" }}>Browse available equipment and pricing</Text>
+      </LinearGradient>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

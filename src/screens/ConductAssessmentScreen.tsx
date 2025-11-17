@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import {
   ChevronLeft,
@@ -34,6 +34,7 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const queryClient = useQueryClient();
+  const insets = useSafeAreaInsets();
 
   const currentSection = ASSESSMENT_FORM[currentSectionIndex];
   const currentQuestion = currentSection.questions[currentQuestionIndex];
@@ -208,33 +209,29 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
       {/* Header with gradient */}
-      <View style={{ backgroundColor: "#1D4ED8" }}>
-        <SafeAreaView edges={["top"]}>
-          <LinearGradient
-            colors={["#1D4ED8", "#0D9488"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ paddingBottom: 16, paddingHorizontal: 24 }}
-          >
-            <View className="flex-row items-center justify-between mb-3">
-              <Pressable onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
-                <ChevronLeft size={24} color="white" />
-                <Text className="text-white font-semibold">Back</Text>
-              </Pressable>
-              <Text className="text-white font-semibold">
-                {completedQuestions + 1} / {totalQuestions}
-              </Text>
-            </View>
+      <LinearGradient
+        colors={["#1D4ED8", "#0D9488"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: insets.top + 8, paddingBottom: 16, paddingHorizontal: 24 }}
+      >
+        <View className="flex-row items-center justify-between mb-3">
+          <Pressable onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
+            <ChevronLeft size={24} color="white" />
+            <Text className="text-white font-semibold">Back</Text>
+          </Pressable>
+          <Text className="text-white font-semibold">
+            {completedQuestions + 1} / {totalQuestions}
+          </Text>
+        </View>
 
-            {/* Progress Bar */}
-            <View className="h-2 bg-white/20 rounded-full overflow-hidden">
-              <View style={{ width: `${progress}%`, height: "100%", backgroundColor: "white" }} />
-            </View>
+        {/* Progress Bar */}
+        <View className="h-2 bg-white/20 rounded-full overflow-hidden">
+          <View style={{ width: `${progress}%`, height: "100%", backgroundColor: "white" }} />
+        </View>
 
-            <Text className="text-white/80 text-sm mt-2">{Math.round(progress)}% Complete</Text>
-          </LinearGradient>
-        </SafeAreaView>
-      </View>
+        <Text className="text-white/80 text-sm mt-2">{Math.round(progress)}% Complete</Text>
+      </LinearGradient>
 
       <ScrollView style={{ flex: 1, backgroundColor: "#FFFFFF" }} contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
         {/* Section Badge */}
