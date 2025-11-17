@@ -186,50 +186,54 @@ const api = {
   upload: async <T>(path: string, options: UploadOptions): Promise<T> => {
     const { file, additionalData } = options;
 
-    // Create FormData for multipart/form-data request
-    const formData = new FormData();
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      const url = `${BACKEND_URL}${path}`;
 
-    // Append the file to FormData
-    // @ts-ignore - React Native FormData accepts this format
-    formData.append("file", {
-      uri: file.uri,
-      name: file.name,
-      type: file.type,
-    });
+      // Create FormData for multipart/form-data request
+      const formData = new FormData();
 
-    // Append any additional data fields
-    if (additionalData) {
-      Object.entries(additionalData).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-    }
+      // Append the file to FormData with proper React Native format
+      formData.append("file", {
+        uri: file.uri,
+        name: file.name,
+        type: file.type,
+      } as any);
 
-    // Get authentication cookies
-    const cookies = authClient.getCookie();
-
-    try {
-      const response = await fetch(`${BACKEND_URL}${path}`, {
-        method: "POST",
-        headers: {
-          // Don't set Content-Type - let the browser set it with boundary
-          Cookie: cookies,
-        },
-        body: formData,
-        credentials: "omit",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `[api.ts]: ${response.status} ${response.statusText} ${JSON.stringify(errorData)}`,
-        );
+      // Append any additional data fields
+      if (additionalData) {
+        Object.entries(additionalData).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
       }
 
-      return response.json() as Promise<T>;
-    } catch (error: any) {
-      console.log(`[api.ts]: ${error}`);
-      throw error;
-    }
+      xhr.open("POST", url);
+
+      // Set authentication cookies
+      const cookies = authClient.getCookie();
+      if (cookies) {
+        xhr.setRequestHeader("Cookie", cookies);
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (error) {
+            reject(new Error(`Failed to parse response: ${xhr.responseText}`));
+          }
+        } else {
+          reject(new Error(`Upload failed with status ${xhr.status}: ${xhr.responseText}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        reject(new Error("Network error occurred during upload"));
+      };
+
+      xhr.send(formData as any);
+    });
   },
 };
 
