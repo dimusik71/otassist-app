@@ -11,6 +11,9 @@ import {
   uploadAssessmentMediaResponseSchema,
   updateAssessmentRequestSchema,
   deleteAssessmentResponseSchema,
+  addEquipmentRecommendationRequestSchema,
+  getEquipmentRecommendationsResponseSchema,
+  deleteEquipmentRecommendationResponseSchema,
 } from "@/shared/contracts";
 
 const assessmentsRouter = new Hono<AppType>();
@@ -344,6 +347,138 @@ assessmentsRouter.delete("/:id", async (c) => {
   return c.json({
     success: true,
     message: "Assessment deleted successfully",
+  });
+});
+
+// POST /api/assessments/:id/equipment - Add equipment recommendation
+assessmentsRouter.post(
+  "/:id/equipment",
+  zValidator("json", addEquipmentRecommendationRequestSchema),
+  async (c) => {
+    const user = c.get("user");
+    if (!user?.id) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const { id } = c.req.param();
+    const body = c.req.valid("json");
+
+    // Verify that the assessment belongs to this user
+    const assessment = await db.assessment.findFirst({
+      where: { id, userId: user.id },
+    });
+
+    if (!assessment) {
+      return c.json({ error: "Assessment not found" }, 404);
+    }
+
+    // Verify equipment exists
+    const equipment = await db.equipmentItem.findUnique({
+      where: { id: body.equipmentId },
+    });
+
+    if (!equipment) {
+      return c.json({ error: "Equipment not found" }, 404);
+    }
+
+    // Create recommendation
+    const recommendation = await db.assessmentEquipment.create({
+      data: {
+        assessmentId: id,
+        equipmentId: body.equipmentId,
+        priority: body.priority,
+        quantity: body.quantity,
+        notes: body.notes,
+      },
+    });
+
+    return c.json({
+      success: true,
+      recommendation: {
+        ...recommendation,
+        createdAt: recommendation.createdAt.toISOString(),
+      },
+    }, 201);
+  }
+);
+
+// GET /api/assessments/:id/equipment - Get equipment recommendations
+assessmentsRouter.get("/:id/equipment", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+
+  // Verify that the assessment belongs to this user
+  const assessment = await db.assessment.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  if (!assessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  const recommendations = await db.assessmentEquipment.findMany({
+    where: { assessmentId: id },
+    include: {
+      equipment: {
+        select: {
+          id: true,
+          name: true,
+          category: true,
+          price: true,
+          brand: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const response = {
+    recommendations: recommendations.map((rec) => ({
+      id: rec.id,
+      equipmentId: rec.equipmentId,
+      priority: rec.priority,
+      quantity: rec.quantity,
+      notes: rec.notes,
+      createdAt: rec.createdAt.toISOString(),
+      equipment: {
+        ...rec.equipment,
+        price: Number(rec.equipment.price),
+      },
+    })),
+  };
+
+  return c.json(response);
+});
+
+// DELETE /api/assessments/:assessmentId/equipment/:id - Delete equipment recommendation
+assessmentsRouter.delete("/:assessmentId/equipment/:id", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { assessmentId, id } = c.req.param();
+
+  // Verify that the assessment belongs to this user
+  const assessment = await db.assessment.findFirst({
+    where: { id: assessmentId, userId: user.id },
+  });
+
+  if (!assessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  await db.assessmentEquipment.delete({
+    where: { id },
+  });
+
+  return c.json({
+    success: true,
+    message: "Equipment recommendation deleted successfully",
   });
 });
 

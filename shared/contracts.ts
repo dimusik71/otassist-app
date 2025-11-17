@@ -420,3 +420,46 @@ export const deleteInvoiceResponseSchema = z.object({
 });
 export type DeleteInvoiceResponse = z.infer<typeof deleteInvoiceResponseSchema>;
 
+// ====================
+// EQUIPMENT RECOMMENDATIONS CONTRACTS
+// ====================
+
+// POST /api/assessments/:id/equipment
+export const addEquipmentRecommendationRequestSchema = z.object({
+  equipmentId: z.string(),
+  priority: z.enum(["essential", "recommended", "optional"]),
+  quantity: z.number().min(1),
+  notes: z.string().optional(),
+});
+export type AddEquipmentRecommendationRequest = z.infer<typeof addEquipmentRecommendationRequestSchema>;
+
+// GET /api/assessments/:id/equipment
+export const getEquipmentRecommendationsResponseSchema = z.object({
+  recommendations: z.array(
+    z.object({
+      id: z.string(),
+      equipmentId: z.string(),
+      priority: z.string(),
+      quantity: z.number(),
+      notes: z.string().nullable(),
+      createdAt: z.string(),
+      equipment: z.object({
+        id: z.string(),
+        name: z.string(),
+        category: z.string(),
+        price: z.number(),
+        brand: z.string().nullable(),
+      }),
+    })
+  ),
+});
+export type GetEquipmentRecommendationsResponse = z.infer<typeof getEquipmentRecommendationsResponseSchema>;
+
+// DELETE /api/assessments/:assessmentId/equipment/:id
+export const deleteEquipmentRecommendationResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteEquipmentRecommendationResponse = z.infer<typeof deleteEquipmentRecommendationResponseSchema>;
+
+
