@@ -427,6 +427,18 @@ aiRouter.post("/generate-3d-map", async (c) => {
       });
     }
 
+    // Check if house map already exists for this assessment
+    const existingHouseMap = await db.houseMap.findUnique({
+      where: { assessmentId },
+    });
+
+    // If exists, delete it first (cascade will delete rooms and areas)
+    if (existingHouseMap) {
+      await db.houseMap.delete({
+        where: { id: existingHouseMap.id },
+      });
+    }
+
     // Create house map in database
     const houseMap = await db.houseMap.create({
       data: {

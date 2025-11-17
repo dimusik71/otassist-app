@@ -469,6 +469,13 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ## Recent Bug Fixes
 
+### 3D House Map Duplicate Error (Fixed)
+- **Issue**: "Unique constraint failed on assessmentId" when generating 3D maps
+- **Cause**: Trying to create a new house map when one already exists for the assessment
+- **Fix**: Added check in `/api/ai/generate-3d-map` to delete existing house map before creating new one
+- **Location**: `backend/src/routes/ai.ts:430-440`
+- **Result**: Users can now regenerate 3D maps multiple times for the same assessment without errors
+
 ### Authentication Client Error (Fixed)
 - **Issue**: "Failed to load client" error on app startup
 - **Cause**: Frontend auth client was configured with `emailOTPClient()` plugin, but backend only supports email/password authentication
