@@ -456,10 +456,13 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
 
       <ScrollView className="flex-1 px-6 py-6">
         {/* Start Assessment Form Button */}
-        <Pressable
-          onPress={() => navigation.navigate("ConductAssessment", { assessmentId })}
-          className="bg-gradient-to-r from-blue-600 to-teal-600 rounded-2xl p-5 mb-6 flex-row items-center justify-between"
+        <LinearGradient
+          colors={["#1D4ED8", "#0D9488"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={{
+            borderRadius: 16,
+            marginBottom: 24,
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.2,
@@ -467,16 +470,21 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
             elevation: 5,
           }}
         >
-          <View className="flex-1">
-            <Text className="text-white font-bold text-lg mb-1">Environmental Assessment Form</Text>
-            <Text className="text-white/80 text-sm">
-              Complete structured OT home assessment with AI guidance
-            </Text>
-          </View>
-          <View className="bg-white/20 w-12 h-12 rounded-full items-center justify-center">
-            <FileText size={24} color="white" />
-          </View>
-        </Pressable>
+          <Pressable
+            onPress={() => navigation.navigate("ConductAssessment", { assessmentId })}
+            className="p-5 flex-row items-center justify-between"
+          >
+            <View className="flex-1">
+              <Text className="text-white font-bold text-lg mb-1">Environmental Assessment Form</Text>
+              <Text className="text-white/80 text-sm">
+                Complete structured OT home assessment with AI guidance
+              </Text>
+            </View>
+            <View className="bg-white/20 w-12 h-12 rounded-full items-center justify-center">
+              <FileText size={24} color="white" />
+            </View>
+          </Pressable>
+        </LinearGradient>
 
         {/* AI Summary */}
         {assessment.aiSummary && (

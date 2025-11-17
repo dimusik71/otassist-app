@@ -206,35 +206,33 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
   const progress = (completedQuestions / totalQuestions) * 100;
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <SafeAreaView edges={["top"]}>
-        {/* Header */}
-        <LinearGradient
-          colors={["#1D4ED8", "#0D9488"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          className="px-6 py-4"
-        >
-          <View className="flex-row items-center justify-between mb-3">
-            <Pressable onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
-              <ChevronLeft size={24} color="white" />
-              <Text className="text-white font-semibold">Back</Text>
-            </Pressable>
-            <Text className="text-white font-semibold">
-              {completedQuestions + 1} / {totalQuestions}
-            </Text>
-          </View>
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      {/* Header with gradient */}
+      <LinearGradient
+        colors={["#1D4ED8", "#0D9488"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: 50, paddingBottom: 16, paddingHorizontal: 24 }}
+      >
+        <View className="flex-row items-center justify-between mb-3">
+          <Pressable onPress={() => navigation.goBack()} className="flex-row items-center gap-2">
+            <ChevronLeft size={24} color="white" />
+            <Text className="text-white font-semibold">Back</Text>
+          </Pressable>
+          <Text className="text-white font-semibold">
+            {completedQuestions + 1} / {totalQuestions}
+          </Text>
+        </View>
 
-          {/* Progress Bar */}
-          <View className="h-2 bg-white/20 rounded-full overflow-hidden">
-            <View style={{ width: `${progress}%`, height: "100%", backgroundColor: "white" }} />
-          </View>
+        {/* Progress Bar */}
+        <View className="h-2 bg-white/20 rounded-full overflow-hidden">
+          <View style={{ width: `${progress}%`, height: "100%", backgroundColor: "white" }} />
+        </View>
 
-          <Text className="text-white/80 text-sm mt-2">{Math.round(progress)}% Complete</Text>
-        </LinearGradient>
-      </SafeAreaView>
+        <Text className="text-white/80 text-sm mt-2">{Math.round(progress)}% Complete</Text>
+      </LinearGradient>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
+      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16, paddingBottom: 120 }}>
         {/* Section Badge */}
         <View className="bg-blue-100 px-4 py-2 rounded-full self-start mb-4">
           <Text className="text-blue-700 font-semibold text-sm">{currentSection.title}</Text>
@@ -252,18 +250,36 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
             <Pressable
               onPress={() => setAnswer("Yes")}
               className={`flex-1 py-4 rounded-xl items-center ${
-                answer === "Yes" ? "bg-green-600" : "bg-white border-2 border-gray-200"
+                answer === "Yes" ? "bg-green-600" : "bg-white border-2 border-gray-300"
               }`}
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
             >
-              <Text className={`font-semibold ${answer === "Yes" ? "text-white" : "text-gray-700"}`}>Yes</Text>
+              <Text className={`font-semibold text-base ${answer === "Yes" ? "text-white" : "text-gray-700"}`}>
+                Yes
+              </Text>
             </Pressable>
             <Pressable
               onPress={() => setAnswer("No")}
               className={`flex-1 py-4 rounded-xl items-center ${
-                answer === "No" ? "bg-red-600" : "bg-white border-2 border-gray-200"
+                answer === "No" ? "bg-red-600" : "bg-white border-2 border-gray-300"
               }`}
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
             >
-              <Text className={`font-semibold ${answer === "No" ? "text-white" : "text-gray-700"}`}>No</Text>
+              <Text className={`font-semibold text-base ${answer === "No" ? "text-white" : "text-gray-700"}`}>
+                No
+              </Text>
             </Pressable>
           </View>
         )}
@@ -273,7 +289,15 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
             value={answer}
             onChangeText={setAnswer}
             placeholder="Enter your answer..."
-            className="bg-white border-2 border-gray-200 rounded-xl p-4 mb-6 text-gray-900"
+            placeholderTextColor="#9CA3AF"
+            className="bg-white border-2 border-gray-300 rounded-xl p-4 mb-6 text-gray-900"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.05,
+              shadowRadius: 2,
+              elevation: 1,
+            }}
             multiline
             numberOfLines={3}
           />
@@ -285,14 +309,22 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
           value={notes}
           onChangeText={setNotes}
           placeholder="Add any relevant observations or details..."
-          className="bg-white border-2 border-gray-200 rounded-xl p-4 mb-6 text-gray-900"
+          placeholderTextColor="#9CA3AF"
+          className="bg-white border-2 border-gray-300 rounded-xl p-4 mb-6 text-gray-900"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 2,
+            elevation: 1,
+          }}
           multiline
           numberOfLines={4}
         />
 
         {/* Media Upload */}
         <Text className="text-sm font-semibold text-gray-700 mb-2">
-          Photo/Video Documentation {currentQuestion.requiresMedia && "(Required)"}
+          Photo/Video Documentation {currentQuestion.requiresMedia && <Text className="text-red-600">(Required)</Text>}
         </Text>
 
         {mediaUrl ? (
@@ -316,6 +348,13 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
               onPress={handleTakePhoto}
               disabled={uploading}
               className="flex-1 bg-white border-2 border-blue-300 py-4 rounded-xl items-center justify-center"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
             >
               {uploading ? (
                 <ActivityIndicator color="#1D4ED8" />
@@ -330,6 +369,13 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
               onPress={handlePickImage}
               disabled={uploading}
               className="flex-1 bg-white border-2 border-purple-300 py-4 rounded-xl items-center justify-center"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.1,
+                shadowRadius: 2,
+                elevation: 2,
+              }}
             >
               {uploading ? (
                 <ActivityIndicator color="#7C3AED" />
@@ -345,27 +391,36 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
 
         {/* AI Feedback Button */}
         {(answer || notes || mediaUrl) && (
-          <Pressable
-            onPress={handleGetAIFeedback}
-            disabled={analyzing}
-            className="bg-gradient-to-r from-purple-600 to-blue-600 py-4 rounded-xl mb-6 flex-row items-center justify-center gap-2"
+          <LinearGradient
+            colors={["#7C3AED", "#1D4ED8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
             style={{
+              borderRadius: 12,
+              marginBottom: 24,
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
+              shadowOpacity: 0.15,
               shadowRadius: 4,
               elevation: 3,
             }}
           >
-            {analyzing ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <>
-                <Sparkles size={20} color="white" />
-                <Text className="text-white font-bold">Get AI Feedback</Text>
-              </>
-            )}
-          </Pressable>
+            <Pressable
+              onPress={handleGetAIFeedback}
+              disabled={analyzing}
+              className="py-4 flex-row items-center justify-center gap-2"
+              style={{ opacity: analyzing ? 0.7 : 1 }}
+            >
+              {analyzing ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <>
+                  <Sparkles size={20} color="white" />
+                  <Text className="text-white font-bold text-base">Get AI Feedback</Text>
+                </>
+              )}
+            </Pressable>
+          </LinearGradient>
         )}
 
         {/* Show existing AI analysis if available */}
@@ -383,29 +438,51 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
       </ScrollView>
 
       {/* Navigation Buttons */}
-      <View className="bg-white border-t border-gray-200 p-4">
+      <View
+        className="bg-white border-t border-gray-200 p-4"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
+          elevation: 5,
+        }}
+      >
         <View className="flex-row gap-3">
           {(currentSectionIndex > 0 || currentQuestionIndex > 0) && (
             <Pressable
               onPress={handlePrevious}
               className="bg-gray-200 py-4 px-6 rounded-xl flex-1"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 2,
+                elevation: 1,
+              }}
             >
-              <Text className="text-gray-700 font-bold text-center">Previous</Text>
+              <Text className="text-gray-700 font-bold text-center text-base">Previous</Text>
             </Pressable>
           )}
           <Pressable
             onPress={handleSaveAndNext}
             disabled={saving || (currentQuestion.type === "yes_no" && !answer)}
-            className="bg-blue-600 py-4 px-6 rounded-xl flex-1 flex-row items-center justify-center gap-2"
+            className="py-4 px-6 rounded-xl flex-1 flex-row items-center justify-center gap-2"
             style={{
+              backgroundColor: "#1D4ED8",
               opacity: saving || (currentQuestion.type === "yes_no" && !answer) ? 0.5 : 1,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.15,
+              shadowRadius: 4,
+              elevation: 3,
             }}
           >
             {saving ? (
               <ActivityIndicator color="white" />
             ) : (
               <>
-                <Text className="text-white font-bold">
+                <Text className="text-white font-bold text-base">
                   {currentSectionIndex === ASSESSMENT_FORM.length - 1 &&
                   currentQuestionIndex === currentSection.questions.length - 1
                     ? "Complete"
