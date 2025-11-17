@@ -1,4 +1,5 @@
 //DO NOT REMOVE THIS CODE
+// Force cache invalidation: v1.0.1
 import "./global.css";
 import "react-native-get-random-values";
 import { LogBox } from "react-native";
