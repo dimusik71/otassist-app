@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Mail, Phone, MapPin } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -11,8 +10,7 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"ClientsTab">;
 
-const ClientsScreen = () => {
-  const navigation = useNavigation<BottomTabScreenProps<"ClientsTab">["navigation"]>();
+const ClientsScreen: React.FC<Props> = ({ navigation }) => {
   const { data: session } = useSession();
 
   const { data, isLoading, error } = useQuery({

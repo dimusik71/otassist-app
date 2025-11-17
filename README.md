@@ -370,4 +370,4 @@ bun run lint
 - Invoice/quote items stored as JSON strings
 - Safe area handling is automatic via React Navigation
 - Authentication required for all client data access
-- Bottom tab screens use `useNavigation` hook for proper navigation context access
+- Bottom tab screen components are explicitly typed with React.FC to ensure proper navigation prop passing

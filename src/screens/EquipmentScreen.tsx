@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, DollarSign, CheckCircle, XCircle } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -11,8 +10,7 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"EquipmentTab">;
 
-const EquipmentScreen = () => {
-  const navigation = useNavigation<BottomTabScreenProps<"EquipmentTab">["navigation"]>();
+const EquipmentScreen: React.FC<Props> = ({ navigation }) => {
   const { data: session } = useSession();
 
   const { data, isLoading, error } = useQuery({
