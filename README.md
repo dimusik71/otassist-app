@@ -62,6 +62,7 @@ This app enables OT/AH professionals to:
 
 #### Stack Screens
 - **CreateAssessment** ✅ - Select client and assessment type
+- **ConductAssessment** ✅ - Structured environmental assessment form with AI guidance
 - **AssessmentDetail** ✅ - Capture photos, video, audio with AI analysis
 - **CreateClient** ✅ - Add new client form with all contact info
 - **ClientDetail** ✅ - View/edit client with assessment history
@@ -77,6 +78,7 @@ This app enables OT/AH professionals to:
 #### Core Models
 - **Client** - Client information (name, contact, DOB, notes)
 - **Assessment** - Assessment records (type, status, location, AI summary)
+- **AssessmentResponse** - Structured responses to assessment questions with AI analysis
 - **AssessmentMedia** - Photos, videos, audio with AI analysis
 - **EquipmentItem** - Equipment catalog with pricing and approvals
 - **AssessmentEquipment** - Equipment recommendations per assessment
@@ -100,6 +102,9 @@ All routes require authentication except `/health` and `/api/auth/*`
 - `PUT /api/assessments/:id` - Update assessment (status, notes, location)
 - `DELETE /api/assessments/:id` - Delete assessment
 - `POST /api/assessments/:id/media` - Upload media for assessment
+- `POST /api/assessments/:assessmentId/responses` - Save/update response to assessment question
+- `GET /api/assessments/:assessmentId/responses` - Get all responses for an assessment
+- `POST /api/assessments/:assessmentId/responses/:responseId/analyze` - Get AI analysis for specific response
 
 #### AI Services
 - `POST /api/assessments/:id/analyze` - AI-powered assessment analysis (GPT-5 Mini)
@@ -228,6 +233,44 @@ bun run lint
 
 ## Key Features
 
+### Environmental Assessment Form
+
+The app includes a comprehensive, structured environmental assessment form based on AOTA and CAOT standards for home safety assessments. This guided form ensures thorough, consistent evaluations with AI-powered feedback.
+
+**Form Structure:**
+- **8 Major Sections** covering all areas of home assessment:
+  1. **Entrance & Exit** (7 questions) - Accessibility, lighting, stairs, handrails
+  2. **Bathroom** (8 questions) - Grab bars, toilet height, non-slip surfaces, space
+  3. **Kitchen** (8 questions) - Storage access, lighting, appliances, safety
+  4. **Bedroom** (6 questions) - Bed height, clearance, lighting, closet access
+  5. **Living Areas** (6 questions) - Walkways, furniture, cords, lighting
+  6. **Stairs & Hallways** (5 questions) - Handrails, contrast marking, width
+  7. **Safety & Emergency** (5 questions) - Detectors, exits, emergency contacts
+  8. **Outdoor Spaces** (4 questions) - Pathways, lighting, steps, accessibility
+
+**Question Features:**
+- **50+ Detailed Questions** covering all aspects of home safety
+- **Yes/No and Text Responses** with optional additional notes
+- **Media Documentation** - Photo/video upload for each question
+- **Real-time AI Analysis** - Get instant feedback using GPT-4o
+- **Contextual AI Prompts** - Each question has specific analysis instructions
+- **Progress Tracking** - Visual progress bar shows completion status
+- **Response Persistence** - Answers automatically saved and can be resumed
+
+**AI Guidance:**
+- Upload photos/videos for any question
+- AI analyzes the media against OT best practices
+- Provides specific recommendations for improvements
+- Identifies if more documentation is needed
+- Suggests next steps and safety modifications
+
+**User Experience:**
+- One question at a time to focus attention
+- Section badges show current area being assessed
+- Previous/Next navigation with auto-save
+- Can exit and resume assessment anytime
+- Completed responses highlighted for easy tracking
+
 ### Completed Features
 
 **User Management:**
@@ -244,6 +287,9 @@ bun run lint
 **Assessment Workflow:**
 - Create assessments linked to clients
 - Choose assessment type (home, assistive tech, general)
+- **Complete structured environmental assessment form with 50+ detailed questions**
+- **AI guidance for each assessment question with real-time feedback**
+- **Photo/video documentation for each question with AI analysis**
 - Capture photos using device camera
 - Select photos/videos from gallery
 - Record audio notes with Whisper API transcription
@@ -256,7 +302,7 @@ bun run lint
 - **Payment tracking with "Mark as Paid" functionality**
 - **Quote expiration warnings (visual alerts for expired/expiring quotes)**
 - View assessment details with media gallery
-- Track assessment status (draft/completed/approved)
+- Track assessment status (draft/in_progress/completed/approved)
 - View invoice and quote history with payment status
 
 **Multi-Agent AI System:**

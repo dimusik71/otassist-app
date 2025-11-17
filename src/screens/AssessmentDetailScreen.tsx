@@ -455,6 +455,29 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
       </LinearGradient>
 
       <ScrollView className="flex-1 px-6 py-6">
+        {/* Start Assessment Form Button */}
+        <Pressable
+          onPress={() => navigation.navigate("ConductAssessment", { assessmentId })}
+          className="bg-gradient-to-r from-blue-600 to-teal-600 rounded-2xl p-5 mb-6 flex-row items-center justify-between"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 5,
+          }}
+        >
+          <View className="flex-1">
+            <Text className="text-white font-bold text-lg mb-1">Environmental Assessment Form</Text>
+            <Text className="text-white/80 text-sm">
+              Complete structured OT home assessment with AI guidance
+            </Text>
+          </View>
+          <View className="bg-white/20 w-12 h-12 rounded-full items-center justify-center">
+            <FileText size={24} color="white" />
+          </View>
+        </Pressable>
+
         {/* AI Summary */}
         {assessment.aiSummary && (
           <View className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-6">

@@ -13,6 +13,7 @@ export type RootStackParamList = {
   Tabs: NavigatorScreenParams<BottomTabParamList> | undefined;
   LoginModalScreen: undefined;
   CreateAssessment: { clientId?: string };
+  ConductAssessment: { assessmentId: string };
   AssessmentDetail: { assessmentId: string };
   CreateClient: undefined;
   ClientDetail: { clientId: string };

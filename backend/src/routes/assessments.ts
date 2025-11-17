@@ -482,4 +482,197 @@ assessmentsRouter.delete("/:assessmentId/equipment/:id", async (c) => {
   });
 });
 
+// POST /api/assessments/:assessmentId/responses - Save or update a response to a question
+assessmentsRouter.post("/:assessmentId/responses", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { assessmentId } = c.req.param();
+  const body = await c.req.json();
+  const { questionId, sectionId, answer, notes, mediaUrl, mediaType, needsFollowUp } = body;
+
+  // Verify that the assessment belongs to this user
+  const assessment = await db.assessment.findFirst({
+    where: { id: assessmentId, userId: user.id },
+  });
+
+  if (!assessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  // Check if response already exists
+  const existing = await db.assessmentResponse.findUnique({
+    where: {
+      assessmentId_questionId: {
+        assessmentId,
+        questionId,
+      },
+    },
+  });
+
+  let response;
+  if (existing) {
+    // Update existing response
+    response = await db.assessmentResponse.update({
+      where: { id: existing.id },
+      data: {
+        answer,
+        notes,
+        mediaUrl,
+        mediaType,
+        needsFollowUp: needsFollowUp || false,
+        updatedAt: new Date(),
+      },
+    });
+  } else {
+    // Create new response
+    response = await db.assessmentResponse.create({
+      data: {
+        id: crypto.randomUUID(),
+        assessmentId,
+        questionId,
+        sectionId,
+        answer,
+        notes,
+        mediaUrl,
+        mediaType,
+        needsFollowUp: needsFollowUp || false,
+      },
+    });
+  }
+
+  return c.json({ success: true, response });
+});
+
+// POST /api/assessments/:assessmentId/responses/:responseId/analyze - Get AI analysis for a specific response
+assessmentsRouter.post("/:assessmentId/responses/:responseId/analyze", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { assessmentId, responseId } = c.req.param();
+
+  // Verify that the assessment belongs to this user
+  const assessment = await db.assessment.findFirst({
+    where: { id: assessmentId, userId: user.id },
+  });
+
+  if (!assessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  const response = await db.assessmentResponse.findUnique({
+    where: { id: responseId },
+  });
+
+  if (!response) {
+    return c.json({ error: "Response not found" }, 404);
+  }
+
+  // Import the assessment form to get the AI prompt
+  const { getQuestionById } = await import("../../../src/constants/assessmentForm");
+  const question = getQuestionById(response.questionId);
+
+  if (!question) {
+    return c.json({ error: "Question not found in form" }, 404);
+  }
+
+  try {
+    // Call AI for analysis
+    const analysisPrompt = `${question.aiPrompt}
+
+Current Response:
+- Question: ${question.question}
+- Answer: ${response.answer || "Not answered"}
+- Notes: ${response.notes || "None"}
+- Media: ${response.mediaUrl ? "Uploaded" : "No media"}
+
+Provide:
+1. Analysis of what you can see/understand
+2. Specific suggestions for improvement
+3. Whether more documentation is needed (photos, videos, or descriptions)`;
+
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert Occupational Therapist conducting home environmental assessments. Provide detailed, actionable feedback to guide the assessment process.",
+          },
+          { role: "user", content: analysisPrompt },
+        ],
+        max_completion_tokens: 500,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!aiResponse.ok) {
+      throw new Error("AI API request failed");
+    }
+
+    const aiData = await aiResponse.json();
+    const analysis = aiData.choices[0].message.content;
+
+    // Update the response with AI analysis
+    await db.assessmentResponse.update({
+      where: { id: responseId },
+      data: {
+        aiAnalysis: analysis,
+        updatedAt: new Date(),
+      },
+    });
+
+    return c.json({
+      success: true,
+      analysis,
+      model: "gpt-4o",
+    });
+  } catch (error) {
+    console.error("AI analysis error:", error);
+    return c.json(
+      {
+        error: "AI analysis failed",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
+// GET /api/assessments/:assessmentId/responses - Get all responses for an assessment
+assessmentsRouter.get("/:assessmentId/responses", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { assessmentId } = c.req.param();
+
+  // Verify that the assessment belongs to this user
+  const assessment = await db.assessment.findFirst({
+    where: { id: assessmentId, userId: user.id },
+  });
+
+  if (!assessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  const responses = await db.assessmentResponse.findMany({
+    where: { assessmentId },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return c.json({ success: true, responses });
+});
+
 export default assessmentsRouter;

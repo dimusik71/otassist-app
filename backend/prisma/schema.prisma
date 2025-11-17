@@ -106,7 +106,7 @@ model Assessment {
   userId            String
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   assessmentType    String              // "home", "assistive_tech", "general"
-  status            String              @default("draft") // "draft", "completed", "approved"
+  status            String              @default("draft") // "draft", "in_progress", "completed", "approved"
   location          String?
   assessmentDate    DateTime            @default(now())
   notes             String?
@@ -118,8 +118,29 @@ model Assessment {
   equipment         AssessmentEquipment[]
   quotes            Quote[]
   invoices          Invoice[]
+  responses         AssessmentResponse[]
 
   @@map("assessment")
+}
+
+model AssessmentResponse {
+  id           String     @id @default(cuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  questionId   String     // References question ID from assessmentForm.ts
+  sectionId    String     // Section this question belongs to
+  answer       String?    // Yes/No/Text answer
+  notes        String?    // Additional notes from therapist
+  mediaUrl     String?    // Photo/video/document URL
+  mediaType    String?    // "photo", "video", "document"
+  aiAnalysis   String?    // AI feedback on this specific question
+  aiSuggestions String?   // AI recommendations
+  needsFollowUp Boolean   @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([assessmentId, questionId])
+  @@map("assessment_response")
 }
 
 model AssessmentMedia {

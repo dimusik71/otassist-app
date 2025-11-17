@@ -13,6 +13,7 @@ import EquipmentScreen from "@/screens/EquipmentScreen";
 import LoginModalScreen from "@/screens/LoginModalScreen";
 import CreateClientScreen from "@/screens/CreateClientScreen";
 import CreateAssessmentScreen from "@/screens/CreateAssessmentScreen";
+import ConductAssessmentScreen from "@/screens/ConductAssessmentScreen";
 import AssessmentDetailScreen from "@/screens/AssessmentDetailScreen";
 import GenerateQuoteScreen from "@/screens/GenerateQuoteScreen";
 import GenerateInvoiceScreen from "@/screens/GenerateInvoiceScreen";
@@ -39,6 +40,11 @@ const RootNavigator = () => {
         name="CreateAssessment"
         component={CreateAssessmentScreen}
         options={{ title: "New Assessment", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="ConductAssessment"
+        component={ConductAssessmentScreen}
+        options={{ title: "Conduct Assessment", headerShown: false }}
       />
       <RootStack.Screen
         name="AssessmentDetail"
