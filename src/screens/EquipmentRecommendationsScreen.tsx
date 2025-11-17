@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, ScrollView, ActivityIndicator, Alert, TextInput } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, ArrowLeft, Package, Plus, Trash2, Save } from "lucide-react-native";
 
@@ -133,19 +134,24 @@ const EquipmentRecommendationsScreen = ({ navigation, route }: Props) => {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-gradient-to-br from-purple-600 to-pink-600 pt-12 pb-6 px-6">
+      <LinearGradient
+        colors={["#9333EA", "#DB2777"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="pt-12 pb-6 px-6"
+      >
         <View className="flex-row items-center">
           <Pressable onPress={() => navigation.goBack()} className="w-10 h-10 items-center justify-center">
             <ArrowLeft size={24} color="white" />
           </Pressable>
           <View className="flex-1 mx-4">
             <Text className="text-2xl font-bold text-white">Equipment Recommendations</Text>
-            <Text className="text-purple-100">
+            <Text style={{ color: "#E9D5FF" }}>
               {savedRecs?.recommendations.length || 0} saved • AI-powered
             </Text>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView className="flex-1 px-6 py-6">
         {/* Saved Recommendations */}

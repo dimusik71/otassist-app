@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react-native";
 
@@ -50,11 +51,16 @@ const CreateClientScreen = ({ navigation }: Props) => {
     >
       <View className="flex-1 bg-gray-50">
         {/* Header */}
-        <View className="bg-gradient-to-br from-teal-600 to-blue-700 px-6 py-8">
+        <LinearGradient
+          colors={["#0D9488", "#1D4ED8"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="px-6 py-8"
+        >
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
               <Text className="text-3xl font-bold text-white mb-2">New Client</Text>
-              <Text className="text-teal-100">Add client information</Text>
+              <Text style={{ color: "#A3E8DC" }}>Add client information</Text>
             </View>
             <Pressable
               onPress={() => navigation.goBack()}
@@ -63,7 +69,7 @@ const CreateClientScreen = ({ navigation }: Props) => {
               <X size={24} color="white" />
             </Pressable>
           </View>
-        </View>
+        </LinearGradient>
 
         <ScrollView className="flex-1 px-6 py-6">
           {/* Name - Required */}

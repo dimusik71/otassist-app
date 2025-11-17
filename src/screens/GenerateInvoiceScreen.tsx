@@ -9,6 +9,7 @@ import {
   Platform,
   Alert,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, DollarSign, Plus, X } from "lucide-react-native";
 
@@ -103,7 +104,12 @@ const GenerateInvoiceScreen = ({ navigation, route }: Props) => {
     >
       <View className="flex-1 bg-gray-50">
         {/* Header */}
-        <View className="bg-gradient-to-br from-blue-600 to-indigo-600 px-6 py-8">
+        <LinearGradient
+          colors={["#2563EB", "#4F46E5"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="px-6 py-8"
+        >
           <View className="flex-row items-center mb-4">
             <Pressable
               onPress={() => navigation.goBack()}
@@ -113,10 +119,10 @@ const GenerateInvoiceScreen = ({ navigation, route }: Props) => {
             </Pressable>
             <View className="flex-1">
               <Text className="text-2xl font-bold text-white">Generate Invoice</Text>
-              <Text className="text-blue-100">Itemized invoice with hourly rates</Text>
+              <Text style={{ color: "#DBEAFE" }}>Itemized invoice with hourly rates</Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
 
         <ScrollView className="flex-1 px-6 py-6">
           {/* Hourly Rate Section */}

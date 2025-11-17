@@ -3,6 +3,7 @@ import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Mail, Phone, MapPin } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -43,10 +44,15 @@ function ClientsScreen({ navigation }: Props) {
     <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       <SafeAreaView edges={['top']}>
         {/* Header */}
-        <View className="bg-gradient-to-br from-teal-600 to-blue-700 px-6 py-8">
+        <LinearGradient
+          colors={["#0D9488", "#1D4ED8"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          className="px-6 py-8"
+        >
           <Text className="text-3xl font-bold text-white mb-2">Clients</Text>
-          <Text className="text-teal-100">Manage your client information</Text>
-        </View>
+          <Text style={{ color: "#CCFBF1" }}>Manage your client information</Text>
+        </LinearGradient>
       </SafeAreaView>
 
       {isLoading ? (

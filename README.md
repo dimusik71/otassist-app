@@ -370,6 +370,18 @@ bun run lint
 - **Fix**: Removed unnecessary `emailOTPClient()` plugin from `src/lib/authClient.ts`
 - **Result**: Auth client now properly initializes with only the Expo plugin matching backend configuration
 
+### Gradient Backgrounds Not Rendering (Fixed)
+- **Issue**: Screens appeared empty/blank with gradient backgrounds not displaying
+- **Cause**: NativeWind doesn't support Tailwind gradient classes like `bg-gradient-to-br` in React Native
+- **Fix**: Replaced all gradient `<View>` components with `<LinearGradient>` from `expo-linear-gradient` across all 9 screens
+- **Files Updated**:
+  - AssessmentsScreen, ClientsScreen, EquipmentScreen
+  - CreateClientScreen, CreateAssessmentScreen
+  - AssessmentDetailScreen (4 gradients)
+  - GenerateQuoteScreen, GenerateInvoiceScreen
+  - EquipmentRecommendationsScreen
+- **Result**: All screens now render properly with beautiful gradient headers and buttons
+
 ## Notes
 
 - All dates are stored as ISO strings in API responses
@@ -380,3 +392,4 @@ bun run lint
 - Authentication required for all client data access
 - Tab screens use inline shadow styles instead of NativeWind shadow classes to avoid runtime CSS parsing issues
 - Auth client uses only Expo plugin (no OTP) to match backend email/password setup
+- Use LinearGradient component for gradients (NativeWind doesn't support gradient classes)

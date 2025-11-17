@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, FileText, Sparkles } from "lucide-react-native";
 
@@ -86,7 +87,12 @@ const GenerateQuoteScreen = ({ navigation, route }: Props) => {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-gradient-to-br from-green-600 to-emerald-600 px-6 py-8">
+      <LinearGradient
+        colors={["#16A34A", "#059669"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="px-6 py-8"
+      >
         <View className="flex-row items-center mb-4">
           <Pressable
             onPress={() => navigation.goBack()}
@@ -96,10 +102,10 @@ const GenerateQuoteScreen = ({ navigation, route }: Props) => {
           </Pressable>
           <View className="flex-1">
             <Text className="text-2xl font-bold text-white">Generate Quote</Text>
-            <Text className="text-green-100">3 pricing options powered by AI</Text>
+            <Text style={{ color: "#DCFCE7" }}>3 pricing options powered by AI</Text>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView className="flex-1 px-6 py-6">
         {quoteOptions.length === 0 && !generating && (

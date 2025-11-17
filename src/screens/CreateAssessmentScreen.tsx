@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, ScrollView, FlatList, ActivityIndicator } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { X, Check, User } from "lucide-react-native";
 
@@ -64,11 +65,16 @@ const CreateAssessmentScreen = ({ navigation, route }: Props) => {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-gradient-to-br from-blue-700 to-teal-600 px-6 py-8">
+      <LinearGradient
+        colors={["#1D4ED8", "#0D9488"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="px-6 py-8"
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
             <Text className="text-3xl font-bold text-white mb-2">New Assessment</Text>
-            <Text className="text-blue-100">Select client and assessment type</Text>
+            <Text style={{ color: "#DBEAFE" }}>Select client and assessment type</Text>
           </View>
           <Pressable
             onPress={() => navigation.goBack()}
@@ -77,7 +83,7 @@ const CreateAssessmentScreen = ({ navigation, route }: Props) => {
             <X size={24} color="white" />
           </Pressable>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView className="flex-1 px-6 py-6">
         {/* Assessment Type Selection */}

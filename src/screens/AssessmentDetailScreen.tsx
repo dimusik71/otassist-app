@@ -10,6 +10,7 @@ import {
   Image,
   TextInput,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign, Edit2, Save, X, CheckCircle, Clock, AlertCircle } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -390,7 +391,12 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   return (
     <View className="flex-1 bg-gray-50">
       {/* Header */}
-      <View className="bg-gradient-to-br from-blue-700 to-teal-600 px-6 py-8">
+      <LinearGradient
+        colors={["#1D4ED8", "#0D9488"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="px-6 py-8"
+      >
         <View className="flex-row items-center mb-4">
           <Pressable
             onPress={() => navigation.goBack()}
@@ -400,7 +406,7 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
           </Pressable>
           <View className="flex-1">
             <Text className="text-2xl font-bold text-white">{assessment.client.name}</Text>
-            <Text className="text-blue-100 capitalize">
+            <Text style={{ color: "#DBEAFE" }} className="capitalize">
               {assessment.assessmentType.replace("_", " ")}
             </Text>
           </View>
@@ -446,7 +452,7 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
             </View>
           )}
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView className="flex-1 px-6 py-6">
         {/* AI Summary */}
@@ -512,29 +518,50 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
         <View className="mb-6">
           <Text className="text-sm font-semibold text-gray-700 mb-3">AI-Powered Features</Text>
           <View className="gap-3">
-            <Pressable
-              onPress={() => navigation.navigate("EquipmentRecommendations", { assessmentId })}
-              className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl py-4 items-center flex-row justify-center"
+            <LinearGradient
+              colors={["#9333EA", "#DB2777"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="rounded-xl"
             >
-              <Package size={20} color="white" />
-              <Text className="text-white font-semibold ml-2">Equipment Recommendations</Text>
-            </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate("EquipmentRecommendations", { assessmentId })}
+                className="py-4 items-center flex-row justify-center"
+              >
+                <Package size={20} color="white" />
+                <Text className="text-white font-semibold ml-2">Equipment Recommendations</Text>
+              </Pressable>
+            </LinearGradient>
 
-            <Pressable
-              onPress={() => navigation.navigate("GenerateQuote", { assessmentId })}
-              className="bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl py-4 items-center flex-row justify-center"
+            <LinearGradient
+              colors={["#16A34A", "#059669"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="rounded-xl"
             >
-              <FileText size={20} color="white" />
-              <Text className="text-white font-semibold ml-2">Generate Quote (3 Options)</Text>
-            </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate("GenerateQuote", { assessmentId })}
+                className="py-4 items-center flex-row justify-center"
+              >
+                <FileText size={20} color="white" />
+                <Text className="text-white font-semibold ml-2">Generate Quote (3 Options)</Text>
+              </Pressable>
+            </LinearGradient>
 
-            <Pressable
-              onPress={() => navigation.navigate("GenerateInvoice", { assessmentId })}
-              className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl py-4 items-center flex-row justify-center"
+            <LinearGradient
+              colors={["#2563EB", "#4F46E5"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="rounded-xl"
             >
-              <DollarSign size={20} color="white" />
-              <Text className="text-white font-semibold ml-2">Generate Invoice</Text>
-            </Pressable>
+              <Pressable
+                onPress={() => navigation.navigate("GenerateInvoice", { assessmentId })}
+                className="py-4 items-center flex-row justify-center"
+              >
+                <DollarSign size={20} color="white" />
+                <Text className="text-white font-semibold ml-2">Generate Invoice</Text>
+              </Pressable>
+            </LinearGradient>
           </View>
         </View>
 
