@@ -12,37 +12,69 @@ export async function transcribeAudio(audioUri: string): Promise<{
   error?: string;
 }> {
   try {
-    // Read audio file as blob
-    const response = await fetch(audioUri);
-    const audioBlob = await response.blob();
+    // Use XMLHttpRequest for proper React Native file upload
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
 
-    // Create FormData for multipart upload
-    const formData = new FormData();
-    formData.append("file", audioBlob, "audio.m4a");
-    formData.append("model", "whisper-1");
-    formData.append("language", "en");
-    formData.append("response_format", "json");
+      // Create FormData for multipart upload
+      const formData = new FormData();
 
-    // Call Whisper API
-    const whisperResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
-      },
-      body: formData,
+      // Append audio file with proper React Native format
+      // Extract filename and ensure it has the right extension
+      const fileName = audioUri.split("/").pop() || "recording.m4a";
+
+      formData.append("file", {
+        uri: audioUri,
+        name: fileName,
+        type: "audio/m4a",
+      } as any);
+
+      formData.append("model", "whisper-1");
+      formData.append("language", "en");
+      formData.append("response_format", "json");
+
+      xhr.open("POST", "https://api.openai.com/v1/audio/transcriptions");
+      xhr.setRequestHeader("Authorization", `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`);
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const data = JSON.parse(xhr.responseText);
+            resolve({
+              success: true,
+              transcription: data.text,
+            });
+          } catch (error) {
+            reject({
+              success: false,
+              error: "Failed to parse transcription response",
+            });
+          }
+        } else {
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            reject({
+              success: false,
+              error: errorData.error?.message || `Transcription failed with status ${xhr.status}`,
+            });
+          } catch {
+            reject({
+              success: false,
+              error: `Transcription failed with status ${xhr.status}`,
+            });
+          }
+        }
+      };
+
+      xhr.onerror = () => {
+        reject({
+          success: false,
+          error: "Network error during transcription",
+        });
+      };
+
+      xhr.send(formData as any);
     });
-
-    if (!whisperResponse.ok) {
-      const errorData = await whisperResponse.json();
-      throw new Error(errorData.error?.message || "Transcription failed");
-    }
-
-    const data = await whisperResponse.json();
-
-    return {
-      success: true,
-      transcription: data.text,
-    };
   } catch (error) {
     console.error("Transcription error:", error);
     return {
