@@ -1,5 +1,5 @@
 //DO NOT REMOVE THIS CODE
-// Force cache invalidation: v1.0.1
+// App version: v1.0.2 - Navigation error suppression active
 import "./global.css";
 import "react-native-get-random-values";
 import { LogBox } from "react-native";
