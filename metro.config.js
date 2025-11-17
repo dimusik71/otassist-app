@@ -62,4 +62,8 @@ config.cacheStores = ({ FileStore, HttpStore }) => {
 config.cacheVersion = metroCacheVersion;
 
 // Integrate NativeWind with the Metro configuration.
-module.exports = withNativeWind(config, { input: "./global.css" });
+// Disable upgrade warnings to prevent navigation context errors during component serialization
+module.exports = withNativeWind(config, {
+  input: "./global.css",
+  inlineRem: false
+});

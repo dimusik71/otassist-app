@@ -10,7 +10,7 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"EquipmentTab">;
 
-const EquipmentScreen = React.memo<Props>(function EquipmentScreen(props) {
+function EquipmentScreenInner(props: Props) {
   const { data: session } = useSession();
   const navigation = props.navigation;
 
@@ -114,6 +114,8 @@ const EquipmentScreen = React.memo<Props>(function EquipmentScreen(props) {
       </Pressable>
     </View>
   );
-});
+}
+
+const EquipmentScreen = (props: Props) => <EquipmentScreenInner {...props} />;
 
 export default EquipmentScreen;

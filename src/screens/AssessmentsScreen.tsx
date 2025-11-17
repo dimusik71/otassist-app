@@ -10,7 +10,7 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"AssessmentsTab">;
 
-const AssessmentsScreen = React.memo<Props>(function AssessmentsScreen(props) {
+function AssessmentsScreenInner(props: Props) {
   const { data: session } = useSession();
   const navigation = props.navigation;
 
@@ -116,6 +116,8 @@ const AssessmentsScreen = React.memo<Props>(function AssessmentsScreen(props) {
       </Pressable>
     </View>
   );
-});
+}
+
+const AssessmentsScreen = (props: Props) => <AssessmentsScreenInner {...props} />;
 
 export default AssessmentsScreen;
