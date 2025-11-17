@@ -10,7 +10,8 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"EquipmentTab">;
 
-const EquipmentScreen: React.FC<Props> = ({ navigation }) => {
+const EquipmentScreen: React.FC<Props> = (props) => {
+  const { navigation } = props;
   const { data: session } = useSession();
 
   const { data, isLoading, error } = useQuery({
