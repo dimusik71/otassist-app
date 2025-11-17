@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Calendar } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -11,8 +10,7 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"AssessmentsTab">;
 
-const AssessmentsScreen: React.FC<Props> = (props) => {
-  const navigation = useNavigation();
+function AssessmentsScreen({ navigation }: Props) {
   const { data: session } = useSession();
 
   const { data, isLoading, error } = useQuery({
@@ -117,6 +115,6 @@ const AssessmentsScreen: React.FC<Props> = (props) => {
       </Pressable>
     </View>
   );
-};
+}
 
 export default AssessmentsScreen;
