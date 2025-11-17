@@ -41,19 +41,20 @@ function AssessmentsScreen({ navigation }: Props) {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: "#1D4ED8" }}>
-        {/* Header */}
-        <LinearGradient
-          colors={["#1D4ED8", "#0D9488"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ paddingHorizontal: 24, paddingVertical: 32, paddingTop: 8 }}
-        >
-          <Text className="text-3xl font-bold text-white mb-2">Assessments</Text>
-          <Text style={{ color: "#DBEAFE" }}>Manage client assessments and reports</Text>
-        </LinearGradient>
-      </SafeAreaView>
+    <View style={{ flex: 1, backgroundColor: "#1D4ED8" }}>
+      <SafeAreaView edges={['top']} style={{ backgroundColor: "#1D4ED8" }} />
+      {/* Header */}
+      <LinearGradient
+        colors={["#1D4ED8", "#0D9488"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingHorizontal: 24, paddingVertical: 32, paddingTop: 8 }}
+      >
+        <Text className="text-3xl font-bold text-white mb-2">Assessments</Text>
+        <Text style={{ color: "#DBEAFE" }}>Manage client assessments and reports</Text>
+      </LinearGradient>
+
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
@@ -137,6 +138,7 @@ function AssessmentsScreen({ navigation }: Props) {
       >
         <Plus size={28} color="white" />
       </Pressable>
+      </View>
     </View>
   );
 }
