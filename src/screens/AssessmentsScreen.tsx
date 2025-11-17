@@ -10,9 +10,8 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"AssessmentsTab">;
 
-function AssessmentsScreenInner(props: Props) {
+function AssessmentsScreen({ navigation }: Props) {
   const { data: session } = useSession();
-  const navigation = props.navigation;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["assessments"],
@@ -69,7 +68,14 @@ function AssessmentsScreenInner(props: Props) {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => navigation.navigate("AssessmentDetail", { assessmentId: item.id })}
-              className="bg-white rounded-2xl p-4 mb-3 shadow-sm"
+              className="bg-white rounded-2xl p-4 mb-3"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 2,
+                elevation: 1,
+              }}
             >
               <View className="flex-row items-center justify-between mb-3">
                 <View className="flex-1">
@@ -109,15 +115,19 @@ function AssessmentsScreenInner(props: Props) {
       {/* Floating Action Button */}
       <Pressable
         onPress={() => navigation.navigate("CreateAssessment", {})}
-        className="absolute bottom-6 right-6 bg-blue-600 w-16 h-16 rounded-full items-center justify-center shadow-lg"
-        style={{ elevation: 8 }}
+        className="absolute bottom-6 right-6 bg-blue-600 w-16 h-16 rounded-full items-center justify-center"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 12,
+          elevation: 8,
+        }}
       >
         <Plus size={28} color="white" />
       </Pressable>
     </View>
   );
 }
-
-const AssessmentsScreen = (props: Props) => <AssessmentsScreenInner {...props} />;
 
 export default AssessmentsScreen;

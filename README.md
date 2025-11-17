@@ -370,4 +370,4 @@ bun run lint
 - Invoice/quote items stored as JSON strings
 - Safe area handling is automatic via React Navigation
 - Authentication required for all client data access
-- Bottom tab screens use wrapper pattern to prevent NativeWind from serializing navigation props during render
+- Tab screens use inline shadow styles instead of NativeWind shadow classes to avoid runtime CSS parsing issues

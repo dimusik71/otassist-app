@@ -10,9 +10,8 @@ import { useSession } from "@/lib/useSession";
 
 type Props = BottomTabScreenProps<"ClientsTab">;
 
-function ClientsScreenInner(props: Props) {
+function ClientsScreen({ navigation }: Props) {
   const { data: session } = useSession();
-  const navigation = props.navigation;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["clients"],
@@ -69,7 +68,14 @@ function ClientsScreenInner(props: Props) {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => navigation.navigate("ClientDetail", { clientId: item.id })}
-              className="bg-white rounded-2xl p-5 mb-3 shadow-sm"
+              className="bg-white rounded-2xl p-5 mb-3"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.05,
+                shadowRadius: 2,
+                elevation: 1,
+              }}
             >
               <Text className="text-xl font-bold text-gray-900 mb-3">{item.name}</Text>
 
@@ -103,15 +109,19 @@ function ClientsScreenInner(props: Props) {
       {/* Floating Action Button */}
       <Pressable
         onPress={() => navigation.navigate("CreateClient")}
-        className="absolute bottom-6 right-6 bg-teal-600 w-16 h-16 rounded-full items-center justify-center shadow-lg"
-        style={{ elevation: 8 }}
+        className="absolute bottom-6 right-6 bg-teal-600 w-16 h-16 rounded-full items-center justify-center"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 12,
+          elevation: 8,
+        }}
       >
         <Plus size={28} color="white" />
       </Pressable>
     </View>
   );
 }
-
-const ClientsScreen = (props: Props) => <ClientsScreenInner {...props} />;
 
 export default ClientsScreen;
