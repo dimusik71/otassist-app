@@ -49,7 +49,7 @@ function EquipmentScreen({ navigation }: Props) {
             colors={["#EA580C", "#DB2777"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ paddingHorizontal: 24, paddingVertical: 32, paddingTop: 8 }}
+            style={{ paddingHorizontal: 24, paddingBottom: 32 }}
           >
             <Text className="text-3xl font-bold text-white mb-2">Equipment</Text>
             <Text style={{ color: "#FFEDD5" }}>Browse available equipment and pricing</Text>

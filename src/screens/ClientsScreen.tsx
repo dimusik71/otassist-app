@@ -49,7 +49,7 @@ function ClientsScreen({ navigation }: Props) {
             colors={["#0D9488", "#1D4ED8"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={{ paddingHorizontal: 24, paddingVertical: 32, paddingTop: 8 }}
+            style={{ paddingHorizontal: 24, paddingBottom: 32 }}
           >
             <Text className="text-3xl font-bold text-white mb-2">Clients</Text>
             <Text style={{ color: "#CCFBF1" }}>Manage your client information</Text>
