@@ -8,9 +8,10 @@ import {
   Alert,
   FlatList,
   Image,
+  TextInput,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign } from "lucide-react-native";
+import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign, Edit2, Save, X, CheckCircle, Clock, AlertCircle } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 
@@ -25,6 +26,25 @@ interface AssessmentMedia {
   url: string;
   caption: string | null;
   aiAnalysis: string | null;
+  createdAt: string;
+}
+
+interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  total: number;
+  status: string;
+  dueDate: string | null;
+  paidDate: string | null;
+  createdAt: string;
+}
+
+interface Quote {
+  id: string;
+  quoteNumber: string;
+  optionName: string;
+  total: number;
+  validUntil: string | null;
   createdAt: string;
 }
 
@@ -53,12 +73,67 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;
   const [isRecording, setIsRecording] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    status: "draft" as "draft" | "completed" | "approved",
+    location: "",
+    notes: "",
+  });
 
   const queryClient = useQueryClient();
 
   const { data: assessment, isLoading } = useQuery<AssessmentDetail>({
     queryKey: ["assessment", assessmentId],
-    queryFn: () => api.get(`/api/assessments/${assessmentId}`),
+    queryFn: async () => {
+      const data = await api.get<AssessmentDetail>(`/api/assessments/${assessmentId}`);
+      // Initialize form data when assessment loads
+      setEditFormData({
+        status: data.status as "draft" | "completed" | "approved",
+        location: data.location || "",
+        notes: data.notes || "",
+      });
+      return data;
+    },
+  });
+
+  const { mutate: updateAssessment, isPending: isUpdating } = useMutation({
+    mutationFn: async (data: { status?: string; location?: string; notes?: string }) => {
+      return api.put(`/api/assessments/${assessmentId}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assessment", assessmentId] });
+      queryClient.invalidateQueries({ queryKey: ["assessments"] });
+      setIsEditing(false);
+      Alert.alert("Success", "Assessment updated successfully");
+    },
+    onError: () => {
+      Alert.alert("Error", "Failed to update assessment");
+    },
+  });
+
+  // Fetch invoices for this assessment
+  const { data: invoicesData } = useQuery<{ invoices: Invoice[] }>({
+    queryKey: ["invoices", assessmentId],
+    queryFn: () => api.get(`/api/invoices/${assessmentId}`),
+  });
+
+  // Fetch quotes for this assessment
+  const { data: quotesData } = useQuery<{ quotes: Quote[] }>({
+    queryKey: ["quotes", assessmentId],
+    queryFn: () => api.get(`/api/quotes/${assessmentId}`),
+  });
+
+  const { mutate: updateInvoiceStatus } = useMutation({
+    mutationFn: async ({ invoiceId, status, paidDate }: { invoiceId: string; status: string; paidDate?: string }) => {
+      return api.put(`/api/invoices/${invoiceId}`, { status, paidDate });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invoices", assessmentId] });
+      Alert.alert("Success", "Invoice status updated");
+    },
+    onError: () => {
+      Alert.alert("Error", "Failed to update invoice status");
+    },
   });
 
   const { mutate: analyzeWithAI, isPending: analyzingAI } = useMutation({
@@ -234,6 +309,68 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
     }
   };
 
+  const handleSaveEdit = () => {
+    updateAssessment(editFormData);
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form to current assessment values
+    if (assessment) {
+      setEditFormData({
+        status: assessment.status as "draft" | "completed" | "approved",
+        location: assessment.location || "",
+        notes: assessment.notes || "",
+      });
+    }
+    setIsEditing(false);
+  };
+
+  const handleMarkAsPaid = (invoiceId: string) => {
+    Alert.alert(
+      "Mark as Paid",
+      "Are you sure you want to mark this invoice as paid?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Mark Paid",
+          onPress: () => {
+            updateInvoiceStatus({
+              invoiceId,
+              status: "paid",
+              paidDate: new Date().toISOString(),
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const getInvoiceStatusColor = (status: string) => {
+    switch (status) {
+      case "paid":
+        return "bg-green-100 text-green-700";
+      case "overdue":
+        return "bg-red-100 text-red-700";
+      case "sent":
+        return "bg-blue-100 text-blue-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const getInvoiceStatusIcon = (status: string) => {
+    switch (status) {
+      case "paid":
+        return <CheckCircle size={16} color="#15803D" />;
+      case "overdue":
+        return <AlertCircle size={16} color="#B91C1C" />;
+      case "sent":
+        return <Clock size={16} color="#1E40AF" />;
+      default:
+        return <Clock size={16} color="#6B7280" />;
+    }
+  };
+
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
@@ -267,17 +404,47 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
               {assessment.assessmentType.replace("_", " ")}
             </Text>
           </View>
-          <View
-            className={`px-3 py-1 rounded-full ${
-              assessment.status === "completed"
-                ? "bg-green-500"
-                : assessment.status === "approved"
-                  ? "bg-blue-500"
-                  : "bg-gray-500"
-            }`}
-          >
-            <Text className="text-white text-xs font-semibold">{assessment.status}</Text>
-          </View>
+          {!isEditing ? (
+            <>
+              <View
+                className={`px-3 py-1 rounded-full mr-2 ${
+                  assessment.status === "completed"
+                    ? "bg-green-500"
+                    : assessment.status === "approved"
+                      ? "bg-blue-500"
+                      : "bg-gray-500"
+                }`}
+              >
+                <Text className="text-white text-xs font-semibold">{assessment.status}</Text>
+              </View>
+              <Pressable
+                onPress={() => setIsEditing(true)}
+                className="bg-white/20 w-10 h-10 rounded-full items-center justify-center"
+              >
+                <Edit2 size={18} color="white" />
+              </Pressable>
+            </>
+          ) : (
+            <View className="flex-row gap-2">
+              <Pressable
+                onPress={handleCancelEdit}
+                className="bg-red-500/80 w-10 h-10 rounded-full items-center justify-center"
+              >
+                <X size={18} color="white" />
+              </Pressable>
+              <Pressable
+                onPress={handleSaveEdit}
+                disabled={isUpdating}
+                className="bg-green-500 w-10 h-10 rounded-full items-center justify-center"
+              >
+                {isUpdating ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <Save size={18} color="white" />
+                )}
+              </Pressable>
+            </View>
+          )}
         </View>
       </View>
 
@@ -407,25 +574,181 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
         {/* Assessment Info */}
         <View className="bg-white rounded-2xl p-5 mb-6">
           <Text className="text-base font-bold text-gray-900 mb-4">Assessment Details</Text>
-          {assessment.location && (
-            <View className="mb-3">
-              <Text className="text-sm font-semibold text-gray-600">Location</Text>
-              <Text className="text-base text-gray-900">{assessment.location}</Text>
-            </View>
-          )}
+
+          {/* Status */}
+          <View className="mb-3">
+            <Text className="text-sm font-semibold text-gray-600 mb-1">Status</Text>
+            {isEditing ? (
+              <View className="flex-row gap-2">
+                {(["draft", "completed", "approved"] as const).map((status) => (
+                  <Pressable
+                    key={status}
+                    onPress={() => setEditFormData({ ...editFormData, status })}
+                    className={`px-4 py-2 rounded-full border ${
+                      editFormData.status === status
+                        ? status === "completed"
+                          ? "bg-green-500 border-green-500"
+                          : status === "approved"
+                            ? "bg-blue-500 border-blue-500"
+                            : "bg-gray-500 border-gray-500"
+                        : "bg-white border-gray-300"
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm font-semibold capitalize ${
+                        editFormData.status === status ? "text-white" : "text-gray-700"
+                      }`}
+                    >
+                      {status}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <Text className="text-base text-gray-900 capitalize">{assessment.status}</Text>
+            )}
+          </View>
+
+          {/* Location */}
+          <View className="mb-3">
+            <Text className="text-sm font-semibold text-gray-600 mb-1">Location</Text>
+            {isEditing ? (
+              <TextInput
+                value={editFormData.location}
+                onChangeText={(text) => setEditFormData({ ...editFormData, location: text })}
+                placeholder="Enter location"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-base"
+              />
+            ) : (
+              <Text className="text-base text-gray-900">{assessment.location || "Not specified"}</Text>
+            )}
+          </View>
+
+          {/* Date */}
           <View className="mb-3">
             <Text className="text-sm font-semibold text-gray-600">Date</Text>
             <Text className="text-base text-gray-900">
               {new Date(assessment.assessmentDate).toLocaleString()}
             </Text>
           </View>
-          {assessment.notes && (
-            <View>
-              <Text className="text-sm font-semibold text-gray-600">Notes</Text>
-              <Text className="text-base text-gray-900">{assessment.notes}</Text>
-            </View>
-          )}
+
+          {/* Notes */}
+          <View>
+            <Text className="text-sm font-semibold text-gray-600 mb-1">Notes</Text>
+            {isEditing ? (
+              <TextInput
+                value={editFormData.notes}
+                onChangeText={(text) => setEditFormData({ ...editFormData, notes: text })}
+                placeholder="Add notes"
+                multiline
+                numberOfLines={4}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-base"
+              />
+            ) : (
+              <Text className="text-base text-gray-900">{assessment.notes || "No notes"}</Text>
+            )}
+          </View>
         </View>
+
+        {/* Invoices */}
+        {invoicesData && invoicesData.invoices.length > 0 && (
+          <View className="bg-white rounded-2xl p-5 mb-6">
+            <Text className="text-base font-bold text-gray-900 mb-4">
+              Invoices ({invoicesData.invoices.length})
+            </Text>
+            {invoicesData.invoices.map((invoice) => (
+              <View key={invoice.id} className="border-b border-gray-200 py-3 last:border-b-0">
+                <View className="flex-row justify-between items-start mb-2">
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-gray-900">{invoice.invoiceNumber}</Text>
+                    <Text className="text-sm text-gray-500">
+                      {new Date(invoice.createdAt).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <View className="items-end">
+                    <Text className="text-lg font-bold text-gray-900">${invoice.total.toFixed(2)}</Text>
+                    <View className={`px-2 py-1 rounded-full flex-row items-center mt-1 ${getInvoiceStatusColor(invoice.status)}`}>
+                      {getInvoiceStatusIcon(invoice.status)}
+                      <Text className={`text-xs font-semibold ml-1 ${getInvoiceStatusColor(invoice.status).split(' ')[1]}`}>
+                        {invoice.status}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                {invoice.dueDate && !invoice.paidDate && (
+                  <Text className="text-xs text-gray-500 mb-2">
+                    Due: {new Date(invoice.dueDate).toLocaleDateString()}
+                  </Text>
+                )}
+                {invoice.paidDate && (
+                  <Text className="text-xs text-green-600 mb-2">
+                    Paid: {new Date(invoice.paidDate).toLocaleDateString()}
+                  </Text>
+                )}
+                {invoice.status !== "paid" && (
+                  <Pressable
+                    onPress={() => handleMarkAsPaid(invoice.id)}
+                    className="bg-green-600 rounded-lg py-2 items-center mt-2"
+                  >
+                    <Text className="text-white font-semibold text-sm">Mark as Paid</Text>
+                  </Pressable>
+                )}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Quotes */}
+        {quotesData && quotesData.quotes.length > 0 && (
+          <View className="bg-white rounded-2xl p-5 mb-6">
+            <Text className="text-base font-bold text-gray-900 mb-4">
+              Quotes ({quotesData.quotes.length})
+            </Text>
+            {quotesData.quotes.map((quote) => {
+              const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date();
+              const isExpiringSoon = quote.validUntil && !isExpired &&
+                new Date(quote.validUntil).getTime() - new Date().getTime() < 7 * 24 * 60 * 60 * 1000; // 7 days
+
+              return (
+                <View key={quote.id} className="border-b border-gray-200 py-3 last:border-b-0">
+                  <View className="flex-row justify-between items-start mb-2">
+                    <View className="flex-1">
+                      <Text className="text-base font-semibold text-gray-900">{quote.quoteNumber}</Text>
+                      <Text className="text-sm text-teal-600 font-medium">{quote.optionName}</Text>
+                      <Text className="text-xs text-gray-500">
+                        {new Date(quote.createdAt).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <Text className="text-lg font-bold text-gray-900">${quote.total.toFixed(2)}</Text>
+                  </View>
+                  {quote.validUntil && (
+                    <View className="flex-row items-center mt-1">
+                      {isExpired ? (
+                        <>
+                          <AlertCircle size={14} color="#B91C1C" />
+                          <Text className="text-xs text-red-600 font-semibold ml-1">
+                            Expired {new Date(quote.validUntil).toLocaleDateString()}
+                          </Text>
+                        </>
+                      ) : isExpiringSoon ? (
+                        <>
+                          <Clock size={14} color="#F59E0B" />
+                          <Text className="text-xs text-amber-600 font-semibold ml-1">
+                            Expires soon: {new Date(quote.validUntil).toLocaleDateString()}
+                          </Text>
+                        </>
+                      ) : (
+                        <Text className="text-xs text-gray-500">
+                          Valid until: {new Date(quote.validUntil).toLocaleDateString()}
+                        </Text>
+                      )}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
     </View>
   );

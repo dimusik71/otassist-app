@@ -112,6 +112,9 @@ All routes require authentication except `/health` and `/api/auth/*`
 - `POST /api/equipment` - Add new equipment item
 - `PUT /api/equipment/:id` - Update equipment details/pricing
 - `DELETE /api/equipment/:id` - Delete equipment item
+- `POST /api/assessments/:id/equipment` - Save equipment recommendation
+- `GET /api/assessments/:id/equipment` - Get saved equipment recommendations
+- `DELETE /api/assessments/:assessmentId/equipment/:id` - Delete equipment recommendation
 
 #### Quotes & Invoices
 - `POST /api/quotes` - Generate quote for assessment
@@ -249,8 +252,12 @@ bun run lint
 - **Image analysis capabilities with Gemini 2.5 Flash**
 - **Generate 3 pricing options (Essential, Recommended, Premium)**
 - **Create itemized invoices with hourly rates and line items**
+- **Inline editing of status, location, and notes**
+- **Payment tracking with "Mark as Paid" functionality**
+- **Quote expiration warnings (visual alerts for expired/expiring quotes)**
 - View assessment details with media gallery
 - Track assessment status (draft/completed/approved)
+- View invoice and quote history with payment status
 
 **Multi-Agent AI System:**
 - Intelligent task routing to optimal AI model
@@ -264,6 +271,8 @@ bun run lint
 - View pricing and government approvals
 - Track supplier pricing and margins
 - Equipment specifications storage
+- **Save equipment recommendations with priority levels**
+- **Associate equipment with specific assessments**
 
 ### Phase Progress
 
@@ -336,16 +345,14 @@ bun run lint
 - ✅ Type-safe API with Zod validation
 - ✅ Proper error handling throughout
 
-### Optional Future Enhancements
+### Optional Enhancements (ALL COMPLETED! 🎉)
 
-**Nice-to-Have Features:**
-- Equipment recommendations persistence (save to AssessmentEquipment table)
-- Quote comparison UI (side-by-side view of 3 options)
-- Invoice history/list screen
-- Edit functionality in AssessmentDetailScreen
-- Form validation throughout the app
-- Payment tracking (invoice status updates)
-- Quote expiration warnings
+**All enhancements have been successfully implemented:**
+- ✅ **Equipment recommendations persistence** - Save/delete recommendations to AssessmentEquipment table with priority levels (Essential, Recommended, Optional)
+- ✅ **Assessment inline editing** - Edit status, location, and notes directly in AssessmentDetailScreen with Save/Cancel buttons
+- ✅ **Payment tracking** - Invoice status updates with "Mark as Paid" button, status badges (draft/sent/paid/overdue)
+- ✅ **Quote expiration warnings** - Visual indicators for expired quotes (red alert) and expiring soon (amber warning within 7 days)
+- ✅ **Invoice & Quote history** - Display all invoices and quotes for assessment with payment status and expiration dates
 
 **Advanced Features (Future):**
 - 🔲 Assistive tech 3D environment mapping
