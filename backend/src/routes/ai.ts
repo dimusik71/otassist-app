@@ -302,6 +302,7 @@ aiRouter.post("/analyze-video-frame", async (c) => {
   }
 
   try {
+    // Use GPT-4o-mini for vision analysis (more widely available)
     const prompt = `You are an AI assistant helping an Occupational Therapist conduct a video walkthrough assessment of a property for assistive technology and IoT device placement.
 
 Current context:
@@ -330,50 +331,47 @@ Respond in JSON format:
   "nextAction": "continue|finish_room|move_to_next"
 }`;
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { text: prompt },
-                {
-                  inline_data: {
-                    mime_type: "image/jpeg",
-                    data: frameBase64,
-                  },
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:image/jpeg;base64,${frameBase64}`,
                 },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.4,
-            maxOutputTokens: 1024,
-            responseMimeType: "application/json",
+              },
+            ],
           },
-        }),
-      }
-    );
+        ],
+        max_tokens: 1024,
+        response_format: { type: "json_object" },
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error("Gemini API request failed");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("OpenAI API error (analyze-video-frame):", response.status, errorData);
+      throw new Error(`OpenAI API request failed: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
-    const analysisText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+    const analysisText = data.choices?.[0]?.message?.content ?? "{}";
     const analysis = JSON.parse(analysisText);
 
     return c.json({
       success: true,
       analysis,
-      model: "gemini-2.5-flash",
+      model: "gpt-4o-mini",
     });
   } catch (error) {
     console.error("Video frame analysis error:", error);
@@ -451,43 +449,43 @@ Respond in JSON format:
 }`;
 
     // For now, send first 3 frames (to manage token limits)
-    const framePrompts = frames.slice(0, 3).map((frame: any, idx: number) => ({
-      inline_data: {
-        mime_type: "image/jpeg",
-        data: frame.base64,
+    const imageMessages = frames.slice(0, 3).map((frame: any) => ({
+      type: "image_url",
+      image_url: {
+        url: `data:image/jpeg;base64,${frame.base64}`,
       },
     }));
 
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }, ...framePrompts],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 4096,
-            responseMimeType: "application/json",
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              ...imageMessages,
+            ],
           },
-        }),
-      }
-    );
+        ],
+        max_tokens: 4096,
+        response_format: { type: "json_object" },
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error("Gemini API request failed");
+      const errorData = await response.json().catch(() => ({}));
+      console.error("OpenAI API error (generate-3d-map):", response.status, errorData);
+      throw new Error(`OpenAI API request failed: ${response.status}`);
     }
 
     const data = await response.json();
-    const mapDataText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+    const mapDataText = data.choices?.[0]?.message?.content ?? "{}";
     const mapData = JSON.parse(mapDataText);
 
     // Create house map in database
@@ -557,7 +555,7 @@ Respond in JSON format:
         length: a.length ? Number(a.length) : null,
         width: a.width ? Number(a.width) : null,
       })),
-      model: "gemini-2.5-flash",
+      model: "gpt-4o-mini",
     });
   } catch (error) {
     console.error("3D map generation error:", error);
