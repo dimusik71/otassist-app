@@ -13,6 +13,8 @@ import equipmentRouter from "./routes/equipment";
 import quotesRouter from "./routes/quotes";
 import invoicesRouter from "./routes/invoices";
 import aiRouter from "./routes/ai";
+import houseMapRouter from "./routes/houseMap";
+import iotDevicesRouter from "./routes/iotDevices";
 import { type AppType } from "./types";
 
 // AppType context adds user and session to the context, will be null if the user or session is null
@@ -65,6 +67,12 @@ app.route("/api/invoices", invoicesRouter);
 console.log("🤖 Mounting AI routes at /api/ai");
 app.route("/api/ai", aiRouter);
 
+console.log("🏠 Mounting house map routes at /api");
+app.route("/api", houseMapRouter);
+
+console.log("📱 Mounting IoT devices routes at /api");
+app.route("/api", iotDevicesRouter);
+
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running
 app.get("/health", (c) => {
@@ -89,6 +97,8 @@ serve({ fetch: app.fetch, port: Number(env.PORT) }, () => {
   console.log("  💰 Quotes:     POST /api/quotes");
   console.log("  📄 Invoices:   POST /api/invoices");
   console.log("  🤖 AI:         POST /api/ai/*");
+  console.log("  🏠 House Maps: GET/POST /api/house-maps");
+  console.log("  📱 IoT:        GET/POST /api/iot-devices");
   console.log("  💚 Health:     GET /health");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 });

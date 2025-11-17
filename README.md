@@ -8,7 +8,10 @@ This app enables OT/AH professionals to:
 - Conduct AI-guided assessments with photo, video, and audio capture
 - Manage client information and assessment history
 - Browse and recommend equipment from a comprehensive catalog
-- Generate professional quotes with multiple options
+- **Create 3D maps of properties with rooms and outdoor areas**
+- **Recommend IoT devices and assistive technology with AI-powered placement**
+- **Generate technical specifications and placement diagrams for IoT devices**
+- Generate professional quotes with multiple options **(including hardware, installation, and SaaS subscription costs)**
 - Create itemized invoices based on hourly rates
 - Track assessment status and generate reports
 
@@ -84,6 +87,11 @@ This app enables OT/AH professionals to:
 - **AssessmentEquipment** - Equipment recommendations per assessment
 - **Quote** - Multi-option quotes with items and totals
 - **Invoice** - Itemized invoices with hourly rates
+- **HouseMap** - 3D property maps with floors and metadata
+- **Room** - Individual rooms with dimensions and 3D positions
+- **Area** - Outdoor areas (patios, yards, driveways) with dimensions
+- **IoTDeviceLibrary** - Catalog of IoT devices with specs and placement rules
+- **IoTDevicePlacement** - Specific device placements in rooms/areas with 3D coordinates
 
 ### Backend API Routes
 
@@ -130,6 +138,23 @@ All routes require authentication except `/health` and `/api/auth/*`
 - `GET /api/invoices/:assessmentId` - Get all invoices for assessment
 - `PUT /api/invoices/:id` - Update invoice status/payment
 - `DELETE /api/invoices/:id` - Delete invoice
+
+#### 3D House Mapping & IoT Devices
+- `POST /api/assessments/:id/house-map` - Create 3D house map for assessment
+- `GET /api/house-maps/:id` - Get house map with rooms, areas, and IoT placements
+- `POST /api/house-maps/:id/rooms` - Add room to house map
+- `PUT /api/rooms/:id` - Update room details and dimensions
+- `DELETE /api/rooms/:id` - Delete room
+- `POST /api/house-maps/:id/areas` - Add outdoor area to house map
+- `PUT /api/areas/:id` - Update area details
+- `DELETE /api/areas/:id` - Delete area
+- `GET /api/iot-devices` - Get IoT device library (12 pre-seeded devices)
+- `POST /api/iot-devices` - Add new IoT device to library
+- `PUT /api/iot-devices/:id` - Update IoT device specs/pricing
+- `DELETE /api/iot-devices/:id` - Delete IoT device
+- `POST /api/house-maps/:id/device-placements` - Place IoT device in room/area
+- `PUT /api/device-placements/:id` - Update device placement/position
+- `DELETE /api/device-placements/:id` - Remove device placement
 
 #### Auth & Upload
 - `POST /api/auth/sign-in` - Email/password login
@@ -273,6 +298,22 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ### Recent Updates
 
+**IoT & 3D House Mapping System (NEW!):**
+- Complete database schema for 3D property mapping
+- Room and outdoor area modeling with dimensions and positions
+- IoT device library with 12 pre-seeded devices:
+  - **Safety**: Fall detectors, emergency buttons, smoke/CO detectors, water leak sensors
+  - **Security**: Smart doorbells, door/window sensors, smart locks
+  - **Accessibility**: Voice assistants, medication reminders
+  - **Lighting**: Motion sensors, smart bulbs
+  - **Climate**: Smart thermostats
+- Device placement system with 3D coordinates
+- Technical specifications and placement rules for each device
+- Installation cost and SaaS subscription tracking
+- Government approval indicators (NDIS, DVA)
+- Full CRUD API for house maps, rooms, areas, and device placements
+- Type-safe contracts for all IoT/3D mapping endpoints
+
 **SafeAreaView Implementation (iPhone Notch Support):**
 - Fixed header layout for iPhone 17 Pro Max and all devices with notches
 - Wrapped LinearGradient headers inside SafeAreaView for proper safe area handling
@@ -415,8 +456,12 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ **Invoice & Quote history** - Display all invoices and quotes for assessment with payment status and expiration dates
 
 **Advanced Features (Future):**
-- 🔲 Assistive tech 3D environment mapping
-- 🔲 IoT device specifications and placement
+- ✅ **IoT device library with 12 pre-seeded assistive tech devices**
+- ✅ **3D house mapping with rooms and outdoor areas**
+- ✅ **IoT device placement tracking with 3D coordinates**
+- 🔲 AI-powered IoT device placement recommendations
+- 🔲 3D visualization for device placement mapping
+- 🔲 Enhanced quote generation with itemized hardware/installation/SaaS costs
 - 🔲 Equipment pricing automation (competitive analysis)
 - 🔲 Government approval verification
 - 🔲 Integration with XERO/accounting software

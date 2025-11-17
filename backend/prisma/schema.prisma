@@ -105,7 +105,7 @@ model Assessment {
   client            Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
   userId            String
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assessmentType    String              // "home", "assistive_tech", "general"
+  assessmentType    String              // "home", "assistive_tech", "iot_devices", "general"
   status            String              @default("draft") // "draft", "in_progress", "completed", "approved"
   location          String?
   assessmentDate    DateTime            @default(now())
@@ -119,6 +119,7 @@ model Assessment {
   quotes            Quote[]
   invoices          Invoice[]
   responses         AssessmentResponse[]
+  houseMap          HouseMap?
 
   @@map("assessment")
 }
@@ -230,4 +231,118 @@ model Invoice {
   updatedAt    DateTime   @updatedAt
 
   @@map("invoice")
+}
+
+// 3D House Mapping Models
+
+model HouseMap {
+  id           String     @id @default(cuid())
+  assessmentId String     @unique
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  propertyType String?    // "single_family", "apartment", "condo", "townhouse"
+  totalArea    Decimal?   // Total square footage/meters
+  floors       Int        @default(1)
+  metadata     String?    // JSON: {buildingYear, style, lotSize, etc}
+  aiGenerated  Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  rooms        Room[]
+  areas        Area[]
+  iotDevices   IoTDevicePlacement[]
+
+  @@map("house_map")
+}
+
+model Room {
+  id          String   @id @default(cuid())
+  houseMapId  String
+  houseMap    HouseMap @relation(fields: [houseMapId], references: [id], onDelete: Cascade)
+  name        String   // "Living Room", "Master Bedroom", etc
+  roomType    String   // "bedroom", "bathroom", "kitchen", "living", "dining", "hallway", "entrance", "utility"
+  floor       Int      @default(1)
+  length      Decimal? // in meters or feet
+  width       Decimal? // in meters or feet
+  height      Decimal? // ceiling height
+  area        Decimal? // calculated or measured
+  position3D  String?  // JSON: {x, y, z, rotation} coordinates in 3D space
+  features    String?  // JSON: [window positions, door positions, fixtures]
+  notes       String?
+  photoUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  iotDevices  IoTDevicePlacement[]
+
+  @@map("room")
+}
+
+model Area {
+  id          String   @id @default(cuid())
+  houseMapId  String
+  houseMap    HouseMap @relation(fields: [houseMapId], references: [id], onDelete: Cascade)
+  name        String   // "Front Patio", "Backyard", "Driveway", "Garage"
+  areaType    String   // "outdoor", "garage", "patio", "deck", "yard", "driveway", "pathway"
+  length      Decimal?
+  width       Decimal?
+  area        Decimal?
+  position3D  String?  // JSON: {x, y, z, rotation}
+  features    String?  // JSON: lighting, surface type, accessibility features
+  notes       String?
+  photoUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  iotDevices  IoTDevicePlacement[]
+
+  @@map("area")
+}
+
+// IoT Device Library and Specifications
+
+model IoTDeviceLibrary {
+  id                String   @id @default(cuid())
+  name              String
+  manufacturer      String?
+  model             String?
+  category          String   // "safety", "security", "accessibility", "comfort", "health", "lighting", "climate"
+  deviceType        String   // "camera", "sensor", "smart_lock", "voice_assistant", "fall_detector", "emergency_button", "smart_light", "thermostat", "door_sensor", "motion_sensor", "smoke_detector", "co_detector", "water_leak_detector", "medication_reminder"
+  description       String?
+  technicalSpecs    String   // JSON: {connectivity, power, range, compatibility, dimensions, weight, mounting}
+  placementRules    String?  // JSON: {idealHeight, minDistance, maxDistance, avoidAreas, requirements}
+  coverageArea      Decimal? // Coverage radius/area in meters/feet
+  powerRequirements String?  // "battery", "ac_power", "usb", "poe"
+  connectivity      String?  // "wifi", "zigbee", "z-wave", "bluetooth", "cellular"
+  price             Decimal  @default(0)
+  installationCost  Decimal? // Professional installation cost
+  subscriptionCost  Decimal? // Monthly SaaS cost
+  subscriptionType  String?  // "monthly", "annual", "one_time"
+  imageUrl          String?
+  documentationUrl  String?
+  approvedFor       String?  // JSON: ["ndis", "dva", "insurance"] - government approvals
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  placements        IoTDevicePlacement[]
+
+  @@map("iot_device_library")
+}
+
+model IoTDevicePlacement {
+  id              String            @id @default(cuid())
+  houseMapId      String
+  houseMap        HouseMap          @relation(fields: [houseMapId], references: [id], onDelete: Cascade)
+  roomId          String?
+  room            Room?             @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  areaId          String?
+  area            Area?             @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  deviceId        String
+  device          IoTDeviceLibrary  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  quantity        Int               @default(1)
+  position3D      String            // JSON: {x, y, z, rotation, wallMounted, ceilingMounted}
+  placementReason String?           // AI-generated explanation for this placement
+  priority        String            @default("recommended") // "essential", "recommended", "optional"
+  status          String            @default("proposed") // "proposed", "approved", "installed", "rejected"
+  installationNotes String?
+  aiRecommended   Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("iot_device_placement")
 }

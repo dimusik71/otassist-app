@@ -462,4 +462,325 @@ export const deleteEquipmentRecommendationResponseSchema = z.object({
 });
 export type DeleteEquipmentRecommendationResponse = z.infer<typeof deleteEquipmentRecommendationResponseSchema>;
 
+// ====================
+// 3D HOUSE MAPPING CONTRACTS
+// ====================
 
+// Position3D helper schema
+const position3DSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  z: z.number(),
+  rotation: z.number().optional(),
+});
+
+// POST /api/assessments/:id/house-map
+export const createHouseMapRequestSchema = z.object({
+  propertyType: z.enum(["single_family", "apartment", "condo", "townhouse"]).optional(),
+  totalArea: z.number().optional(),
+  floors: z.number().optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
+});
+export type CreateHouseMapRequest = z.infer<typeof createHouseMapRequestSchema>;
+
+export const houseMapResponseSchema = z.object({
+  id: z.string(),
+  assessmentId: z.string(),
+  propertyType: z.string().nullable(),
+  totalArea: z.number().nullable(),
+  floors: z.number(),
+  metadata: z.string().nullable(),
+  aiGenerated: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type HouseMapResponse = z.infer<typeof houseMapResponseSchema>;
+
+// GET /api/house-maps/:id
+export const getHouseMapResponseSchema = z.object({
+  houseMap: houseMapResponseSchema.extend({
+    rooms: z.array(z.object({
+      id: z.string(),
+      name: z.string(),
+      roomType: z.string(),
+      floor: z.number(),
+      length: z.number().nullable(),
+      width: z.number().nullable(),
+      height: z.number().nullable(),
+      area: z.number().nullable(),
+      position3D: z.string().nullable(),
+      features: z.string().nullable(),
+      notes: z.string().nullable(),
+      photoUrl: z.string().nullable(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })),
+    areas: z.array(z.object({
+      id: z.string(),
+      name: z.string(),
+      areaType: z.string(),
+      length: z.number().nullable(),
+      width: z.number().nullable(),
+      area: z.number().nullable(),
+      position3D: z.string().nullable(),
+      features: z.string().nullable(),
+      notes: z.string().nullable(),
+      photoUrl: z.string().nullable(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })),
+    iotDevices: z.array(z.object({
+      id: z.string(),
+      deviceId: z.string(),
+      roomId: z.string().nullable(),
+      areaId: z.string().nullable(),
+      quantity: z.number(),
+      position3D: z.string(),
+      placementReason: z.string().nullable(),
+      priority: z.string(),
+      status: z.string(),
+      installationNotes: z.string().nullable(),
+      aiRecommended: z.boolean(),
+      device: z.object({
+        id: z.string(),
+        name: z.string(),
+        manufacturer: z.string().nullable(),
+        category: z.string(),
+        deviceType: z.string(),
+        price: z.number(),
+        installationCost: z.number().nullable(),
+        subscriptionCost: z.number().nullable(),
+        imageUrl: z.string().nullable(),
+      }),
+    })),
+  }),
+});
+export type GetHouseMapResponse = z.infer<typeof getHouseMapResponseSchema>;
+
+// POST /api/house-maps/:id/rooms
+export const createRoomRequestSchema = z.object({
+  name: z.string().min(1),
+  roomType: z.enum(["bedroom", "bathroom", "kitchen", "living", "dining", "hallway", "entrance", "utility"]),
+  floor: z.number().optional(),
+  length: z.number().optional(),
+  width: z.number().optional(),
+  height: z.number().optional(),
+  area: z.number().optional(),
+  position3D: position3DSchema.optional(),
+  features: z.record(z.string(), z.any()).optional(),
+  notes: z.string().optional(),
+  photoUrl: z.string().optional(),
+});
+export type CreateRoomRequest = z.infer<typeof createRoomRequestSchema>;
+
+// POST /api/house-maps/:id/areas
+export const createAreaRequestSchema = z.object({
+  name: z.string().min(1),
+  areaType: z.enum(["outdoor", "garage", "patio", "deck", "yard", "driveway", "pathway"]),
+  length: z.number().optional(),
+  width: z.number().optional(),
+  area: z.number().optional(),
+  position3D: position3DSchema.optional(),
+  features: z.record(z.string(), z.any()).optional(),
+  notes: z.string().optional(),
+  photoUrl: z.string().optional(),
+});
+export type CreateAreaRequest = z.infer<typeof createAreaRequestSchema>;
+
+// PUT /api/rooms/:id
+export const updateRoomRequestSchema = createRoomRequestSchema.partial();
+export type UpdateRoomRequest = z.infer<typeof updateRoomRequestSchema>;
+
+// PUT /api/areas/:id
+export const updateAreaRequestSchema = createAreaRequestSchema.partial();
+export type UpdateAreaRequest = z.infer<typeof updateAreaRequestSchema>;
+
+// ====================
+// IOT DEVICE LIBRARY CONTRACTS
+// ====================
+
+// GET /api/iot-devices
+export const getIoTDevicesResponseSchema = z.object({
+  devices: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    manufacturer: z.string().nullable(),
+    model: z.string().nullable(),
+    category: z.string(),
+    deviceType: z.string(),
+    description: z.string().nullable(),
+    technicalSpecs: z.string(),
+    placementRules: z.string().nullable(),
+    coverageArea: z.number().nullable(),
+    powerRequirements: z.string().nullable(),
+    connectivity: z.string().nullable(),
+    price: z.number(),
+    installationCost: z.number().nullable(),
+    subscriptionCost: z.number().nullable(),
+    subscriptionType: z.string().nullable(),
+    imageUrl: z.string().nullable(),
+    documentationUrl: z.string().nullable(),
+    approvedFor: z.string().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })),
+});
+export type GetIoTDevicesResponse = z.infer<typeof getIoTDevicesResponseSchema>;
+
+// POST /api/iot-devices
+export const createIoTDeviceRequestSchema = z.object({
+  name: z.string().min(1),
+  manufacturer: z.string().optional(),
+  model: z.string().optional(),
+  category: z.enum(["safety", "security", "accessibility", "comfort", "health", "lighting", "climate"]),
+  deviceType: z.string(),
+  description: z.string().optional(),
+  technicalSpecs: z.record(z.string(), z.any()),
+  placementRules: z.record(z.string(), z.any()).optional(),
+  coverageArea: z.number().optional(),
+  powerRequirements: z.string().optional(),
+  connectivity: z.string().optional(),
+  price: z.number(),
+  installationCost: z.number().optional(),
+  subscriptionCost: z.number().optional(),
+  subscriptionType: z.enum(["monthly", "annual", "one_time"]).optional(),
+  imageUrl: z.string().optional(),
+  documentationUrl: z.string().optional(),
+  approvedFor: z.array(z.string()).optional(),
+});
+export type CreateIoTDeviceRequest = z.infer<typeof createIoTDeviceRequestSchema>;
+
+// PUT /api/iot-devices/:id
+export const updateIoTDeviceRequestSchema = createIoTDeviceRequestSchema.partial();
+export type UpdateIoTDeviceRequest = z.infer<typeof updateIoTDeviceRequestSchema>;
+
+// ====================
+// IOT DEVICE PLACEMENT CONTRACTS
+// ====================
+
+// POST /api/house-maps/:id/device-placements
+export const createDevicePlacementRequestSchema = z.object({
+  deviceId: z.string(),
+  roomId: z.string().optional(),
+  areaId: z.string().optional(),
+  quantity: z.number().min(1).default(1),
+  position3D: z.object({
+    x: z.number(),
+    y: z.number(),
+    z: z.number(),
+    rotation: z.number().optional(),
+    wallMounted: z.boolean().optional(),
+    ceilingMounted: z.boolean().optional(),
+  }),
+  placementReason: z.string().optional(),
+  priority: z.enum(["essential", "recommended", "optional"]).default("recommended"),
+  status: z.enum(["proposed", "approved", "installed", "rejected"]).default("proposed"),
+  installationNotes: z.string().optional(),
+  aiRecommended: z.boolean().default(false),
+});
+export type CreateDevicePlacementRequest = z.infer<typeof createDevicePlacementRequestSchema>;
+
+// PUT /api/device-placements/:id
+export const updateDevicePlacementRequestSchema = createDevicePlacementRequestSchema.partial();
+export type UpdateDevicePlacementRequest = z.infer<typeof updateDevicePlacementRequestSchema>;
+
+// ====================
+// AI SERVICES FOR IOT/3D MAPPING
+// ====================
+
+// POST /api/ai/analyze-space
+export const analyzeSpaceRequestSchema = z.object({
+  assessmentId: z.string(),
+  photos: z.array(z.object({
+    url: z.string(),
+    roomType: z.string().optional(),
+    description: z.string().optional(),
+  })),
+  clientNeeds: z.string().optional(),
+});
+export type AnalyzeSpaceRequest = z.infer<typeof analyzeSpaceRequestSchema>;
+
+export const analyzeSpaceResponseSchema = z.object({
+  houseMapId: z.string(),
+  rooms: z.array(z.object({
+    name: z.string(),
+    roomType: z.string(),
+    dimensions: z.object({
+      length: z.number(),
+      width: z.number(),
+      height: z.number(),
+    }).optional(),
+    features: z.array(z.string()),
+    safetyIssues: z.array(z.string()),
+    recommendations: z.array(z.string()),
+  })),
+  areas: z.array(z.object({
+    name: z.string(),
+    areaType: z.string(),
+    features: z.array(z.string()),
+    recommendations: z.array(z.string()),
+  })),
+});
+export type AnalyzeSpaceResponse = z.infer<typeof analyzeSpaceResponseSchema>;
+
+// POST /api/ai/recommend-iot-devices
+export const recommendIoTDevicesRequestSchema = z.object({
+  houseMapId: z.string(),
+  clientNeeds: z.array(z.string()),
+  budget: z.enum(["essential", "recommended", "premium"]).optional(),
+  existingDevices: z.array(z.string()).optional(),
+});
+export type RecommendIoTDevicesRequest = z.infer<typeof recommendIoTDevicesRequestSchema>;
+
+export const recommendIoTDevicesResponseSchema = z.object({
+  placements: z.array(z.object({
+    deviceId: z.string(),
+    deviceName: z.string(),
+    roomId: z.string().optional(),
+    areaId: z.string().optional(),
+    position: position3DSchema,
+    priority: z.enum(["essential", "recommended", "optional"]),
+    reason: z.string(),
+    coverageDetails: z.string().optional(),
+  })),
+  totalCost: z.object({
+    hardware: z.number(),
+    installation: z.number(),
+    monthlySubscription: z.number(),
+    annualSubscription: z.number(),
+  }),
+  summary: z.string(),
+});
+export type RecommendIoTDevicesResponse = z.infer<typeof recommendIoTDevicesResponseSchema>;
+
+// POST /api/ai/generate-iot-quote
+export const generateIoTQuoteRequestSchema = z.object({
+  assessmentId: z.string(),
+  houseMapId: z.string(),
+  selectedPlacements: z.array(z.string()), // device placement IDs
+  includeInstallation: z.boolean().default(true),
+  subscriptionDuration: z.enum(["monthly", "annual"]).default("monthly"),
+});
+export type GenerateIoTQuoteRequest = z.infer<typeof generateIoTQuoteRequestSchema>;
+
+export const generateIoTQuoteResponseSchema = z.object({
+  quoteId: z.string(),
+  options: z.array(z.object({
+    name: z.string(),
+    items: z.array(z.object({
+      name: z.string(),
+      category: z.enum(["hardware", "installation", "subscription"]),
+      quantity: z.number(),
+      unitPrice: z.number(),
+      total: z.number(),
+      description: z.string().optional(),
+    })),
+    hardwareTotal: z.number(),
+    installationTotal: z.number(),
+    subscriptionTotal: z.number(),
+    subtotal: z.number(),
+    tax: z.number(),
+    total: z.number(),
+  })),
+});
+export type GenerateIoTQuoteResponse = z.infer<typeof generateIoTQuoteResponseSchema>;
