@@ -34,9 +34,9 @@ export default function App() {
       <KeyboardProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <SafeAreaProvider>
+            <StatusBar style="light" translucent backgroundColor="transparent" />
             <NavigationContainer>
               <RootStackNavigator />
-              <StatusBar style="auto" />
             </NavigationContainer>
           </SafeAreaProvider>
         </GestureHandlerRootView>
