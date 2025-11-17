@@ -11,7 +11,7 @@ const config = getDefaultConfig(__dirname);
 config.resolver.useWatchman = false;
 
 // Get environment variables for Metro cache configuration.
-const metroCacheVersion = process.env.METRO_CACHE_VERSION || "2"; // Incremented to force cache invalidation
+const metroCacheVersion = process.env.METRO_CACHE_VERSION || "1";
 const metroCacheHttpEndpoint = process.env.METRO_CACHE_HTTP_ENDPOINT;
 const metroCacheDir = process.env.METRO_CACHE_DIR || path.join(os.homedir(), ".metro-cache");
 
