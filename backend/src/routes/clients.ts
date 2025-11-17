@@ -7,6 +7,8 @@ import {
   createClientRequestSchema,
   createClientResponseSchema,
   getClientsResponseSchema,
+  updateClientRequestSchema,
+  deleteClientResponseSchema,
 } from "@/shared/contracts";
 
 const clientsRouter = new Hono<AppType>();
@@ -63,6 +65,74 @@ clientsRouter.post("/", zValidator("json", createClientRequestSchema), async (c)
   };
 
   return c.json(response, 201);
+});
+
+// PUT /api/clients/:id - Update a client
+clientsRouter.put("/:id", zValidator("json", updateClientRequestSchema), async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+  const body = c.req.valid("json");
+
+  // Verify that the client belongs to this user
+  const existingClient = await db.client.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  if (!existingClient) {
+    return c.json({ error: "Client not found" }, 404);
+  }
+
+  const client = await db.client.update({
+    where: { id },
+    data: {
+      ...body,
+      dateOfBirth: body.dateOfBirth ? new Date(body.dateOfBirth) : undefined,
+    },
+  });
+
+  const response = {
+    success: true,
+    client: {
+      ...client,
+      dateOfBirth: client.dateOfBirth?.toISOString() ?? null,
+      createdAt: client.createdAt.toISOString(),
+      updatedAt: client.updatedAt.toISOString(),
+    },
+  };
+
+  return c.json(response);
+});
+
+// DELETE /api/clients/:id - Delete a client
+clientsRouter.delete("/:id", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+
+  // Verify that the client belongs to this user
+  const existingClient = await db.client.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  if (!existingClient) {
+    return c.json({ error: "Client not found" }, 404);
+  }
+
+  await db.client.delete({
+    where: { id },
+  });
+
+  return c.json({
+    success: true,
+    message: "Client deleted successfully",
+  });
 });
 
 export default clientsRouter;

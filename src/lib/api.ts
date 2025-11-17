@@ -31,6 +31,15 @@ type FetchOptions = {
   body?: object; // Request body, will be JSON stringified before sending
 };
 
+type UploadOptions = {
+  file: {
+    uri: string;
+    name: string;
+    type: string;
+  };
+  additionalData?: Record<string, string>;
+};
+
 /**
  * Core Fetch Function
  *
@@ -167,6 +176,61 @@ const api = {
    * @param path - API endpoint path
    */
   delete: <T>(path: string) => fetchFn<T>(path, { method: "DELETE" }),
+
+  /**
+   * UPLOAD - Upload files with multipart/form-data
+   * @template T - Expected response type
+   * @param path - API endpoint path
+   * @param options - Upload options containing file and optional additional data
+   */
+  upload: async <T>(path: string, options: UploadOptions): Promise<T> => {
+    const { file, additionalData } = options;
+
+    // Create FormData for multipart/form-data request
+    const formData = new FormData();
+
+    // Append the file to FormData
+    // @ts-ignore - React Native FormData accepts this format
+    formData.append("file", {
+      uri: file.uri,
+      name: file.name,
+      type: file.type,
+    });
+
+    // Append any additional data fields
+    if (additionalData) {
+      Object.entries(additionalData).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+    }
+
+    // Get authentication cookies
+    const cookies = authClient.getCookie();
+
+    try {
+      const response = await fetch(`${BACKEND_URL}${path}`, {
+        method: "POST",
+        headers: {
+          // Don't set Content-Type - let the browser set it with boundary
+          Cookie: cookies,
+        },
+        body: formData,
+        credentials: "omit",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `[api.ts]: ${response.status} ${response.statusText} ${JSON.stringify(errorData)}`,
+        );
+      }
+
+      return response.json() as Promise<T>;
+    } catch (error: any) {
+      console.log(`[api.ts]: ${error}`);
+      throw error;
+    }
+  },
 };
 
 // Export the API client and backend URL to be used in other modules

@@ -76,6 +76,38 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
     },
   });
 
+  const { mutate: uploadMedia, isPending: uploadingMedia } = useMutation({
+    mutationFn: async ({ fileUri, type, caption }: { fileUri: string; type: string; caption?: string }) => {
+      // Step 1: Upload file to server
+      const fileName = fileUri.split("/").pop() || "upload";
+      const fileType = type === "photo" ? "image/jpeg" : type === "video" ? "video/mp4" : "audio/m4a";
+
+      const uploadResult = await api.upload<{ success: boolean; url: string }>("/api/upload/image", {
+        file: {
+          uri: fileUri,
+          name: fileName,
+          type: fileType,
+        },
+      });
+
+      // Step 2: Create media record in assessment
+      const fullUrl = `${process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL}${uploadResult.url}`;
+      return api.post(`/api/assessments/${assessmentId}/media`, {
+        type,
+        url: fullUrl,
+        caption,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assessment", assessmentId] });
+      Alert.alert("Success", "Media uploaded successfully!");
+    },
+    onError: (error) => {
+      Alert.alert("Error", "Failed to upload media. Please try again.");
+      console.error("Upload error:", error);
+    },
+  });
+
   const handleTakePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
@@ -90,8 +122,11 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
     });
 
     if (!result.canceled && result.assets[0]) {
-      // TODO: Upload photo to assessment
-      Alert.alert("Photo captured", "Photo will be uploaded to assessment");
+      uploadMedia({
+        fileUri: result.assets[0].uri,
+        type: "photo",
+        caption: "Photo taken from camera",
+      });
     }
   };
 
@@ -109,7 +144,12 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
     });
 
     if (!result.canceled && result.assets[0]) {
-      Alert.alert("Media selected", "Media will be uploaded to assessment");
+      const asset = result.assets[0];
+      uploadMedia({
+        fileUri: asset.uri,
+        type: asset.type === "video" ? "video" : "photo",
+        caption: asset.type === "video" ? "Video from gallery" : "Photo from gallery",
+      });
     }
   };
 
@@ -159,17 +199,38 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
         const result = await transcribeAudio(uri);
 
         if (result.success && result.transcription) {
+          // Upload audio file first
+          const fileName = uri.split("/").pop() || "audio.m4a";
+          const uploadResult = await api.upload<{ success: boolean; url: string }>("/api/upload/image", {
+            file: {
+              uri,
+              name: fileName,
+              type: "audio/m4a",
+            },
+          });
+
+          // Save with transcription
+          const fullUrl = `${process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL}${uploadResult.url}`;
+          await api.post(`/api/assessments/${assessmentId}/media`, {
+            type: "audio",
+            url: fullUrl,
+            caption: "Audio note",
+            aiAnalysis: result.transcription,
+          });
+
+          queryClient.invalidateQueries({ queryKey: ["assessment", assessmentId] });
+
           Alert.alert(
             "Transcription Complete",
             `Transcribed: "${result.transcription.substring(0, 100)}${result.transcription.length > 100 ? "..." : ""}"`
           );
-          // TODO: Save transcription to assessment
         } else {
           Alert.alert("Error", result.error || "Failed to transcribe audio");
         }
       }
     } catch (err) {
-      Alert.alert("Error", "Failed to stop recording");
+      Alert.alert("Error", "Failed to process recording");
+      console.error("Recording error:", err);
     }
   };
 

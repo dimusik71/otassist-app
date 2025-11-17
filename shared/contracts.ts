@@ -66,6 +66,24 @@ export const createClientResponseSchema = z.object({
 });
 export type CreateClientResponse = z.infer<typeof createClientResponseSchema>;
 
+// PUT /api/clients/:id
+export const updateClientRequestSchema = z.object({
+  name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  dateOfBirth: z.string().optional(),
+  notes: z.string().optional(),
+});
+export type UpdateClientRequest = z.infer<typeof updateClientRequestSchema>;
+
+// DELETE /api/clients/:id
+export const deleteClientResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteClientResponse = z.infer<typeof deleteClientResponseSchema>;
+
 // ====================
 // ASSESSMENT CONTRACTS
 // ====================
@@ -118,10 +136,27 @@ export const createAssessmentResponseSchema = z.object({
 });
 export type CreateAssessmentResponse = z.infer<typeof createAssessmentResponseSchema>;
 
+// PUT /api/assessments/:id
+export const updateAssessmentRequestSchema = z.object({
+  status: z.enum(["draft", "completed", "approved"]).optional(),
+  location: z.string().optional(),
+  notes: z.string().optional(),
+});
+export type UpdateAssessmentRequest = z.infer<typeof updateAssessmentRequestSchema>;
+
+// DELETE /api/assessments/:id
+export const deleteAssessmentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteAssessmentResponse = z.infer<typeof deleteAssessmentResponseSchema>;
+
 // POST /api/assessments/:id/media
 export const uploadAssessmentMediaRequestSchema = z.object({
   type: z.enum(["photo", "video", "audio"]),
+  url: z.string(), // URL from uploaded file
   caption: z.string().optional(),
+  aiAnalysis: z.string().optional(), // For audio transcriptions
 });
 export type UploadAssessmentMediaRequest = z.infer<typeof uploadAssessmentMediaRequestSchema>;
 export const uploadAssessmentMediaResponseSchema = z.object({
@@ -204,6 +239,30 @@ export const createEquipmentResponseSchema = z.object({
 });
 export type CreateEquipmentResponse = z.infer<typeof createEquipmentResponseSchema>;
 
+// PUT /api/equipment/:id
+export const updateEquipmentRequestSchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  category: z.enum(["mobility", "bathroom", "bedroom", "assistive_tech", "iot"]).optional(),
+  price: z.number().min(0).optional(),
+  supplierPrice: z.number().optional(),
+  margin: z.number().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  specifications: z.string().optional(),
+  governmentApproved: z.boolean().optional(),
+  approvalReference: z.string().optional(),
+  imageUrl: z.string().optional(),
+});
+export type UpdateEquipmentRequest = z.infer<typeof updateEquipmentRequestSchema>;
+
+// DELETE /api/equipment/:id
+export const deleteEquipmentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteEquipmentResponse = z.infer<typeof deleteEquipmentResponseSchema>;
+
 // ====================
 // QUOTE CONTRACTS
 // ====================
@@ -243,6 +302,42 @@ export const createQuoteResponseSchema = z.object({
   }),
 });
 export type CreateQuoteResponse = z.infer<typeof createQuoteResponseSchema>;
+
+// GET /api/quotes/:assessmentId
+export const getQuotesResponseSchema = z.object({
+  quotes: z.array(
+    z.object({
+      id: z.string(),
+      assessmentId: z.string(),
+      quoteNumber: z.string(),
+      optionName: z.string(),
+      items: z.string(),
+      subtotal: z.number(),
+      tax: z.number(),
+      total: z.number(),
+      notes: z.string().nullable(),
+      validUntil: z.string().nullable(),
+      status: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })
+  ),
+});
+export type GetQuotesResponse = z.infer<typeof getQuotesResponseSchema>;
+
+// PUT /api/quotes/:id
+export const updateQuoteRequestSchema = z.object({
+  status: z.enum(["draft", "sent", "accepted", "rejected"]).optional(),
+  notes: z.string().optional(),
+});
+export type UpdateQuoteRequest = z.infer<typeof updateQuoteRequestSchema>;
+
+// DELETE /api/quotes/:id
+export const deleteQuoteResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteQuoteResponse = z.infer<typeof deleteQuoteResponseSchema>;
 
 // ====================
 // INVOICE CONTRACTS
@@ -285,3 +380,43 @@ export const createInvoiceResponseSchema = z.object({
   }),
 });
 export type CreateInvoiceResponse = z.infer<typeof createInvoiceResponseSchema>;
+
+// GET /api/invoices/:assessmentId
+export const getInvoicesResponseSchema = z.object({
+  invoices: z.array(
+    z.object({
+      id: z.string(),
+      assessmentId: z.string(),
+      invoiceNumber: z.string(),
+      items: z.string(),
+      subtotal: z.number(),
+      tax: z.number(),
+      total: z.number(),
+      hourlyRate: z.number().nullable(),
+      hoursWorked: z.number().nullable(),
+      status: z.string(),
+      dueDate: z.string().nullable(),
+      paidDate: z.string().nullable(),
+      notes: z.string().nullable(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })
+  ),
+});
+export type GetInvoicesResponse = z.infer<typeof getInvoicesResponseSchema>;
+
+// PUT /api/invoices/:id
+export const updateInvoiceRequestSchema = z.object({
+  status: z.enum(["draft", "sent", "paid", "overdue"]).optional(),
+  paidDate: z.string().optional(),
+  notes: z.string().optional(),
+});
+export type UpdateInvoiceRequest = z.infer<typeof updateInvoiceRequestSchema>;
+
+// DELETE /api/invoices/:id
+export const deleteInvoiceResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteInvoiceResponse = z.infer<typeof deleteInvoiceResponseSchema>;
+

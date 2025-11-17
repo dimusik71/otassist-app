@@ -9,6 +9,8 @@ import {
   getAssessmentsResponseSchema,
   uploadAssessmentMediaRequestSchema,
   uploadAssessmentMediaResponseSchema,
+  updateAssessmentRequestSchema,
+  deleteAssessmentResponseSchema,
 } from "@/shared/contracts";
 
 const assessmentsRouter = new Hono<AppType>();
@@ -162,14 +164,14 @@ assessmentsRouter.post(
       return c.json({ error: "Assessment not found" }, 404);
     }
 
-    // In a real implementation, you would handle file upload here
-    // For now, we'll use a placeholder URL
+    // Create media record with the uploaded file URL
     const media = await db.assessmentMedia.create({
       data: {
         assessmentId: id,
         type: body.type,
-        url: `https://placeholder.com/media/${Date.now()}`,
+        url: body.url,
         caption: body.caption,
+        aiAnalysis: body.aiAnalysis,
       },
     });
 
@@ -278,6 +280,71 @@ Provide a concise professional summary (3-4 paragraphs) including:
       500
     );
   }
+});
+
+// PUT /api/assessments/:id - Update an assessment
+assessmentsRouter.put("/:id", zValidator("json", updateAssessmentRequestSchema), async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+  const body = c.req.valid("json");
+
+  // Verify that the assessment belongs to this user
+  const existingAssessment = await db.assessment.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  if (!existingAssessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  const assessment = await db.assessment.update({
+    where: { id },
+    data: body,
+  });
+
+  return c.json({
+    success: true,
+    assessment: {
+      ...assessment,
+      assessmentDate: assessment.assessmentDate.toISOString(),
+      createdAt: assessment.createdAt.toISOString(),
+      updatedAt: assessment.updatedAt.toISOString(),
+    },
+  });
+});
+
+// DELETE /api/assessments/:id - Delete an assessment
+assessmentsRouter.delete("/:id", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+
+  // Verify that the assessment belongs to this user
+  const existingAssessment = await db.assessment.findFirst({
+    where: { id, userId: user.id },
+  });
+
+  if (!existingAssessment) {
+    return c.json({ error: "Assessment not found" }, 404);
+  }
+
+  // Delete associated media, equipment, quotes, and invoices
+  // Prisma cascading deletes should handle this
+  await db.assessment.delete({
+    where: { id },
+  });
+
+  return c.json({
+    success: true,
+    message: "Assessment deleted successfully",
+  });
 });
 
 export default assessmentsRouter;

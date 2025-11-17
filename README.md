@@ -90,11 +90,15 @@ All routes require authentication except `/health` and `/api/auth/*`
 #### Clients
 - `GET /api/clients` - List all clients for current user
 - `POST /api/clients` - Create new client
+- `PUT /api/clients/:id` - Update client information
+- `DELETE /api/clients/:id` - Delete client
 
 #### Assessments
 - `GET /api/assessments` - List all assessments with client info
 - `GET /api/assessments/:id` - Get assessment details with media and equipment
 - `POST /api/assessments` - Create new assessment
+- `PUT /api/assessments/:id` - Update assessment (status, notes, location)
+- `DELETE /api/assessments/:id` - Delete assessment
 - `POST /api/assessments/:id/media` - Upload media for assessment
 
 #### AI Services
@@ -106,10 +110,18 @@ All routes require authentication except `/health` and `/api/auth/*`
 #### Equipment
 - `GET /api/equipment` - List all equipment items
 - `POST /api/equipment` - Add new equipment item
+- `PUT /api/equipment/:id` - Update equipment details/pricing
+- `DELETE /api/equipment/:id` - Delete equipment item
 
 #### Quotes & Invoices
 - `POST /api/quotes` - Generate quote for assessment
+- `GET /api/quotes/:assessmentId` - Get all quotes for assessment
+- `PUT /api/quotes/:id` - Update quote status
+- `DELETE /api/quotes/:id` - Delete quote
 - `POST /api/invoices` - Create invoice for assessment
+- `GET /api/invoices/:assessmentId` - Get all invoices for assessment
+- `PUT /api/invoices/:id` - Update invoice status/payment
+- `DELETE /api/invoices/:id` - Delete invoice
 
 #### Auth & Upload
 - `POST /api/auth/sign-in` - Email/password login
@@ -283,7 +295,37 @@ bun run lint
 - 🔲 Advanced AI vision with real-time photo analysis (future)
 - 🔲 PDF report generation (future)
 
-#### Phase 4 (Future)
+#### Phase 4 (Completed - Full CRUD & Media Upload)
+- ✅ **Complete media upload system** (photos, videos, audio)
+- ✅ **Multipart/form-data support in API client**
+- ✅ **Audio transcriptions saved to database with AI analysis**
+- ✅ **Client UPDATE and DELETE endpoints**
+- ✅ **Assessment UPDATE and DELETE endpoints**
+- ✅ **Equipment UPDATE and DELETE endpoints**
+- ✅ **Quote GET (by assessment), UPDATE, DELETE endpoints**
+- ✅ **Invoice GET (by assessment), UPDATE, DELETE endpoints**
+- ✅ **Full CRUD operations for all entities**
+- ✅ **Assessment status workflow** (draft → completed → approved)
+- ✅ **Type-safe contracts with Zod validation**
+- ✅ **Proper error handling and authorization checks**
+
+### Still To Implement (Phase 5)
+
+**Missing Screens:**
+- ClientDetail screen - View/edit client info and assessment history
+- EquipmentDetail screen - View equipment specs and edit pricing
+- AddEquipment screen - Add new equipment to catalog
+
+**Enhanced Features:**
+- Equipment recommendations persistence (save to AssessmentEquipment table)
+- Quote comparison UI (side-by-side view of 3 options)
+- Invoice history/list screen
+- Edit functionality in AssessmentDetailScreen
+- Form validation throughout the app
+- Payment tracking (invoice status updates)
+- Quote expiration warnings
+
+**Advanced Features (Future):**
 - 🔲 Assistive tech 3D environment mapping
 - 🔲 IoT device specifications and placement
 - 🔲 Equipment pricing automation (competitive analysis)
