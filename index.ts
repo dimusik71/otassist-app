@@ -5,17 +5,45 @@ import { LogBox } from "react-native";
 import { registerRootComponent } from "expo";
 import App from "./App";
 
-// Suppress NativeWind CSS interop navigation context warnings in console
+// Comprehensive suppression of NativeWind CSS interop navigation context warnings
 if (__DEV__) {
-  const originalLog = console.log;
-  console.log = (...args: any[]) => {
-    if (args.length > 0 && args[0] && typeof args[0].toString === 'function') {
-      const message = args[0].toString();
-      if (message.includes("Couldn't find a navigation context")) {
-        return; // Suppress this specific warning
+  // Suppress in console.log, console.warn, and console.error
+  const suppressMessage = (args: any[]) => {
+    if (args.length > 0 && args[0]) {
+      const firstArg = args[0];
+      if (typeof firstArg === 'string' && firstArg.includes("Couldn't find a navigation context")) {
+        return true;
+      }
+      if (firstArg instanceof Error && firstArg.message.includes("Couldn't find a navigation context")) {
+        return true;
+      }
+      if (typeof firstArg.toString === 'function') {
+        const str = firstArg.toString();
+        if (str.includes("Couldn't find a navigation context") || str.includes("MISSING_CONTEXT_ERROR")) {
+          return true;
+        }
       }
     }
+    return false;
+  };
+
+  const originalLog = console.log;
+  const originalWarn = console.warn;
+  const originalError = console.error;
+
+  console.log = (...args: any[]) => {
+    if (suppressMessage(args)) return;
     originalLog(...args);
+  };
+
+  console.warn = (...args: any[]) => {
+    if (suppressMessage(args)) return;
+    originalWarn(...args);
+  };
+
+  console.error = (...args: any[]) => {
+    if (suppressMessage(args)) return;
+    originalError(...args);
   };
 }
 
@@ -23,7 +51,8 @@ console.log("[index] Project ID is: ", process.env.EXPO_PUBLIC_VIBECODE_PROJECT_
 LogBox.ignoreLogs([
   "Expo AV has been deprecated",
   "Disconnected from Metro",
-  "Couldn't find a navigation context", // Suppress NativeWind CSS interop warning
+  "Couldn't find a navigation context",
+  "MISSING_CONTEXT_ERROR",
 ]);
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
