@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Home, Plus, Edit2, Trash2, MapPin } from "lucide-react-native";
+import { Home, Plus, Edit2, Trash2, MapPin, Video } from "lucide-react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import { api } from "../lib/api";
@@ -218,6 +218,37 @@ export default function HouseMappingScreen({ navigation, route }: Props) {
         {!houseMap ? (
           // Create House Map Form
           <View className="p-6">
+            {/* Video Walkthrough Option */}
+            <TouchableOpacity
+              onPress={() => navigation.navigate("VideoWalkthrough", { assessmentId })}
+              className="mb-6"
+            >
+              <LinearGradient
+                colors={["#8B5CF6", "#EC4899"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                className="rounded-2xl p-6"
+              >
+                <View className="flex-row items-center mb-3">
+                  <Video color="#fff" size={32} />
+                  <Text className="text-white text-xl font-bold ml-3">AI Video Walkthrough</Text>
+                </View>
+                <Text className="text-purple-100 mb-3">
+                  Walk through the property with your camera and let AI guide you. Automatically
+                  creates a 3D map with rooms and areas.
+                </Text>
+                <View className="bg-white/20 rounded-lg px-3 py-2 self-start">
+                  <Text className="text-white text-xs font-semibold">✨ RECOMMENDED</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <View className="flex-row items-center mb-4">
+              <View className="flex-1 h-px bg-gray-300" />
+              <Text className="text-gray-500 text-sm mx-4">OR</Text>
+              <View className="flex-1 h-px bg-gray-300" />
+            </View>
+
             <View className="bg-blue-50 rounded-2xl p-6 mb-6">
               <Home color="#1E40AF" size={32} />
               <Text className="text-xl font-bold text-gray-800 mt-4 mb-2">

@@ -287,4 +287,288 @@ aiRouter.post("/vision-analysis", async (c) => {
   }
 });
 
+// POST /api/ai/analyze-video-frame - Analyze video frame and provide guidance
+aiRouter.post("/analyze-video-frame", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await c.req.json();
+  const { frameBase64, context, roomsScanned, areasScanned } = body;
+
+  if (!frameBase64) {
+    return c.json({ error: "Missing frameBase64" }, 400);
+  }
+
+  try {
+    const prompt = `You are an AI assistant helping an Occupational Therapist conduct a video walkthrough assessment of a property for assistive technology and IoT device placement.
+
+Current context:
+- Rooms already scanned: ${roomsScanned?.join(", ") || "None"}
+- Areas already scanned: ${areasScanned?.join(", ") || "None"}
+- Current location: ${context || "Unknown"}
+
+Analyze this video frame and provide:
+1. What room/area type this appears to be
+2. Estimated dimensions (length, width, height in meters)
+3. Key features visible (windows, doors, fixtures, hazards)
+4. Coverage assessment: What percentage of this space has been captured?
+5. Guidance: What should the user film next? (specific direction: left, right, turn around, move to next room, etc.)
+6. Safety concerns or accessibility issues visible
+
+Respond in JSON format:
+{
+  "roomType": "bedroom|bathroom|kitchen|living|dining|hallway|entrance|outdoor|garage|patio|yard",
+  "roomName": "suggested name",
+  "dimensions": {"length": 4.5, "width": 3.8, "height": 2.7},
+  "features": ["window on north wall", "door on east side"],
+  "coveragePercent": 60,
+  "guidance": "Turn 90 degrees right to capture the rest of the room",
+  "safetyIssues": ["low lighting", "uneven floor"],
+  "isComplete": false,
+  "nextAction": "continue|finish_room|move_to_next"
+}`;
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: "image/jpeg",
+                    data: frameBase64,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.4,
+            maxOutputTokens: 1024,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Gemini API request failed");
+    }
+
+    const data = await response.json();
+    const analysisText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+    const analysis = JSON.parse(analysisText);
+
+    return c.json({
+      success: true,
+      analysis,
+      model: "gemini-2.5-flash",
+    });
+  } catch (error) {
+    console.error("Video frame analysis error:", error);
+    return c.json(
+      {
+        error: "Failed to analyze video frame",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
+// POST /api/ai/generate-3d-map - Generate 3D map from video frames
+aiRouter.post("/generate-3d-map", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await c.req.json();
+  const { assessmentId, frames, propertyType } = body;
+
+  if (!assessmentId || !frames || frames.length === 0) {
+    return c.json({ error: "Missing assessmentId or frames" }, 400);
+  }
+
+  try {
+    // Verify assessment ownership
+    const assessment = await db.assessment.findFirst({
+      where: { id: assessmentId, userId: user.id },
+    });
+
+    if (!assessment) {
+      return c.json({ error: "Assessment not found" }, 404);
+    }
+
+    // Use Gemini to analyze all frames and create comprehensive 3D map
+    const prompt = `You are an expert in 3D spatial mapping and property assessment. Analyze these ${frames.length} video frames from a property walkthrough and create a comprehensive 3D house map.
+
+Property type: ${propertyType || "unknown"}
+
+Create a complete property map with:
+1. All rooms with accurate dimensions and positions
+2. All outdoor areas
+3. Floor plan layout
+4. Relative positioning of rooms to each other
+
+Respond in JSON format:
+{
+  "propertyType": "single_family|apartment|condo|townhouse",
+  "floors": 1,
+  "totalArea": 150.5,
+  "rooms": [
+    {
+      "name": "Living Room",
+      "roomType": "living",
+      "floor": 1,
+      "length": 5.5,
+      "width": 4.2,
+      "height": 2.7,
+      "position3D": {"x": 0, "y": 0, "z": 0},
+      "features": ["large window", "fireplace", "hardwood floor"]
+    }
+  ],
+  "areas": [
+    {
+      "name": "Front Yard",
+      "areaType": "yard",
+      "length": 10.0,
+      "width": 8.0,
+      "features": ["grass", "pathway"]
+    }
+  ]
+}`;
+
+    // For now, send first 3 frames (to manage token limits)
+    const framePrompts = frames.slice(0, 3).map((frame: any, idx: number) => ({
+      inline_data: {
+        mime_type: "image/jpeg",
+        data: frame.base64,
+      },
+    }));
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }, ...framePrompts],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 4096,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Gemini API request failed");
+    }
+
+    const data = await response.json();
+    const mapDataText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+    const mapData = JSON.parse(mapDataText);
+
+    // Create house map in database
+    const houseMap = await db.houseMap.create({
+      data: {
+        assessmentId,
+        propertyType: mapData.propertyType || propertyType,
+        totalArea: mapData.totalArea || null,
+        floors: mapData.floors || 1,
+        aiGenerated: true,
+      },
+    });
+
+    // Create rooms
+    const rooms = [];
+    if (mapData.rooms) {
+      for (const room of mapData.rooms) {
+        const createdRoom = await db.room.create({
+          data: {
+            houseMapId: houseMap.id,
+            name: room.name,
+            roomType: room.roomType,
+            floor: room.floor || 1,
+            length: room.length,
+            width: room.width,
+            height: room.height,
+            position3D: room.position3D ? JSON.stringify(room.position3D) : null,
+            features: room.features ? JSON.stringify(room.features) : null,
+          },
+        });
+        rooms.push(createdRoom);
+      }
+    }
+
+    // Create areas
+    const areas = [];
+    if (mapData.areas) {
+      for (const area of mapData.areas) {
+        const createdArea = await db.area.create({
+          data: {
+            houseMapId: houseMap.id,
+            name: area.name,
+            areaType: area.areaType,
+            length: area.length,
+            width: area.width,
+            features: area.features ? JSON.stringify(area.features) : null,
+          },
+        });
+        areas.push(createdArea);
+      }
+    }
+
+    return c.json({
+      success: true,
+      houseMap: {
+        ...houseMap,
+        totalArea: houseMap.totalArea ? Number(houseMap.totalArea) : null,
+      },
+      rooms: rooms.map((r) => ({
+        ...r,
+        length: r.length ? Number(r.length) : null,
+        width: r.width ? Number(r.width) : null,
+        height: r.height ? Number(r.height) : null,
+      })),
+      areas: areas.map((a) => ({
+        ...a,
+        length: a.length ? Number(a.length) : null,
+        width: a.width ? Number(a.width) : null,
+      })),
+      model: "gemini-2.5-flash",
+    });
+  } catch (error) {
+    console.error("3D map generation error:", error);
+    return c.json(
+      {
+        error: "Failed to generate 3D map",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
 export default aiRouter;

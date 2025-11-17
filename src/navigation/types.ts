@@ -25,6 +25,7 @@ export type RootStackParamList = {
   HouseMapping: { assessmentId: string };
   IoTDeviceLibrary: { houseMapId: string; assessmentId: string };
   DevicePlacement: { houseMapId: string; assessmentId: string };
+  VideoWalkthrough: { assessmentId: string };
 };
 
 export type BottomTabParamList = {
