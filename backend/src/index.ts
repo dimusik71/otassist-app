@@ -1,0 +1,89 @@
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { serveStatic } from "@hono/node-server/serve-static";
+
+import { auth } from "./auth";
+import { env } from "./env";
+import { uploadRouter } from "./routes/upload";
+import clientsRouter from "./routes/clients";
+import assessmentsRouter from "./routes/assessments";
+import equipmentRouter from "./routes/equipment";
+import quotesRouter from "./routes/quotes";
+import invoicesRouter from "./routes/invoices";
+import { type AppType } from "./types";
+
+// AppType context adds user and session to the context, will be null if the user or session is null
+const app = new Hono<AppType>();
+
+console.log("🔧 Initializing Hono application...");
+app.use("*", logger());
+app.use("/*", cors());
+
+/** Authentication middleware
+ * Extracts session from request headers and attaches user/session to context
+ * All routes can access c.get("user") and c.get("session")
+ */
+app.use("*", async (c, next) => {
+  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  c.set("user", session?.user ?? null); // type: typeof auth.$Infer.Session.user | null
+  c.set("session", session?.session ?? null); // type: typeof auth.$Infer.Session.session | null
+  return next();
+});
+
+// Better Auth handler
+// Handles all authentication endpoints: /api/auth/sign-in, /api/auth/sign-up, etc.
+console.log("🔐 Mounting Better Auth handler at /api/auth/*");
+app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+
+// Serve uploaded images statically
+// Files in uploads/ directory are accessible at /uploads/* URLs
+console.log("📁 Serving static files from uploads/ directory");
+app.use("/uploads/*", serveStatic({ root: "./" }));
+
+// Mount route modules
+console.log("📤 Mounting upload routes at /api/upload");
+app.route("/api/upload", uploadRouter);
+
+console.log("👥 Mounting clients routes at /api/clients");
+app.route("/api/clients", clientsRouter);
+
+console.log("📋 Mounting assessments routes at /api/assessments");
+app.route("/api/assessments", assessmentsRouter);
+
+console.log("🛠️  Mounting equipment routes at /api/equipment");
+app.route("/api/equipment", equipmentRouter);
+
+console.log("💰 Mounting quotes routes at /api/quotes");
+app.route("/api/quotes", quotesRouter);
+
+console.log("📄 Mounting invoices routes at /api/invoices");
+app.route("/api/invoices", invoicesRouter);
+
+// Health check endpoint
+// Used by load balancers and monitoring tools to verify service is running
+app.get("/health", (c) => {
+  console.log("💚 Health check requested");
+  return c.json({ status: "ok" });
+});
+
+// Start the server
+console.log("⚙️  Starting server...");
+serve({ fetch: app.fetch, port: Number(env.PORT) }, () => {
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log(`📍 Environment: ${env.NODE_ENV}`);
+  console.log(`🚀 Server is running on port ${env.PORT}`);
+  console.log(`🔗 Base URL: http://localhost:${env.PORT}`);
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  console.log("\n📚 Available endpoints:");
+  console.log("  🔐 Auth:       /api/auth/*");
+  console.log("  📤 Upload:     POST /api/upload/image");
+  console.log("  👥 Clients:    GET/POST /api/clients");
+  console.log("  📋 Assess:     GET/POST /api/assessments");
+  console.log("  🛠️  Equipment:  GET/POST /api/equipment");
+  console.log("  💰 Quotes:     POST /api/quotes");
+  console.log("  📄 Invoices:   POST /api/invoices");
+  console.log("  💚 Health:     GET /health");
+  console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+});
