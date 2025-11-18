@@ -74,6 +74,10 @@ This app enables OT/AH professionals to:
 - **AddEquipment** ✅ - Add new equipment to catalog with full form
 - **GenerateQuote** ✅ - Generate 3 pricing options (Essential, Recommended, Premium)
 - **GenerateInvoice** ✅ - Create itemized invoices with hourly rates
+- **HouseMapping** ✅ - Create 3D property maps with rooms and outdoor areas
+- **VideoWalkthrough** ✅ - AI-guided video walkthrough for property mapping
+- **IoTDeviceLibrary** ✅ - Browse and select IoT devices for placement
+- **DevicePlacement** ✅ - 3D map view showing IoT device placements in property
 - **LoginModalScreen** ✅ - Email/password authentication
 
 > **Note:** All screens now properly check authentication status before loading data. Users will be prompted to log in if they attempt to access protected resources.
@@ -300,7 +304,18 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ### Recent Updates
 
-**IoT & 3D House Mapping System (NEW!):**
+**3D House Mapping & IoT Device Placement Screens (LATEST!):**
+- ✅ IoTDeviceLibrary screen - Browse IoT device catalog with category filtering
+- ✅ DevicePlacement screen - Place devices in rooms and areas with 3D visualization
+- ✅ Full navigation integration for house mapping workflow
+- ✅ Category filtering (safety, security, accessibility, lighting, climate)
+- ✅ Device placement with room/area selection
+- ✅ Visual placement list with location details
+- ✅ Device removal and management
+- ✅ Government approval indicators
+- ✅ Installation cost and monthly subscription display
+
+**IoT & 3D House Mapping System:**
 - Complete database schema for 3D property mapping
 - Room and outdoor area modeling with dimensions and positions
 - IoT device library with 12 pre-seeded devices:
@@ -461,8 +476,10 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ **IoT device library with 12 pre-seeded assistive tech devices**
 - ✅ **3D house mapping with rooms and outdoor areas**
 - ✅ **IoT device placement tracking with 3D coordinates**
+- ✅ **IoT device library browsing screen with category filters**
+- ✅ **Device placement screen with visual 3D map**
 - 🔲 AI-powered IoT device placement recommendations
-- 🔲 3D visualization for device placement mapping
+- 🔲 Interactive 3D visualization for device placement mapping
 - 🔲 Enhanced quote generation with itemized hardware/installation/SaaS costs
 - 🔲 Equipment pricing automation (competitive analysis)
 - 🔲 Government approval verification

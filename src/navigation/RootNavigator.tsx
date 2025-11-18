@@ -23,6 +23,8 @@ import EquipmentDetailScreen from "@/screens/EquipmentDetailScreen";
 import AddEquipmentScreen from "@/screens/AddEquipmentScreen";
 import HouseMappingScreen from "@/screens/HouseMappingScreen";
 import VideoWalkthroughScreen from "@/screens/VideoWalkthroughScreen";
+import IoTDeviceLibraryScreen from "@/screens/IoTDeviceLibraryScreen";
+import DevicePlacementScreen from "@/screens/DevicePlacementScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -97,6 +99,16 @@ const RootNavigator = () => {
         name="VideoWalkthrough"
         component={VideoWalkthroughScreen}
         options={{ title: "Video Walkthrough", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="IoTDeviceLibrary"
+        component={IoTDeviceLibraryScreen}
+        options={{ title: "IoT Device Library", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="DevicePlacement"
+        component={DevicePlacementScreen}
+        options={{ title: "Device Placement", headerShown: false }}
       />
     </RootStack.Navigator>
   );
