@@ -255,8 +255,10 @@ Provide a concise professional summary (3-4 paragraphs) including:
 
     let aiSummary = "";
     if (summaryResponse.ok) {
-      const summaryData = await summaryResponse.json();
-      aiSummary = summaryData.choices[0].message.content;
+      const summaryData = (await summaryResponse.json()) as {
+        choices: Array<{ message: { content: string } }>;
+      };
+      aiSummary = summaryData.choices?.[0]?.message?.content || "";
     } else {
       aiSummary = `Assessment for ${assessment.client.name} (${assessment.assessmentType}). ${assessment.media.length} media items captured. Detailed analysis pending.`;
     }
@@ -620,8 +622,10 @@ Provide:
       throw new Error("AI API request failed");
     }
 
-    const aiData = await aiResponse.json();
-    const analysis = aiData.choices[0].message.content;
+    const aiData = (await aiResponse.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const analysis = aiData.choices?.[0]?.message?.content || "";
 
     // Update the response with AI analysis
     await db.assessmentResponse.update({

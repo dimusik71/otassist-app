@@ -469,6 +469,19 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ## Recent Bug Fixes
 
+### TypeScript Errors Fixed (Latest)
+- **Issue**: Multiple TypeScript compilation errors in backend preventing type safety
+- **Errors Fixed**:
+  - Unknown type errors in AI API responses (ai.ts, assessments.ts)
+  - Possibly undefined optional chaining errors for room/equipment types
+  - AppType import errors in houseMap.ts and iotDevices.ts
+- **Fixes Applied**:
+  - Added proper type assertions for all API response data using `as` with specific interfaces
+  - Added null coalescing operators (`??`) and optional chaining (`?.`) for undefined values
+  - Fixed AppType imports to use `../types` instead of `../index`
+- **Location**: `backend/src/routes/ai.ts`, `backend/src/routes/assessments.ts`, `backend/src/routes/houseMap.ts`, `backend/src/routes/iotDevices.ts`
+- **Result**: All TypeScript errors resolved, full type safety restored across backend
+
 ### 3D House Map Duplicate Error (Fixed)
 - **Issue**: "Unique constraint failed on assessmentId" when generating 3D maps
 - **Cause**: Trying to create a new house map when one already exists for the assessment

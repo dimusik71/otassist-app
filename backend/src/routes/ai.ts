@@ -85,8 +85,10 @@ Format as a numbered list with clear justifications.`,
       throw new Error("Grok API request failed");
     }
 
-    const data = await response.json();
-    const recommendations = data.choices[0].message.content;
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const recommendations = data.choices?.[0]?.message?.content || "";
 
     return c.json({
       success: true,
@@ -188,8 +190,10 @@ Return ONLY valid JSON in this exact format:
       throw new Error("Grok API request failed");
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const content = data.choices?.[0]?.message?.content || "";
 
     // Parse JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -267,7 +271,11 @@ aiRouter.post("/vision-analysis", async (c) => {
       throw new Error("Gemini API request failed");
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as {
+      candidates?: Array<{
+        content?: { parts?: Array<{ text?: string }> };
+      }>;
+    };
     const analysis = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
     return c.json({
@@ -332,7 +340,7 @@ aiRouter.post("/analyze-video-frame", async (c) => {
 
     const analysis = {
       roomType: currentRoomType,
-      roomName: context || `${currentRoomType.charAt(0).toUpperCase() + currentRoomType.slice(1)} ${Math.floor(frameCount / 4) + 1}`,
+      roomName: context || `${currentRoomType?.charAt(0)?.toUpperCase() ?? ''}${currentRoomType?.slice(1) ?? ''} ${Math.floor(frameCount / 4) + 1}`.trim(),
       dimensions: {
         length: 4.0 + Math.random() * 2,
         width: 3.5 + Math.random() * 1.5,
@@ -405,7 +413,7 @@ aiRouter.post("/generate-3d-map", async (c) => {
     for (let i = 0; i < numRooms; i++) {
       const roomType = roomTypes[i % roomTypes.length];
       mapData.rooms.push({
-        name: `${roomType.charAt(0).toUpperCase() + roomType.slice(1)} ${i > 5 ? Math.floor(i / 6) + 1 : ''}`.trim(),
+        name: `${roomType?.charAt(0)?.toUpperCase() ?? ''}${roomType?.slice(1) ?? ''} ${i > 5 ? Math.floor(i / 6) + 1 : ''}`.trim(),
         roomType,
         floor: 1,
         length: 4.0 + Math.random() * 2,

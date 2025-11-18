@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { db } from "../db";
-import type { AppType } from "../index";
+import type { AppType } from "../types";
 import {
   createHouseMapRequestSchema,
   createRoomRequestSchema,
