@@ -18,10 +18,13 @@ import {
   MapPin,
   Box,
   Shield,
+  Map,
+  List,
 } from "lucide-react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import { api } from "../lib/api";
+import { FloorPlanView } from "../components/FloorPlanView";
 
 type Props = NativeStackScreenProps<RootStackParamList, "DevicePlacement">;
 
@@ -68,6 +71,8 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
   const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [placements, setPlacements] = useState<DevicePlacement[]>([]);
   const [showPlacementForm, setShowPlacementForm] = useState(false);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [selectedFloor, setSelectedFloor] = useState(1);
 
   // Form state
   const [selectedDevice, setSelectedDevice] = useState<string>("");
@@ -198,16 +203,38 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
           <TouchableOpacity onPress={() => navigation.goBack()} className="mb-2">
             <ArrowLeft color="#fff" size={24} />
           </TouchableOpacity>
-          <Text className="text-white text-3xl font-bold">Device Placement</Text>
-          <Text className="text-purple-100 text-sm mt-1">
-            3D map of IoT devices in property
-          </Text>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text className="text-white text-3xl font-bold">Device Placement</Text>
+              <Text className="text-purple-100 text-sm mt-1">
+                3D map of IoT devices in property
+              </Text>
+            </View>
+
+            {/* View Mode Toggle */}
+            {rooms.length > 0 && (
+              <View className="flex-row bg-white/20 rounded-lg p-1">
+                <TouchableOpacity
+                  onPress={() => setViewMode('map')}
+                  className={`px-3 py-2 rounded ${viewMode === 'map' ? 'bg-white' : ''}`}
+                >
+                  <Map size={20} color={viewMode === 'map' ? '#7C3AED' : '#fff'} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setViewMode('list')}
+                  className={`px-3 py-2 rounded ${viewMode === 'list' ? 'bg-white' : ''}`}
+                >
+                  <List size={20} color={viewMode === 'list' ? '#7C3AED' : '#fff'} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
         </LinearGradient>
       </SafeAreaView>
 
       <ScrollView className="flex-1">
         <View className="p-6">
-          {/* Summary Card */}
+          {/* Property Summary */}
           <View className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 mb-6">
             <Text className="text-lg font-bold text-gray-800 mb-3">Property Summary</Text>
             <View className="flex-row flex-wrap gap-4">
@@ -232,9 +259,47 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
             </View>
           </View>
 
+          {/* Floor Selector (if multiple floors) */}
+          {rooms.length > 0 && Math.max(...rooms.map(r => r.floor)) > 1 && (
+            <View className="mb-4">
+              <Text className="text-sm font-semibold text-gray-700 mb-2">Select Floor</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View className="flex-row gap-2">
+                  {Array.from({ length: Math.max(...rooms.map(r => r.floor)) }, (_, i) => i + 1).map((floor) => (
+                    <TouchableOpacity
+                      key={floor}
+                      onPress={() => setSelectedFloor(floor)}
+                      className={`px-4 py-2 rounded-lg ${
+                        selectedFloor === floor ? 'bg-purple-700' : 'bg-gray-200'
+                      }`}
+                    >
+                      <Text className={`font-semibold ${
+                        selectedFloor === floor ? 'text-white' : 'text-gray-700'
+                      }`}>
+                        Floor {floor}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+          )}
+
+          {/* Visual Floor Plan or List View */}
+          {viewMode === 'map' && rooms.length > 0 && (
+            <FloorPlanView
+              rooms={rooms}
+              areas={areas}
+              placements={placements}
+              selectedFloor={selectedFloor}
+            />
+          )}
+
           {/* Add Device Button */}
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-xl font-bold text-gray-800">Placed Devices</Text>
+            <Text className="text-xl font-bold text-gray-800">
+              {viewMode === 'list' ? 'Placed Devices' : 'All Devices'}
+            </Text>
             <TouchableOpacity
               onPress={() => setShowPlacementForm(!showPlacementForm)}
               className="bg-purple-700 rounded-lg px-4 py-2 flex-row items-center"
@@ -403,101 +468,105 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
             </View>
           )}
 
-          {/* Placements List */}
-          {placements.length === 0 && !showPlacementForm ? (
-            <View className="py-12 items-center">
-              <Box color="#9CA3AF" size={64} />
-              <Text className="text-gray-500 text-center mt-4 mb-2 text-lg font-semibold">
-                No devices placed yet
-              </Text>
-              <Text className="text-gray-400 text-center mb-6">
-                Place IoT devices in rooms and outdoor areas to create your 3D map
-              </Text>
-              <TouchableOpacity
-                onPress={() => setShowPlacementForm(true)}
-                className="bg-purple-700 rounded-lg px-6 py-3 flex-row items-center"
-              >
-                <Plus color="#fff" size={20} />
-                <Text className="text-white font-semibold ml-2">Place First Device</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            placements.map((placement) => (
-              <View
-                key={placement.id}
-                className="bg-white border border-gray-200 rounded-2xl p-4 mb-4"
-                style={{
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 1 },
-                  shadowOpacity: 0.05,
-                  shadowRadius: 2,
-                  elevation: 1,
-                }}
-              >
-                <View className="flex-row items-start mb-3">
-                  <View
-                    className="w-12 h-12 rounded-xl items-center justify-center"
-                    style={{
-                      backgroundColor: `${getCategoryColor(placement.device.category)}20`,
-                    }}
-                  >
-                    <Shield
-                      size={24}
-                      color={getCategoryColor(placement.device.category)}
-                    />
-                  </View>
-                  <View className="flex-1 ml-3">
-                    <Text className="text-base font-bold text-gray-800">
-                      {placement.device.name}
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      {placement.device.manufacturer}
-                    </Text>
-                    <View
-                      className="px-2 py-1 rounded mt-1 self-start"
-                      style={{
-                        backgroundColor: `${getCategoryColor(placement.device.category)}20`,
-                      }}
-                    >
-                      <Text
-                        className="text-xs font-semibold"
-                        style={{ color: getCategoryColor(placement.device.category) }}
-                      >
-                        {placement.device.category.toUpperCase()}
-                      </Text>
-                    </View>
-                  </View>
+          {/* Placements List (only show in list view or when no rooms) */}
+          {(viewMode === 'list' || rooms.length === 0) && (
+            <>
+              {placements.length === 0 && !showPlacementForm ? (
+                <View className="py-12 items-center">
+                  <Box color="#9CA3AF" size={64} />
+                  <Text className="text-gray-500 text-center mt-4 mb-2 text-lg font-semibold">
+                    No devices placed yet
+                  </Text>
+                  <Text className="text-gray-400 text-center mb-6">
+                    Place IoT devices in rooms and outdoor areas to create your 3D map
+                  </Text>
                   <TouchableOpacity
-                    onPress={() => handleDeletePlacement(placement.id)}
-                    className="p-2"
+                    onPress={() => setShowPlacementForm(true)}
+                    className="bg-purple-700 rounded-lg px-6 py-3 flex-row items-center"
                   >
-                    <Trash2 color="#EF4444" size={20} />
+                    <Plus color="#fff" size={20} />
+                    <Text className="text-white font-semibold ml-2">Place First Device</Text>
                   </TouchableOpacity>
                 </View>
+              ) : (
+                placements.map((placement) => (
+                  <View
+                    key={placement.id}
+                    className="bg-white border border-gray-200 rounded-2xl p-4 mb-4"
+                    style={{
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.05,
+                      shadowRadius: 2,
+                      elevation: 1,
+                    }}
+                  >
+                    <View className="flex-row items-start mb-3">
+                      <View
+                        className="w-12 h-12 rounded-xl items-center justify-center"
+                        style={{
+                          backgroundColor: `${getCategoryColor(placement.device.category)}20`,
+                        }}
+                      >
+                        <Shield
+                          size={24}
+                          color={getCategoryColor(placement.device.category)}
+                        />
+                      </View>
+                      <View className="flex-1 ml-3">
+                        <Text className="text-base font-bold text-gray-800">
+                          {placement.device.name}
+                        </Text>
+                        <Text className="text-sm text-gray-600">
+                          {placement.device.manufacturer}
+                        </Text>
+                        <View
+                          className="px-2 py-1 rounded mt-1 self-start"
+                          style={{
+                            backgroundColor: `${getCategoryColor(placement.device.category)}20`,
+                          }}
+                        >
+                          <Text
+                            className="text-xs font-semibold"
+                            style={{ color: getCategoryColor(placement.device.category) }}
+                          >
+                            {placement.device.category.toUpperCase()}
+                          </Text>
+                        </View>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => handleDeletePlacement(placement.id)}
+                        className="p-2"
+                      >
+                        <Trash2 color="#EF4444" size={20} />
+                      </TouchableOpacity>
+                    </View>
 
-                <View className="bg-gray-50 rounded-lg p-3">
-                  <View className="flex-row items-center mb-1">
-                    <MapPin color="#6B7280" size={16} />
-                    <Text className="text-sm font-semibold text-gray-700 ml-2">Location</Text>
+                    <View className="bg-gray-50 rounded-lg p-3">
+                      <View className="flex-row items-center mb-1">
+                        <MapPin color="#6B7280" size={16} />
+                        <Text className="text-sm font-semibold text-gray-700 ml-2">Location</Text>
+                      </View>
+                      {placement.room && (
+                        <Text className="text-sm text-gray-600 ml-6">
+                          {placement.room.name} (Floor {placement.room.floor})
+                        </Text>
+                      )}
+                      {placement.area && (
+                        <Text className="text-sm text-gray-600 ml-6">
+                          {placement.area.name} ({placement.area.areaType})
+                        </Text>
+                      )}
+                      {placement.notes && (
+                        <Text className="text-sm text-gray-500 ml-6 mt-1 italic">
+                          {placement.notes}
+                        </Text>
+                      )}
+                    </View>
                   </View>
-                  {placement.room && (
-                    <Text className="text-sm text-gray-600 ml-6">
-                      {placement.room.name} (Floor {placement.room.floor})
-                    </Text>
-                  )}
-                  {placement.area && (
-                    <Text className="text-sm text-gray-600 ml-6">
-                      {placement.area.name} ({placement.area.areaType})
-                    </Text>
-                  )}
-                  {placement.notes && (
-                    <Text className="text-sm text-gray-500 ml-6 mt-1 italic">
-                      {placement.notes}
-                    </Text>
-                  )}
-                </View>
-              </View>
-            ))
+                ))
+              )}
+            </>
           )}
         </View>
       </ScrollView>

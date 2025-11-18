@@ -202,7 +202,9 @@ All routes require authentication except `/health` and `/api/auth/*`
 │   │   └── types.ts
 │   ├── components/
 │   │   ├── LoginButton.tsx
-│   │   └── LoginWithEmailPassword.tsx
+│   │   ├── LoginWithEmailPassword.tsx
+│   │   ├── OfflineIndicator.tsx
+│   │   └── FloorPlanView.tsx
 │   ├── lib/
 │   │   ├── api.ts (API client with auth)
 │   │   ├── authClient.ts
@@ -304,7 +306,19 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ### Recent Updates
 
-**AI Room Recognition & Manual Override (LATEST!):**
+**Visual Floor Plan & Map Toggle (LATEST!):**
+- ✅ Interactive 2D floor plan visualization using SVG graphics
+- ✅ Automatic room layout algorithm with grid positioning
+- ✅ Color-coded rooms by type (bedroom=blue, kitchen=yellow, living=green, bathroom=cyan, etc.)
+- ✅ Device placement indicators shown as colored circles on floor plan
+- ✅ Map/List view toggle with icon buttons for flexible viewing
+- ✅ Floor selector for multi-story properties
+- ✅ Grid background with dashed lines for visual reference
+- ✅ Device summary showing count per room
+- ✅ Room dimensions displayed in scaled format
+- ✅ Seamless switching between visual map and detailed list view
+
+**AI Room Recognition & Manual Override:**
 - ✅ Real-time room detection using Gemini 2.5 Flash vision AI
 - ✅ AI analyzes camera frames to identify room types (living, kitchen, bedroom, etc.)
 - ✅ Confidence score display showing AI detection accuracy
