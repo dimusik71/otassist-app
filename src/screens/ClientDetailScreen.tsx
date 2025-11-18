@@ -9,10 +9,10 @@ import {
   Alert,
   Platform,
   Linking,
-  SafeAreaView,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Edit2, Save, X, Trash2, MapPin, Navigation } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -44,6 +44,7 @@ interface Assessment {
 
 const ClientDetailScreen = ({ navigation, route }: Props) => {
   const { clientId } = route.params;
+  const insets = useSafeAreaInsets();
   const [isEditing, setIsEditing] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [formData, setFormData] = useState({
@@ -205,52 +206,50 @@ const ClientDetailScreen = ({ navigation, route }: Props) => {
 
   return (
     <View className="flex-1 bg-gray-50">
-      {/* Header with SafeAreaView */}
-      <View className="bg-blue-700">
-        <SafeAreaView>
-          <View className="pb-6 px-6">
-            <View className="flex-row items-center justify-between">
+      {/* Header with dynamic safe area */}
+      <View className="bg-blue-700" style={{ paddingTop: insets.top }}>
+        <View className="pb-6 px-6">
+          <View className="flex-row items-center justify-between">
+            <Pressable
+              onPress={() => navigation.goBack()}
+              className="w-10 h-10 items-center justify-center"
+            >
+              <ArrowLeft size={24} color="white" />
+            </Pressable>
+            <View className="flex-1 mx-4">
+              <Text className="text-2xl font-bold text-white">{client.name}</Text>
+              <Text className="text-blue-100">Client Details</Text>
+            </View>
+            {!isEditing ? (
               <Pressable
-                onPress={() => navigation.goBack()}
+                onPress={() => setIsEditing(true)}
                 className="w-10 h-10 items-center justify-center"
               >
-                <ArrowLeft size={24} color="white" />
+                <Edit2 size={20} color="white" />
               </Pressable>
-              <View className="flex-1 mx-4">
-                <Text className="text-2xl font-bold text-white">{client.name}</Text>
-                <Text className="text-blue-100">Client Details</Text>
-              </View>
-              {!isEditing ? (
-                <Pressable
-                  onPress={() => setIsEditing(true)}
-                  className="w-10 h-10 items-center justify-center"
-                >
-                  <Edit2 size={20} color="white" />
-                </Pressable>
-              ) : (
-                <Pressable
-                  onPress={() => {
-                    setIsEditing(false);
-                    // Reset form data
-                    setFormData({
-                      name: client.name,
-                      email: client.email || "",
-                      phone: client.phone || "",
-                      address: client.address || "",
-                      latitude: client.latitude,
-                      longitude: client.longitude,
-                      dateOfBirth: client.dateOfBirth || "",
-                      notes: client.notes || "",
-                    });
-                  }}
-                  className="w-10 h-10 items-center justify-center"
-                >
-                  <X size={20} color="white" />
-                </Pressable>
-              )}
-            </View>
+            ) : (
+              <Pressable
+                onPress={() => {
+                  setIsEditing(false);
+                  // Reset form data
+                  setFormData({
+                    name: client.name,
+                    email: client.email || "",
+                    phone: client.phone || "",
+                    address: client.address || "",
+                    latitude: client.latitude,
+                    longitude: client.longitude,
+                    dateOfBirth: client.dateOfBirth || "",
+                    notes: client.notes || "",
+                  });
+                }}
+                className="w-10 h-10 items-center justify-center"
+              >
+                <X size={20} color="white" />
+              </Pressable>
+            )}
           </View>
-        </SafeAreaView>
+        </View>
       </View>
 
       <ScrollView className="flex-1 px-6 py-6">
