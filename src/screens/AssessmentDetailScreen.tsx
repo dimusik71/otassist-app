@@ -18,6 +18,7 @@ import { Audio } from "expo-av";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/useSession";
 
 type Props = RootStackScreenProps<"AssessmentDetail">;
 
@@ -72,6 +73,7 @@ interface AssessmentDetail {
 
 const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;
+  const { data: session, isPending: sessionLoading } = useSession();
   const [isRecording, setIsRecording] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -95,6 +97,7 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
       });
       return data;
     },
+    enabled: !!session, // Only fetch when user is logged in
   });
 
   const { mutate: updateAssessment, isPending: isUpdating } = useMutation({
@@ -116,12 +119,14 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   const { data: invoicesData } = useQuery<{ invoices: Invoice[] }>({
     queryKey: ["invoices", assessmentId],
     queryFn: () => api.get(`/api/invoices/${assessmentId}`),
+    enabled: !!session, // Only fetch when user is logged in
   });
 
   // Fetch quotes for this assessment
   const { data: quotesData } = useQuery<{ quotes: Quote[] }>({
     queryKey: ["quotes", assessmentId],
     queryFn: () => api.get(`/api/quotes/${assessmentId}`),
+    enabled: !!session, // Only fetch when user is logged in
   });
 
   const { mutate: updateInvoiceStatus } = useMutation({
@@ -372,6 +377,37 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
     }
   };
 
+  if (sessionLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#1E40AF" />
+      </View>
+    );
+  }
+
+  if (!session) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-50 px-6">
+        <Text className="text-xl font-semibold text-gray-900 mb-2">Login Required</Text>
+        <Text className="text-gray-600 text-center mb-6">
+          Please log in to view assessment details
+        </Text>
+        <Pressable
+          onPress={() => navigation.navigate("LoginModalScreen")}
+          className="bg-blue-600 px-6 py-3 rounded-xl mb-3"
+        >
+          <Text className="text-white font-semibold">Login</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          className="bg-gray-200 px-6 py-3 rounded-xl"
+        >
+          <Text className="text-gray-700 font-semibold">Go Back</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
@@ -383,7 +419,16 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   if (!assessment) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 px-6">
-        <Text className="text-gray-600">Assessment not found</Text>
+        <Text className="text-xl font-semibold text-gray-900 mb-2">Assessment Not Found</Text>
+        <Text className="text-gray-600 text-center mb-6">
+          This assessment doesn&apos;t exist or you don&apos;t have access to it
+        </Text>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          className="bg-blue-600 px-6 py-3 rounded-xl"
+        >
+          <Text className="text-white font-semibold">Go Back</Text>
+        </Pressable>
       </View>
     );
   }

@@ -66,7 +66,7 @@ This app enables OT/AH professionals to:
 #### Stack Screens
 - **CreateAssessment** ✅ - Select client and assessment type
 - **ConductAssessment** ✅ - Structured environmental assessment form with AI guidance
-- **AssessmentDetail** ✅ - Capture photos, video, audio with AI analysis
+- **AssessmentDetail** ✅ - Capture photos, video, audio with AI analysis (requires authentication)
 - **CreateClient** ✅ - Add new client form with all contact info
 - **ClientDetail** ✅ - View/edit client with assessment history
 - **EquipmentRecommendations** ✅ - AI-powered equipment suggestions (Grok 4 Fast)
@@ -75,6 +75,8 @@ This app enables OT/AH professionals to:
 - **GenerateQuote** ✅ - Generate 3 pricing options (Essential, Recommended, Premium)
 - **GenerateInvoice** ✅ - Create itemized invoices with hourly rates
 - **LoginModalScreen** ✅ - Email/password authentication
+
+> **Note:** All screens now properly check authentication status before loading data. Users will be prompted to log in if they attempt to access protected resources.
 
 ### Database Schema
 
