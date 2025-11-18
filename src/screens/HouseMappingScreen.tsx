@@ -72,6 +72,13 @@ export default function HouseMappingScreen({ navigation, route }: Props) {
   const createHouseMap = async () => {
     try {
       setSaving(true);
+
+      // Check if house map already exists
+      if (houseMap) {
+        Alert.alert("Info", "House map already exists for this assessment");
+        return;
+      }
+
       const response = await api.post(`/api/assessments/${assessmentId}/house-map`, {
         propertyType,
         floors: parseInt(floors, 10),
@@ -83,7 +90,15 @@ export default function HouseMappingScreen({ navigation, route }: Props) {
       Alert.alert("Success", "House map created successfully!");
     } catch (error: any) {
       console.error("Error creating house map:", error);
-      Alert.alert("Error", error.message || "Failed to create house map");
+
+      // Check if it's a duplicate error
+      if (error.message && error.message.includes("already exists")) {
+        // House map exists, just reload it
+        await loadHouseMap();
+        Alert.alert("Info", "House map already exists. Loading existing map...");
+      } else {
+        Alert.alert("Error", error.message || "Failed to create house map");
+      }
     } finally {
       setSaving(false);
     }

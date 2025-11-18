@@ -7,11 +7,11 @@ $ prisma generate
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 264ms
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 317ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
 
 
 Checked 760 installs across 702 packages (no changes) [1.61s]
@@ -77,26 +77,6 @@ Failed to find Response internal state key
 🏠 Mounting house map routes at /api
 📱 Mounting IoT devices routes at /api
 ⚙️  Starting server...
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📍 Environment: development
-🚀 Server is running on port 3000
-🔗 Base URL: http://localhost:3000
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📚 Available endpoints:
-  🔐 Auth:       /api/auth/*
-  📤 Upload:     POST /api/upload/image
-  👥 Clients:    GET/POST /api/clients
-  📋 Assess:     GET/POST /api/assessments
-  🛠️  Equipment:  GET/POST /api/equipment
-  💰 Quotes:     POST /api/quotes
-  📄 Invoices:   POST /api/invoices
-  🤖 AI:         POST /api/ai/*
-  🏠 House Maps: GET/POST /api/house-maps
-  📱 IoT:        GET/POST /api/iot-devices
-  💚 Health:     GET /health
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Failed to find Response internal state key
 ✅ Environment variables validated successfully
 🔐 [Auth] Initializing Better Auth...
@@ -137,7 +117,59 @@ Failed to find Response internal state key
   💚 Health:     GET /health
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📍 Environment: development
+🚀 Server is running on port 3000
+🔗 Base URL: http://localhost:3000
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 Available endpoints:
+  🔐 Auth:       /api/auth/*
+  📤 Upload:     POST /api/upload/image
+  👥 Clients:    GET/POST /api/clients
+  📋 Assess:     GET/POST /api/assessments
+  🛠️  Equipment:  GET/POST /api/equipment
+  💰 Quotes:     POST /api/quotes
+  📄 Invoices:   POST /api/invoices
+  🤖 AI:         POST /api/ai/*
+  🏠 House Maps: GET/POST /api/house-maps
+  📱 IoT:        GET/POST /api/iot-devices
+  💚 Health:     GET /health
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 <-- GET /api/auth/get-session
---> GET /api/auth/get-session [32m200[0m 11ms
+--> GET /api/auth/get-session [32m200[0m 12ms
 <-- GET /api/assessments
 --> GET /api/assessments [32m200[0m 3ms
+<-- GET /api/assessments/cmi33f72k0003m25xix3z5mfn
+--> GET /api/assessments/cmi33f72k0003m25xix3z5mfn [32m200[0m 3ms
+<-- GET /api/invoices/cmi33f72k0003m25xix3z5mfn
+--> GET /api/invoices/cmi33f72k0003m25xix3z5mfn [32m200[0m 3ms
+<-- GET /api/quotes/cmi33f72k0003m25xix3z5mfn
+--> GET /api/quotes/cmi33f72k0003m25xix3z5mfn [32m200[0m 3ms
+<-- GET /api/assessments/cmi33f72k0003m25xix3z5mfn
+--> GET /api/assessments/cmi33f72k0003m25xix3z5mfn [32m200[0m 3ms
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 1s
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 334ms
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 336ms
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 341ms
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 349ms
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 342ms
+<-- POST /api/ai/analyze-video-frame
+--> POST /api/ai/analyze-video-frame [32m200[0m 351ms
+<-- POST /api/ai/generate-3d-map
+--> POST /api/ai/generate-3d-map [32m200[0m 2s
+<-- GET /api/assessments/cmi33f72k0003m25xix3z5mfn
+--> GET /api/assessments/cmi33f72k0003m25xix3z5mfn [32m200[0m 5ms
+<-- POST /api/assessments/cmi33f72k0003m25xix3z5mfn/house-map
+--> POST /api/assessments/cmi33f72k0003m25xix3z5mfn/house-map [33m400[0m 5ms
+<-- GET /api/assessments/cmi33f72k0003m25xix3z5mfn
+--> GET /api/assessments/cmi33f72k0003m25xix3z5mfn [32m200[0m 7ms
+<-- GET /api/assessments/cmi33f72k0003m25xix3z5mfn
+--> GET /api/assessments/cmi33f72k0003m25xix3z5mfn [32m200[0m 6ms
