@@ -1,20 +1,20 @@
 + exec gosu vibecode scripts/start --hot
 Installing dependencies and generating Prisma client...
-[0.03ms] ".env"
+[0.05ms] ".env"
 bun install v1.2.19 (aad3abea)
 
 $ prisma generate
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 312ms
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 247ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
 
 
-Checked 760 installs across 702 packages (no changes) [2.48s]
+Checked 760 installs across 702 packages (no changes) [2.11s]
 Starting server in dev mode with hot reload...
 $ NODE_ENV=development bun run --hot src/index.ts
 Failed to find Response internal state key
@@ -57,15 +57,3 @@ Failed to find Response internal state key
   💚 Health:     GET /health
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-<-- GET /api/auth/get-session
---> GET /api/auth/get-session [32m200[0m 11ms
-<-- GET /api/assessments
---> GET /api/assessments [32m200[0m 3ms
-<-- GET /api/quotes/cmi33f72k0003m25xix3z5mfn
---> GET /api/quotes/cmi33f72k0003m25xix3z5mfn [32m200[0m 3ms
-<-- GET /api/invoices/cmi33f72k0003m25xix3z5mfn
---> GET /api/invoices/cmi33f72k0003m25xix3z5mfn [32m200[0m 2ms
-<-- GET /api/assessments/cmi33f72k0003m25xix3z5mfn
---> GET /api/assessments/cmi33f72k0003m25xix3z5mfn [32m200[0m 2ms
-<-- GET /api/equipment
---> GET /api/equipment [32m200[0m 3ms
