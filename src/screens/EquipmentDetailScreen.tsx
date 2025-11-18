@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   Switch,
+  SafeAreaView,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Edit2, Save, X, Trash2, CheckCircle } from "lucide-react-native";
@@ -161,54 +162,58 @@ const EquipmentDetailScreen = ({ navigation, route }: Props) => {
 
   return (
     <View className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="bg-orange-600 pt-12 pb-6 px-6">
-        <View className="flex-row items-center justify-between">
-          <Pressable
-            onPress={() => navigation.goBack()}
-            className="w-10 h-10 items-center justify-center"
-          >
-            <ArrowLeft size={24} color="white" />
-          </Pressable>
-          <View className="flex-1 mx-4">
-            <Text className="text-2xl font-bold text-white">{equipment.name}</Text>
-            <Text className="text-orange-100 capitalize">{equipment.category.replace("_", " ")}</Text>
+      {/* Header with SafeAreaView */}
+      <View className="bg-orange-600">
+        <SafeAreaView>
+          <View className="pb-6 px-6">
+            <View className="flex-row items-center justify-between">
+              <Pressable
+                onPress={() => navigation.goBack()}
+                className="w-10 h-10 items-center justify-center"
+              >
+                <ArrowLeft size={24} color="white" />
+              </Pressable>
+              <View className="flex-1 mx-4">
+                <Text className="text-2xl font-bold text-white">{equipment.name}</Text>
+                <Text className="text-orange-100 capitalize">{equipment.category.replace("_", " ")}</Text>
+              </View>
+              {!isEditing ? (
+                <Pressable
+                  onPress={() => setIsEditing(true)}
+                  className="w-10 h-10 items-center justify-center"
+                >
+                  <Edit2 size={20} color="white" />
+                </Pressable>
+              ) : (
+                <Pressable
+                  onPress={() => {
+                    setIsEditing(false);
+                    // Reset form
+                    if (equipment) {
+                      setFormData({
+                        name: equipment.name,
+                        description: equipment.description || "",
+                        category: equipment.category as any,
+                        price: equipment.price.toString(),
+                        supplierPrice: equipment.supplierPrice?.toString() || "",
+                        margin: equipment.margin?.toString() || "",
+                        brand: equipment.brand || "",
+                        model: equipment.model || "",
+                        specifications: equipment.specifications || "",
+                        governmentApproved: equipment.governmentApproved,
+                        approvalReference: equipment.approvalReference || "",
+                        imageUrl: equipment.imageUrl || "",
+                      });
+                    }
+                  }}
+                  className="w-10 h-10 items-center justify-center"
+                >
+                  <X size={20} color="white" />
+                </Pressable>
+              )}
+            </View>
           </View>
-          {!isEditing ? (
-            <Pressable
-              onPress={() => setIsEditing(true)}
-              className="w-10 h-10 items-center justify-center"
-            >
-              <Edit2 size={20} color="white" />
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={() => {
-                setIsEditing(false);
-                // Reset form
-                if (equipment) {
-                  setFormData({
-                    name: equipment.name,
-                    description: equipment.description || "",
-                    category: equipment.category as any,
-                    price: equipment.price.toString(),
-                    supplierPrice: equipment.supplierPrice?.toString() || "",
-                    margin: equipment.margin?.toString() || "",
-                    brand: equipment.brand || "",
-                    model: equipment.model || "",
-                    specifications: equipment.specifications || "",
-                    governmentApproved: equipment.governmentApproved,
-                    approvalReference: equipment.approvalReference || "",
-                    imageUrl: equipment.imageUrl || "",
-                  });
-                }
-              }}
-              className="w-10 h-10 items-center justify-center"
-            >
-              <X size={20} color="white" />
-            </Pressable>
-          )}
-        </View>
+        </SafeAreaView>
       </View>
 
       <ScrollView className="flex-1 px-6 py-6">
