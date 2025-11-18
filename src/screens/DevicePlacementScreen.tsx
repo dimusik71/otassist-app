@@ -86,7 +86,7 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
       const mapResponse = (await api.get(`/api/house-maps/${houseMapId}`)) as any;
       setRooms(mapResponse.houseMap?.rooms || []);
       setAreas(mapResponse.houseMap?.areas || []);
-      setPlacements(mapResponse.houseMap?.devicePlacements || []);
+      setPlacements(mapResponse.houseMap?.iotDevices || []);
 
       // Load IoT devices
       const devicesResponse = (await api.get("/api/iot-devices")) as any;
