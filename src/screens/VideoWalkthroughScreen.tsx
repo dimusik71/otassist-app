@@ -212,11 +212,12 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
         </View>
       </SafeAreaView>
 
-      {/* Camera View */}
+      {/* Camera View - Live Preview */}
       <CameraView
         ref={cameraRef}
-        className="flex-1"
+        style={{ flex: 1 }}
         facing="back"
+        mode="picture"
       >
         {/* AI Guidance Overlay */}
         <View className="absolute top-20 left-0 right-0 px-6">
