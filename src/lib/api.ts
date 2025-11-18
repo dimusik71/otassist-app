@@ -12,6 +12,10 @@ import { fetch } from "expo/fetch";
 // Import the authentication client to access user session cookies
 import { authClient } from "./authClient";
 
+// Import offline support modules
+import { offlineQueue } from "./offlineQueue";
+import { OfflineStorage } from "./offlineStorage";
+
 /**
  * Backend URL Configuration
  *
@@ -60,6 +64,27 @@ type UploadOptions = {
  */
 const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
   const { method, body } = options;
+
+  // Check if we're online
+  const isOnline = await offlineQueue.isOnline();
+
+  // For GET requests, try to return cached data if offline
+  if (!isOnline && method === 'GET') {
+    const cached = await OfflineStorage.get<T>(path);
+    if (cached) {
+      console.log(`[api.ts]: Returning cached data for ${path}`);
+      return cached;
+    }
+    throw new Error('No internet connection and no cached data available');
+  }
+
+  // For write operations (POST, PUT, DELETE, PATCH), queue if offline
+  if (!isOnline && method !== 'GET') {
+    console.log(`[api.ts]: Queueing ${method} request to ${path}`);
+    await offlineQueue.addToQueue({ url: path, method, body });
+    throw new Error('Request queued for when connection is restored');
+  }
+
   // Step 1: Authentication - Retrieve session cookies from the auth client
   // These cookies are used to identify the user and maintain their session
   const headers = new Map<string, string>();
@@ -98,10 +123,27 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
 
     // Step 4: Parse and return the successful response as JSON
     // The response is cast to the expected type T for type safety
-    return response.json() as Promise<T>;
+    const data = await response.json() as T;
+
+    // Cache GET responses for offline access
+    if (method === 'GET') {
+      await OfflineStorage.set(path, data);
+    }
+
+    return data;
   } catch (error: any) {
     // Log the error for debugging purposes
     console.log(`[api.ts]: ${error}`);
+
+    // If it's a network error and we have cached data for GET requests, return it
+    if (method === 'GET' && error.message.includes('network')) {
+      const cached = await OfflineStorage.get<T>(path);
+      if (cached) {
+        console.log(`[api.ts]: Network error, returning cached data for ${path}`);
+        return cached;
+      }
+    }
+
     // Re-throw the error so the calling code can handle it appropriately
     throw error;
   }

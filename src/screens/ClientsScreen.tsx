@@ -1,7 +1,7 @@
-import React from "react";
-import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
+import React, { useState, useMemo } from "react";
+import { View, Text, Pressable, FlatList, ActivityIndicator, TextInput } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Mail, Phone, MapPin } from "lucide-react-native";
+import { Plus, Mail, Phone, MapPin, Search, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -15,12 +15,28 @@ type Props = BottomTabScreenProps<"ClientsTab">;
 function ClientsScreen({ navigation }: Props) {
   const { data: session } = useSession();
   const insets = useSafeAreaInsets();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["clients"],
     queryFn: () => api.get<GetClientsResponse>("/api/clients"),
     enabled: !!session,
   });
+
+  // Filter clients based on search query
+  const filteredClients = useMemo(() => {
+    if (!data?.clients) return [];
+    if (!searchQuery.trim()) return data.clients;
+
+    const query = searchQuery.toLowerCase();
+    return data.clients.filter(
+      (client) =>
+        client.name.toLowerCase().includes(query) ||
+        client.email?.toLowerCase().includes(query) ||
+        client.phone?.toLowerCase().includes(query) ||
+        client.address?.toLowerCase().includes(query)
+    );
+  }, [data?.clients, searchQuery]);
 
   if (!session) {
     return (
@@ -48,10 +64,27 @@ function ClientsScreen({ navigation }: Props) {
         colors={["#0D9488", "#1D4ED8"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 16 }}
       >
         <Text className="text-3xl font-bold text-white mb-2">Clients</Text>
-        <Text style={{ color: "#CCFBF1" }}>Manage your client information</Text>
+        <Text style={{ color: "#CCFBF1" }} className="mb-4">Manage your client information</Text>
+
+        {/* Search Bar */}
+        <View className="bg-white/20 rounded-xl flex-row items-center px-4 py-3">
+          <Search color="#fff" size={20} />
+          <TextInput
+            className="flex-1 ml-3 text-white"
+            placeholder="Search clients..."
+            placeholderTextColor="rgba(255,255,255,0.7)"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery("")}>
+              <X color="#fff" size={20} />
+            </Pressable>
+          )}
+        </View>
       </LinearGradient>
 
       {isLoading ? (
@@ -64,15 +97,26 @@ function ClientsScreen({ navigation }: Props) {
         </View>
       ) : (
         <FlatList
-          data={data?.clients || []}
+          data={filteredClients}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
           ListEmptyComponent={
             <View className="items-center justify-center py-12">
-              <Text className="text-gray-500 text-center mb-4">No clients yet</Text>
-              <Text className="text-gray-400 text-sm text-center">
-                Add your first client to get started
-              </Text>
+              {searchQuery ? (
+                <>
+                  <Text className="text-gray-500 text-center mb-2">No clients found</Text>
+                  <Text className="text-gray-400 text-sm text-center">
+                    Try a different search term
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <Text className="text-gray-500 text-center mb-4">No clients yet</Text>
+                  <Text className="text-gray-400 text-sm text-center">
+                    Add your first client to get started
+                  </Text>
+                </>
+              )}
             </View>
           }
           renderItem={({ item }) => (
