@@ -36,9 +36,16 @@ This app enables OT/AH professionals to:
 
 ### AI & Machine Learning (Multi-Agent System)
 - **GPT-5 Mini** (OpenAI) - Assessment summaries and text analysis
+- **GPT Image 1** (OpenAI) - Property modification visualizations and AI image editing
+- **Ideogram 3.0** - Equipment mockups and IoT device placement visualizations
 - **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
 - **Grok 4 Fast** (xAI) - Equipment recommendations and quick responses
 - **Multi-Agent Orchestrator** - Intelligent task routing to optimal AI model
+
+### Location & Mapping
+- **Expo Location** - Geocoding and reverse geocoding
+- **React Native Maps** - Apple Maps integration for property locations
+- **Native Maps Apps** - Deep linking to iOS Maps and Android Maps
 
 ## App Structure
 
@@ -210,6 +217,10 @@ All routes require authentication except `/health` and `/api/auth/*`
 │   │   ├── authClient.ts
 │   │   ├── aiAgents.ts (Multi-agent orchestrator)
 │   │   ├── audioTranscription.ts (Whisper API integration)
+│   │   ├── geocoding.ts (Location and geocoding utilities)
+│   │   ├── imageGeneration.ts (AI image generation - Ideogram 3 & GPT Image 1)
+│   │   ├── offlineQueue.ts (Offline request queuing)
+│   │   ├── offlineStorage.ts (Local caching with TTL)
 │   │   └── useSession.tsx
 │   └── api/ (Vibecode pre-built AI APIs)
 ├── backend/
@@ -306,7 +317,27 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ### Recent Updates
 
-**Visual Floor Plan & Map Toggle (LATEST!):**
+**Location & Maps Integration (LATEST!):**
+- ✅ Geocoding support for client addresses using Expo Location
+- ✅ Latitude/longitude storage in Client and Assessment models
+- ✅ "Get Location Coordinates" button in client editing mode
+- ✅ "Open in Maps" button to launch native maps apps (iOS/Android)
+- ✅ Visual coordinates display with map pin icons
+- ✅ Automatic address-to-coordinate conversion
+- ✅ Deep linking to Apple Maps (iOS) and Google Maps (Android)
+- ✅ Location permissions handling
+
+**AI Image Generation (NEW!):**
+- ✅ Ideogram 3.0 integration for equipment mockups and visualizations
+- ✅ GPT Image 1 integration for property modifications
+- ✅ Equipment mockup generator (realistic and technical styles)
+- ✅ Property modification visualizations
+- ✅ IoT device placement renderings
+- ✅ Image generation utilities with TypeScript types
+- ✅ Support for image generation and editing
+- ✅ Automatic image download and caching
+
+**Visual Floor Plan & Map Toggle:**
 - ✅ Interactive 2D floor plan visualization using SVG graphics
 - ✅ Automatic room layout algorithm with grid positioning
 - ✅ Color-coded rooms by type (bedroom=blue, kitchen=yellow, living=green, bathroom=cyan, etc.)

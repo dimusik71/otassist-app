@@ -88,6 +88,8 @@ model Client {
   email       String?
   phone       String?
   address     String?
+  latitude    Float?
+  longitude   Float?
   dateOfBirth DateTime?
   notes       String?
   createdAt   DateTime     @default(now())
@@ -108,6 +110,8 @@ model Assessment {
   assessmentType    String              // "home", "assistive_tech", "iot_devices", "general"
   status            String              @default("draft") // "draft", "in_progress", "completed", "approved"
   location          String?
+  latitude          Float?
+  longitude         Float?
   assessmentDate    DateTime            @default(now())
   notes             String?
   aiSummary         String?

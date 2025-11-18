@@ -31,6 +31,8 @@ export const getClientsResponseSchema = z.object({
       email: z.string().nullable(),
       phone: z.string().nullable(),
       address: z.string().nullable(),
+      latitude: z.number().nullable(),
+      longitude: z.number().nullable(),
       dateOfBirth: z.string().nullable(),
       notes: z.string().nullable(),
       createdAt: z.string(),
@@ -46,6 +48,8 @@ export const createClientRequestSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   dateOfBirth: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -72,6 +76,8 @@ export const updateClientRequestSchema = z.object({
   email: z.string().email().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
   dateOfBirth: z.string().optional(),
   notes: z.string().optional(),
 });
