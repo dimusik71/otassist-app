@@ -6,17 +6,32 @@ import {
   Alert,
   ActivityIndicator,
   ScrollView,
+  Modal,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Video, Camera, Square, CheckCircle, AlertTriangle } from "lucide-react-native";
+import { Video, Camera, Square, CheckCircle, AlertTriangle, Edit3 } from "lucide-react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../navigation/types";
 import { api } from "../lib/api";
 import * as FileSystem from "expo-file-system";
 
 type Props = NativeStackScreenProps<RootStackParamList, "VideoWalkthrough">;
+
+const ROOM_TYPES = [
+  { value: "living", label: "Living Room" },
+  { value: "kitchen", label: "Kitchen" },
+  { value: "bedroom", label: "Bedroom" },
+  { value: "bathroom", label: "Bathroom" },
+  { value: "dining", label: "Dining Room" },
+  { value: "hallway", label: "Hallway" },
+  { value: "entrance", label: "Entrance" },
+  { value: "garage", label: "Garage" },
+  { value: "office", label: "Office" },
+  { value: "laundry", label: "Laundry" },
+  { value: "outdoor", label: "Outdoor" },
+];
 
 export default function VideoWalkthroughScreen({ navigation, route }: Props) {
   const { assessmentId } = route.params;
@@ -25,6 +40,9 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
   const [analyzing, setAnalyzing] = useState(false);
   const [aiGuidance, setAiGuidance] = useState<string>("Point your camera at the entrance and start recording");
   const [currentRoom, setCurrentRoom] = useState<string>("");
+  const [detectedRoomType, setDetectedRoomType] = useState<string>("");
+  const [aiConfidence, setAiConfidence] = useState<number>(0);
+  const [showRoomPicker, setShowRoomPicker] = useState(false);
   const [coveragePercent, setCoveragePercent] = useState<number>(0);
   const [roomsScanned, setRoomsScanned] = useState<string[]>([]);
   const [capturedFrames, setCapturedFrames] = useState<any[]>([]);
@@ -108,6 +126,12 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
         // Update guidance
         setAiGuidance(analysis.guidance || "Continue scanning");
         setCoveragePercent(analysis.coveragePercent || 0);
+
+        // Store AI detection info
+        if (analysis.detectedRoomType) {
+          setDetectedRoomType(analysis.detectedRoomType);
+          setAiConfidence(analysis.confidence || 0);
+        }
 
         // Update current room
         if (analysis.roomName && analysis.roomName !== currentRoom) {
@@ -222,16 +246,32 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
         {/* AI Guidance Overlay */}
         <View className="absolute top-20 left-0 right-0 px-6">
           <View className="bg-black/70 rounded-xl p-4">
-            <View className="flex-row items-center mb-2">
-              {analyzing ? (
-                <ActivityIndicator color="#fff" size="small" />
-              ) : (
-                <CheckCircle color="#10B981" size={20} />
-              )}
-              <Text className="text-white font-bold ml-2">
-                {currentRoom || "Scanning..."}
-              </Text>
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-row items-center flex-1">
+                {analyzing ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <CheckCircle color="#10B981" size={20} />
+                )}
+                <Text className="text-white font-bold ml-2 flex-1">
+                  {currentRoom || "Scanning..."}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setShowRoomPicker(true)}
+                className="bg-white/20 rounded-lg px-3 py-1 ml-2 flex-row items-center"
+              >
+                <Edit3 color="#fff" size={14} />
+                <Text className="text-white text-xs font-semibold ml-1">Edit</Text>
+              </TouchableOpacity>
             </View>
+            {detectedRoomType && aiConfidence > 0 && (
+              <View className="mb-2">
+                <Text className="text-gray-300 text-xs">
+                  AI detected: {detectedRoomType} ({aiConfidence}% confidence)
+                </Text>
+              </View>
+            )}
             <Text className="text-white text-sm">{aiGuidance}</Text>
             {coveragePercent > 0 && (
               <View className="mt-3">
@@ -329,6 +369,52 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
           )}
         </View>
       </SafeAreaView>
+
+      {/* Room Type Picker Modal */}
+      <Modal
+        visible={showRoomPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowRoomPicker(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+          <View className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <Text className="text-xl font-bold text-gray-800 mb-4">Select Room Type</Text>
+            <ScrollView className="max-h-96">
+              {ROOM_TYPES.map((room) => (
+                <TouchableOpacity
+                  key={room.value}
+                  onPress={() => {
+                    setCurrentRoom(room.label);
+                    setDetectedRoomType(room.value);
+                    if (!roomsScanned.includes(room.label)) {
+                      setRoomsScanned(prev => [...prev, room.label]);
+                    }
+                    setShowRoomPicker(false);
+                  }}
+                  className={`py-4 px-4 rounded-lg mb-2 ${
+                    currentRoom === room.label ? "bg-blue-100" : "bg-gray-50"
+                  }`}
+                >
+                  <Text
+                    className={`text-base font-semibold ${
+                      currentRoom === room.label ? "text-blue-700" : "text-gray-800"
+                    }`}
+                  >
+                    {room.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              onPress={() => setShowRoomPicker(false)}
+              className="bg-gray-200 rounded-lg py-3 mt-4"
+            >
+              <Text className="text-gray-700 font-semibold text-center">Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

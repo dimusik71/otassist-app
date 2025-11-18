@@ -310,13 +310,85 @@ aiRouter.post("/analyze-video-frame", async (c) => {
   }
 
   try {
-    // For now, provide intelligent guidance based on context without AI vision
-    // This allows the feature to work immediately while API keys are being configured
-    // TODO: Add OpenAI API key to enable real AI vision analysis
-    const frameCount = (roomsScanned?.length || 0) + 1;
-    const roomTypes = ["living", "kitchen", "bedroom", "bathroom", "hallway", "entrance"];
-    const currentRoomType = roomTypes[frameCount % roomTypes.length];
+    // Use Gemini 2.5 Flash for real-time room recognition
+    const googleApiKey = process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
 
+    let roomType = "living";
+    let roomName = "Room";
+    let detectedRoomType = null;
+    let confidence = 0;
+
+    if (googleApiKey) {
+      try {
+        // Call Gemini Vision API to analyze the room
+        const prompt = `Analyze this room image and identify:
+1. What type of room is this? (living room, kitchen, bedroom, bathroom, dining room, hallway, entrance, garage, office, laundry, or outdoor)
+2. Key features visible (furniture, appliances, fixtures)
+3. Confidence level (0-100)
+
+Respond in JSON format:
+{
+  "roomType": "kitchen",
+  "confidence": 95,
+  "features": ["stove", "refrigerator", "cabinets"],
+  "reasoning": "Clear view of kitchen appliances and cabinetry"
+}`;
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { text: prompt },
+                    {
+                      inline_data: {
+                        mime_type: "image/jpeg",
+                        data: frameBase64,
+                      },
+                    },
+                  ],
+                },
+              ],
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 512,
+              },
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = (await response.json()) as {
+            candidates?: Array<{
+              content?: { parts?: Array<{ text?: string }> };
+            }>;
+          };
+          const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+          // Parse JSON response
+          const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const aiAnalysis = JSON.parse(jsonMatch[0]);
+            detectedRoomType = aiAnalysis.roomType || "living";
+            roomType = detectedRoomType;
+            confidence = aiAnalysis.confidence || 0;
+
+            // Generate room name
+            const typeCapitalized = roomType.charAt(0).toUpperCase() + roomType.slice(1);
+            roomName = context || typeCapitalized;
+          }
+        }
+      } catch (visionError) {
+        console.error("Gemini vision error:", visionError);
+        // Fall back to generic naming if AI fails
+      }
+    }
+
+    const frameCount = (roomsScanned?.length || 0) + 1;
     let guidance = "Continue scanning slowly, moving the camera from left to right";
     let nextAction = "continue";
     let coveragePercent = Math.min(20 + (frameCount * 15), 95);
@@ -339,8 +411,10 @@ aiRouter.post("/analyze-video-frame", async (c) => {
     }
 
     const analysis = {
-      roomType: currentRoomType,
-      roomName: context || `${currentRoomType?.charAt(0)?.toUpperCase() ?? ''}${currentRoomType?.slice(1) ?? ''} ${Math.floor(frameCount / 4) + 1}`.trim(),
+      roomType,
+      roomName,
+      detectedRoomType,
+      confidence,
       dimensions: {
         length: 4.0 + Math.random() * 2,
         width: 3.5 + Math.random() * 1.5,

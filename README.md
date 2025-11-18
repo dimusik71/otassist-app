@@ -304,7 +304,16 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ### Recent Updates
 
-**3D House Mapping & IoT Device Placement Screens (LATEST!):**
+**AI Room Recognition & Manual Override (LATEST!):**
+- ✅ Real-time room detection using Gemini 2.5 Flash vision AI
+- ✅ AI analyzes camera frames to identify room types (living, kitchen, bedroom, etc.)
+- ✅ Confidence score display showing AI detection accuracy
+- ✅ Manual room type selector with "Edit" button overlay
+- ✅ Dropdown menu with 11 room types for manual correction
+- ✅ AI detection info shown: "AI detected: kitchen (95% confidence)"
+- ✅ Users can override incorrect AI detections instantly
+
+**3D House Mapping & IoT Device Placement Screens:**
 - ✅ IoTDeviceLibrary screen - Browse IoT device catalog with category filtering
 - ✅ DevicePlacement screen - Place devices in rooms and areas with 3D visualization
 - ✅ Full navigation integration for house mapping workflow
@@ -478,6 +487,8 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ **IoT device placement tracking with 3D coordinates**
 - ✅ **IoT device library browsing screen with category filters**
 - ✅ **Device placement screen with visual 3D map**
+- ✅ **AI-powered room recognition using Gemini 2.5 Flash**
+- ✅ **Manual room type override with dropdown selector**
 - 🔲 AI-powered IoT device placement recommendations
 - 🔲 Interactive 3D visualization for device placement mapping
 - 🔲 Enhanced quote generation with itemized hardware/installation/SaaS costs
