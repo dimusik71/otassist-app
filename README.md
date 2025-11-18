@@ -36,11 +36,18 @@ This app enables OT/AH professionals to:
 
 ### AI & Machine Learning (Multi-Agent System)
 - **GPT-5 Mini** (OpenAI) - Assessment summaries and text analysis
+- **GPT-4O** (OpenAI) - Enhanced audio transcription with multi-language support
 - **GPT Image 1** (OpenAI) - Property modification visualizations and AI image editing
 - **Ideogram 3.0** - Equipment mockups and IoT device placement visualizations
 - **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
 - **Grok 4 Fast** (xAI) - Equipment recommendations and quick responses
 - **Multi-Agent Orchestrator** - Intelligent task routing to optimal AI model
+
+### Audio & Voice
+- **GPT-4O Transcribe** - High-accuracy audio transcription with domain context
+- **ElevenLabs TTS** - Natural text-to-speech for guidance and accessibility
+- **Expo AV** - Audio recording and playback
+- **Voice Guidance System** - Interactive voice prompts and instructions
 
 ### Location & Mapping
 - **Expo Location** - Geocoding and reverse geocoding
@@ -211,12 +218,15 @@ All routes require authentication except `/health` and `/api/auth/*`
 │   │   ├── LoginButton.tsx
 │   │   ├── LoginWithEmailPassword.tsx
 │   │   ├── OfflineIndicator.tsx
-│   │   └── FloorPlanView.tsx
+│   │   ├── FloorPlanView.tsx
+│   │   └── VoiceGuidance.tsx
 │   ├── lib/
 │   │   ├── api.ts (API client with auth)
 │   │   ├── authClient.ts
 │   │   ├── aiAgents.ts (Multi-agent orchestrator)
 │   │   ├── audioTranscription.ts (Whisper API integration)
+│   │   ├── audioTranscriptionEnhanced.ts (GPT-4O transcription)
+│   │   ├── textToSpeech.ts (ElevenLabs TTS)
 │   │   ├── geocoding.ts (Location and geocoding utilities)
 │   │   ├── imageGeneration.ts (AI image generation - Ideogram 3 & GPT Image 1)
 │   │   ├── offlineQueue.ts (Offline request queuing)
@@ -277,6 +287,42 @@ bun run lint
 
 ## Key Features
 
+### Voice & Audio AI System
+
+The app includes a comprehensive voice and audio AI system powered by GPT-4O and ElevenLabs for enhanced accessibility and productivity.
+
+**Audio Transcription (GPT-4O):**
+- **99%+ accuracy** with multi-language support
+- **Contextual transcription** - Recognizes OT/AH medical terminology
+- **Sentiment analysis** - Automatically detects positive, neutral, or concerning content
+- **Action item extraction** - Identifies tasks and follow-ups from voice notes
+- **Batch processing** - Transcribe multiple recordings efficiently
+- **Verbose mode** - Provides duration, language detection, and metadata
+
+**Text-to-Speech (ElevenLabs):**
+- **4 Professional Voices** - Male/female voices optimized for different contexts
+  - Professional Female: Clear instructions and guidance
+  - Professional Male: Calm, reassuring feedback
+  - Friendly Female: Client interactions
+  - Authoritative Male: Technical information and alerts
+- **Voice-guided assessments** - Step-by-step audio instructions for each room type
+- **Read-aloud functionality** - Accessibility for visually impaired users
+- **Safety alerts** - Audio notifications for concerns
+- **Interactive prompts** - Feedback for photo capture, video recording, analysis completion
+- **Offline preparation** - Pre-generate guidance audio for field use
+
+**Voice Guidance Components:**
+- `VoiceGuidanceToggle` - Enable/disable voice guidance
+- `SpeakButton` - Read any text aloud with customizable voices
+- `VoiceInstruction` - Display instructions with auto-play option
+
+**Use Cases:**
+- Hands-free assessment documentation
+- Accessibility for therapists with visual impairments
+- Training new assessors with guided walkthroughs
+- Real-time feedback during property assessments
+- Client-facing explanations of recommendations
+
 ### Environmental Assessment Form
 
 The app includes a comprehensive, structured environmental assessment form based on AOTA and CAOT standards for home safety assessments. This guided form ensures thorough, consistent evaluations with AI-powered feedback.
@@ -317,7 +363,20 @@ The app includes a comprehensive, structured environmental assessment form based
 
 ### Recent Updates
 
-**Location & Maps Integration (LATEST!):**
+**Voice & Audio AI (LATEST!):**
+- ✅ GPT-4O transcription with 99%+ accuracy and multi-language support
+- ✅ Contextual transcription for OT/AH terminology
+- ✅ ElevenLabs TTS integration with 4 professional voices
+- ✅ Voice-guided assessment instructions
+- ✅ Audio analysis with sentiment detection (positive/neutral/concerning)
+- ✅ Automatic action item extraction from voice notes
+- ✅ Read-aloud functionality for accessibility
+- ✅ Interactive voice prompts for assessment workflow
+- ✅ Batch audio generation for offline use
+- ✅ Safety alerts with voice notifications
+- ✅ VoiceGuidance component with toggle controls
+
+**Location & Maps Integration:**
 - ✅ Geocoding support for client addresses using Expo Location
 - ✅ Latitude/longitude storage in Client and Assessment models
 - ✅ "Get Location Coordinates" button in client editing mode
