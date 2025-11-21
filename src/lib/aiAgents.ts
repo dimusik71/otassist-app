@@ -4,9 +4,9 @@
 /**
  * Agent Types:
  * - VISION: Image analysis (Gemini 2.5 Flash - multimodal)
- * - TRANSCRIPTION: Audio transcription (OpenAI Whisper)
- * - ANALYSIS: Text analysis and summarization (GPT-5 Mini)
- * - RECOMMENDATION: Equipment recommendations (Grok 4 Fast)
+ * - TRANSCRIPTION: Audio transcription (OpenAI Whisper / GPT-4O)
+ * - ANALYSIS: Text analysis and summarization (Gemini 2.5 Flash)
+ * - RECOMMENDATION: Equipment recommendations (Gemini 2.5 Flash)
  */
 
 export type AgentType = "vision" | "transcription" | "analysis" | "recommendation";
@@ -87,113 +87,122 @@ export async function visionAgent(
 }
 
 /**
- * Analysis Agent - General text analysis using GPT-5 Mini
+ * Analysis Agent - General text analysis using Gemini 2.5 Flash
  * Best for: Assessment summaries, report generation, text analysis
+ * Replaces GPT-5 Mini with Google's latest Gemini model
  */
 export async function analysisAgent(
   prompt: string,
   context?: string[]
 ): Promise<AgentResponse> {
   try {
-    const messages = [
-      {
-        role: "system" as const,
-        content:
-          "You are an expert Occupational Therapist assistant. Analyze assessments, provide recommendations, and generate professional summaries.",
-      },
-      ...(context?.map((ctx) => ({ role: "user" as const, content: ctx })) || []),
-      { role: "user" as const, content: prompt },
-    ];
+    const systemPrompt = "You are an expert Occupational Therapist assistant. Analyze assessments, provide recommendations, and generate professional summaries.";
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-5-mini",
-        messages,
-        max_completion_tokens: 2000,
-        temperature: 1,
-      }),
-    });
+    const contextText = context?.join("\n\n") || "";
+    const fullPrompt = contextText ? `${systemPrompt}\n\nContext:\n${contextText}\n\nTask:\n${prompt}` : `${systemPrompt}\n\n${prompt}`;
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: fullPrompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 2048,
+            thinkingConfig: { thinkingBudget: 0 },
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const text = data.choices[0].message.content;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
     return {
       success: true,
       data: { summary: text },
-      model: "gpt-5-mini",
+      model: "gemini-2.5-flash",
     };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Analysis failed",
-      model: "gpt-5-mini",
+      model: "gemini-2.5-flash",
     };
   }
 }
 
 /**
- * Recommendation Agent - Equipment recommendations using Grok 4 Fast
+ * Recommendation Agent - Equipment recommendations using Gemini 2.5 Flash
  * Best for: Quick recommendations, equipment matching, product suggestions
+ * Replaces Grok 4 Fast with Gemini 2.5 Flash
  */
 export async function recommendationAgent(
   assessmentData: string,
   equipmentCatalog?: string
 ): Promise<AgentResponse> {
   try {
-    const messages = [
-      {
-        role: "system" as const,
-        content:
-          "You are an equipment specialist for OT/AH assessments. Recommend appropriate assistive equipment based on client needs and assessment data.",
-      },
-      {
-        role: "user" as const,
-        content: `Assessment Data:\n${assessmentData}\n\n${
-          equipmentCatalog ? `Available Equipment:\n${equipmentCatalog}\n\n` : ""
-        }Provide 3-5 specific equipment recommendations with justification.`,
-      },
-    ];
+    const systemPrompt = "You are an equipment specialist for OT/AH assessments. Recommend appropriate assistive equipment based on client needs and assessment data.";
 
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "grok-4-fast-non-reasoning",
-        messages,
-        max_tokens: 1500,
-        temperature: 0.8,
-      }),
-    });
+    const fullPrompt = `${systemPrompt}\n\nAssessment Data:\n${assessmentData}\n\n${
+      equipmentCatalog ? `Available Equipment:\n${equipmentCatalog}\n\n` : ""
+    }Provide 3-5 specific equipment recommendations with justification.`;
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: fullPrompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 1500,
+            thinkingConfig: { thinkingBudget: 0 },
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
-      throw new Error(`Grok API error: ${response.statusText}`);
+      throw new Error(`Gemini API error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const text = data.choices[0].message.content;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
     return {
       success: true,
       data: { recommendations: text },
-      model: "grok-4-fast",
+      model: "gemini-2.5-flash",
     };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Recommendation failed",
-      model: "grok-4-fast",
+      model: "gemini-2.5-flash",
     };
   }
 }
@@ -257,6 +266,7 @@ export async function structuredAnalysisAgent<T = unknown>(
 /**
  * Multi-Agent Orchestrator
  * Coordinates multiple agents for complex tasks
+ * Now uses Gemini 2.5 Flash for all AI operations
  */
 export async function orchestrateAssessmentAnalysis(assessment: {
   clientName: string;
@@ -282,7 +292,7 @@ export async function orchestrateAssessmentAnalysis(assessment: {
       results.visionAnalysis = [];
     }
 
-    // Step 2: Generate assessment summary (GPT-5 Mini)
+    // Step 2: Generate assessment summary (Gemini 2.5 Flash)
     console.log("📝 Analysis Agent generating summary...");
     const summaryPrompt = `Generate a professional OT/AH assessment summary:
 
@@ -303,7 +313,7 @@ Provide a concise professional summary including:
       results.summary = (summaryResult.data as { summary: string }).summary;
     }
 
-    // Step 3: Generate equipment recommendations (Grok 4 Fast)
+    // Step 3: Generate equipment recommendations (Gemini 2.5 Flash)
     console.log("💡 Recommendation Agent suggesting equipment...");
     const assessmentData = `
 Client: ${assessment.clientName}

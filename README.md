@@ -35,12 +35,10 @@ This app enables OT/AH professionals to:
 - **Zod** for schema validation
 
 ### AI & Machine Learning (Multi-Agent System)
-- **GPT-5 Mini** (OpenAI) - Assessment summaries and text analysis
-- **GPT-4O** (OpenAI) - Enhanced audio transcription with multi-language support
-- **GPT Image 1** (OpenAI) - Property modification visualizations and AI image editing
-- **Ideogram 3.0** - Equipment mockups and IoT device placement visualizations
+- **Gemini 2.5 Flash** (Google) - Text analysis, assessment summaries, and equipment recommendations
 - **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
-- **Grok 4 Fast** (xAI) - Equipment recommendations and quick responses
+- **Nano Banana Pro (Gemini 3 Pro Image)** (Google) - Equipment mockups and IoT device placement visualizations
+- **GPT-4O** (OpenAI) - Enhanced audio transcription with multi-language support
 - **Multi-Agent Orchestrator** - Intelligent task routing to optimal AI model
 
 ### Audio & Voice
@@ -228,7 +226,7 @@ All routes require authentication except `/health` and `/api/auth/*`
 │   │   ├── audioTranscriptionEnhanced.ts (GPT-4O transcription)
 │   │   ├── textToSpeech.ts (ElevenLabs TTS)
 │   │   ├── geocoding.ts (Location and geocoding utilities)
-│   │   ├── imageGeneration.ts (AI image generation - Ideogram 3 & GPT Image 1)
+│   │   ├── imageGeneration.ts (AI image generation - Nano Banana Pro & GPT Image 1)
 │   │   ├── offlineQueue.ts (Offline request queuing)
 │   │   ├── offlineStorage.ts (Local caching with TTL)
 │   │   └── useSession.tsx
@@ -342,7 +340,7 @@ The app includes a comprehensive, structured environmental assessment form based
 - **50+ Detailed Questions** covering all aspects of home safety
 - **Yes/No and Text Responses** with optional additional notes
 - **Media Documentation** - Photo/video upload for each question
-- **Real-time AI Analysis** - Get instant feedback using GPT-4o
+- **Real-time AI Analysis** - Get instant feedback using Gemini 2.5 Flash
 - **Contextual AI Prompts** - Each question has specific analysis instructions
 - **Progress Tracking** - Visual progress bar shows completion status
 - **Response Persistence** - Answers automatically saved and can be resumed
@@ -387,7 +385,7 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ Location permissions handling
 
 **AI Image Generation (NEW!):**
-- ✅ Ideogram 3.0 integration for equipment mockups and visualizations
+- ✅ Nano Banana Pro (Gemini 3 Pro Image) integration for equipment mockups and visualizations
 - ✅ GPT Image 1 integration for property modifications
 - ✅ Equipment mockup generator (realistic and technical styles)
 - ✅ Property modification visualizations
@@ -492,9 +490,8 @@ The app includes a comprehensive, structured environmental assessment form based
 
 **Multi-Agent AI System:**
 - Intelligent task routing to optimal AI model
-- GPT-5 Mini for professional summaries and analysis
-- Gemini 2.5 Flash for vision and structured data
-- Grok 4 Fast for quick equipment recommendations
+- Gemini 2.5 Flash for professional summaries, analysis, and recommendations
+- Gemini 2.5 Flash for vision and structured data extraction
 - Orchestrated workflows combining multiple agents
 
 **Equipment Catalog:**
@@ -520,15 +517,14 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ Image picker for gallery photos/videos
 - ✅ Audio recording with permissions
 - ✅ **Multi-agent AI orchestrator with intelligent routing**
-- ✅ **GPT-5 Mini integration for assessment summaries**
+- ✅ **Gemini 2.5 Flash integration for assessment summaries and recommendations**
 - ✅ **Gemini 2.5 Flash integration for vision analysis**
-- ✅ **Grok 4 Fast integration for equipment recommendations**
 - ✅ Assessment detail screen with media gallery
 - ✅ Client and assessment creation forms
 
 #### Phase 3 (Completed)
 - ✅ **Audio transcription with Whisper API**
-- ✅ **Equipment recommendations screen with Grok 4 Fast**
+- ✅ **Equipment recommendations screen with Gemini 2.5 Flash**
 - ✅ **Quote generation with 3 pricing options (Essential, Recommended, Premium)**
 - ✅ **Invoice generation with hourly rates and itemized line items**
 - ✅ Navigation integration for all Phase 3 features
@@ -566,7 +562,7 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ User authentication and authorization
 - ✅ Complete CRUD for all entities (Clients, Assessments, Equipment, Quotes, Invoices)
 - ✅ Media upload system (photos, videos, audio)
-- ✅ AI-powered features (GPT-5 Mini, Gemini 2.5 Flash, Grok 4 Fast)
+- ✅ AI-powered features (Gemini 2.5 Flash, Nano Banana Pro, GPT-4O)
 - ✅ Audio transcription with Whisper API
 - ✅ Multi-agent AI orchestration
 - ✅ Quote generation (3 pricing tiers)

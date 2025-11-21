@@ -201,7 +201,7 @@ results.forEach((result) => {
 });
 ```
 
-## 4. Ideogram 3.0 Image Generation
+## 4. Nano Banana Pro (Gemini 3 Pro Image) Generation
 
 ### Generate Equipment Mockup
 ```typescript
@@ -235,26 +235,29 @@ const imageUri = await generateIoTDevicePlacementVisualization(
 
 ### Custom Image Generation
 ```typescript
-import { generateImageWithIdeogram } from '@/lib/imageGeneration';
+import { generateImageWithNanoBanana } from '@/lib/imageGeneration';
 
-const imageUri = await generateImageWithIdeogram({
+const imageUri = await generateImageWithNanoBanana({
   prompt: 'Modern accessible bathroom with grab bars and roll-in shower',
-  aspectRatio: '16x9',
-  renderingSpeed: 'TURBO',
-  styleType: 'REALISTIC',
-  magicPrompt: 'ON',
+  aspectRatio: '16:9',
+  resolution: '2048x2048',
+  numberOfImages: 1,
 });
 ```
 
-### Edit Image with Ideogram
+### Edit Image with Nano Banana Pro
 ```typescript
-import { editImageWithIdeogram } from '@/lib/imageGeneration';
+import { editImageWithNanoBanana } from '@/lib/imageGeneration';
 
-const editedUri = await editImageWithIdeogram({
+// First, convert image to base64
+const imageBase64 = await FileSystem.readAsStringAsync(imageUri, {
+  encoding: FileSystem.EncodingType.Base64,
+});
+
+const editedUri = await editImageWithNanoBanana({
   prompt: 'Add grab bars to the shower area',
-  imageUri: '/path/to/bathroom/photo.jpg',
-  maskUri: '/path/to/mask.png', // Mask indicates where to edit
-  renderingSpeed: 'DEFAULT',
+  imageBase64: imageBase64,
+  numberOfImages: 1,
 });
 ```
 
@@ -383,7 +386,7 @@ await speakPrompt('assessmentComplete');
 Make sure these are configured in your Vibecode app:
 
 - `EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY` - For GPT-4O transcription and GPT Image 1
-- `EXPO_PUBLIC_VIBECODE_IDEOGRAM_API_KEY` - For Ideogram 3.0 image generation
+- `EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY` - For Gemini 2.5 Flash and Nano Banana Pro (Gemini 3 Pro Image)
 - `EXPO_PUBLIC_VIBECODE_ELEVENLABS_API_KEY` - For ElevenLabs TTS
 
 All these should already be configured in your Vibecode environment via the API integrations tab.

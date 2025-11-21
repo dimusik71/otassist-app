@@ -1,28 +1,26 @@
 import * as FileSystem from 'expo-file-system';
 
 /**
- * Ideogram 3.0 Image Generation
+ * Nano Banana Pro (Gemini 3 Pro Image) Generation
+ * Google's latest image generation and editing model
  */
 
-export interface IdeogramGenerationOptions {
+export interface NanoBananaGenerationOptions {
   prompt: string;
-  aspectRatio?: '1x1' | '16x9' | '9x16' | '4x3' | '3x4' | '1x2' | '2x1' | '1x3' | '3x1' | '10x16' | '16x10' | '2x3' | '3x2' | '4x5' | '5x4';
-  resolution?: string;
-  renderingSpeed?: 'FLASH' | 'TURBO' | 'DEFAULT' | 'QUALITY';
+  aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '3:2' | '2:3';
+  resolution?: '1024x1024' | '2048x2048' | '3840x2160' | 'auto';
+  numberOfImages?: number;
   negativePrompt?: string;
-  magicPrompt?: 'AUTO' | 'ON' | 'OFF';
-  numImages?: number;
-  styleType?: 'AUTO' | 'GENERAL' | 'REALISTIC' | 'DESIGN' | 'FICTION';
+  safetySettings?: 'BLOCK_NONE' | 'BLOCK_FEW' | 'BLOCK_SOME' | 'BLOCK_MOST';
+  personGeneration?: boolean;
 }
 
-export interface IdeogramEditOptions {
+export interface NanoBananaEditOptions {
   prompt: string;
-  imageUri: string;
-  maskUri: string;
-  renderingSpeed?: 'FLASH' | 'TURBO' | 'DEFAULT' | 'QUALITY';
-  magicPrompt?: 'AUTO' | 'ON' | 'OFF';
-  numImages?: number;
-  styleType?: 'AUTO' | 'GENERAL' | 'REALISTIC' | 'DESIGN' | 'FICTION';
+  imageBase64: string;
+  maskBase64?: string;
+  numberOfImages?: number;
+  safetySettings?: 'BLOCK_NONE' | 'BLOCK_FEW' | 'BLOCK_SOME' | 'BLOCK_MOST';
 }
 
 export interface GPTImageGenerationOptions {
@@ -45,122 +43,121 @@ export interface GPTImageEditOptions {
 }
 
 /**
- * Generate an image using Ideogram 3.0
+ * Generate an image using Nano Banana Pro (Gemini 3 Pro Image)
  */
-export async function generateImageWithIdeogram(
-  options: IdeogramGenerationOptions
+export async function generateImageWithNanoBanana(
+  options: NanoBananaGenerationOptions
 ): Promise<string> {
   try {
-    const apiKey = process.env.EXPO_PUBLIC_VIBECODE_IDEOGRAM_API_KEY;
+    const apiKey = process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
     if (!apiKey) {
-      throw new Error('Ideogram API key not configured');
+      throw new Error('Google API key not configured');
     }
 
-    const formData = new FormData();
-    formData.append('prompt', options.prompt);
+    // Build the request payload
+    const requestBody: any = {
+      prompt: options.prompt,
+      number_of_images: options.numberOfImages || 1,
+    };
 
-    if (options.aspectRatio) formData.append('aspect_ratio', options.aspectRatio);
-    if (options.resolution) formData.append('resolution', options.resolution);
-    if (options.renderingSpeed) formData.append('rendering_speed', options.renderingSpeed);
-    if (options.negativePrompt) formData.append('negative_prompt', options.negativePrompt);
-    if (options.magicPrompt) formData.append('magic_prompt', options.magicPrompt);
-    if (options.numImages) formData.append('num_images', options.numImages.toString());
-    if (options.styleType) formData.append('style_type', options.styleType);
+    if (options.aspectRatio) requestBody.aspect_ratio = options.aspectRatio;
+    if (options.resolution && options.resolution !== 'auto') requestBody.resolution = options.resolution;
+    if (options.negativePrompt) requestBody.negative_prompt = options.negativePrompt;
+    if (options.safetySettings) requestBody.safety_settings = options.safetySettings;
+    if (options.personGeneration !== undefined) requestBody.person_generation = options.personGeneration;
 
-    const response = await fetch('https://api.ideogram.ai/v1/ideogram-v3/generate', {
-      method: 'POST',
-      headers: {
-        'Api-Key': apiKey,
-      },
-      body: formData,
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-3-pro-image:generateImage?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`Ideogram generation failed: ${error}`);
+      throw new Error(`Nano Banana Pro generation failed: ${error}`);
     }
 
     const data = await response.json();
-    if (!data.data || data.data.length === 0) {
+    if (!data.images || data.images.length === 0) {
       throw new Error('No image generated');
     }
 
-    const imageUrl = data.data[0].url;
+    // Images are returned as base64 strings
+    const base64Image = data.images[0].image;
 
-    // Download the image immediately (URLs expire quickly)
+    // Save base64 image to file
     const timestamp = Date.now();
-    const fileUri = `${FileSystem.documentDirectory}ideogram_${timestamp}.png`;
-    await FileSystem.downloadAsync(imageUrl, fileUri);
+    const fileUri = `${FileSystem.documentDirectory}nano_banana_${timestamp}.png`;
+    await FileSystem.writeAsStringAsync(fileUri, base64Image, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
 
     return fileUri;
   } catch (error) {
-    console.error('[imageGeneration.ts]: Ideogram generation error:', error);
+    console.error('[imageGeneration.ts]: Nano Banana Pro generation error:', error);
     throw error;
   }
 }
 
 /**
- * Edit an image using Ideogram 3.0
+ * Edit an image using Nano Banana Pro (Gemini 3 Pro Image)
  */
-export async function editImageWithIdeogram(
-  options: IdeogramEditOptions
+export async function editImageWithNanoBanana(
+  options: NanoBananaEditOptions
 ): Promise<string> {
   try {
-    const apiKey = process.env.EXPO_PUBLIC_VIBECODE_IDEOGRAM_API_KEY;
+    const apiKey = process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
     if (!apiKey) {
-      throw new Error('Ideogram API key not configured');
+      throw new Error('Google API key not configured');
     }
 
-    const formData = new FormData();
-    formData.append('prompt', options.prompt);
-    formData.append('rendering_speed', options.renderingSpeed || 'DEFAULT');
+    const requestBody: any = {
+      prompt: options.prompt,
+      image: options.imageBase64,
+      number_of_images: options.numberOfImages || 1,
+    };
 
-    // Add image file
-    formData.append('image', {
-      uri: options.imageUri,
-      type: 'image/png',
-      name: 'image.png',
-    } as any);
+    if (options.maskBase64) requestBody.mask = options.maskBase64;
+    if (options.safetySettings) requestBody.safety_settings = options.safetySettings;
 
-    // Add mask file
-    formData.append('mask', {
-      uri: options.maskUri,
-      type: 'image/png',
-      name: 'mask.png',
-    } as any);
-
-    if (options.magicPrompt) formData.append('magic_prompt', options.magicPrompt);
-    if (options.numImages) formData.append('num_images', options.numImages.toString());
-    if (options.styleType) formData.append('style_type', options.styleType);
-
-    const response = await fetch('https://api.ideogram.ai/v1/ideogram-v3/edit', {
-      method: 'POST',
-      headers: {
-        'Api-Key': apiKey,
-      },
-      body: formData,
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-3-pro-image:editImage?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.text();
-      throw new Error(`Ideogram edit failed: ${error}`);
+      throw new Error(`Nano Banana Pro edit failed: ${error}`);
     }
 
     const data = await response.json();
-    if (!data.data || data.data.length === 0) {
+    if (!data.images || data.images.length === 0) {
       throw new Error('No edited image returned');
     }
 
-    const editedUrl = data.data[0].url;
+    const base64EditedImage = data.images[0].image;
 
-    // Download the edited image immediately
+    // Save edited image
     const timestamp = Date.now();
-    const fileUri = `${FileSystem.documentDirectory}ideogram_edited_${timestamp}.png`;
-    await FileSystem.downloadAsync(editedUrl, fileUri);
+    const fileUri = `${FileSystem.documentDirectory}nano_banana_edited_${timestamp}.png`;
+    await FileSystem.writeAsStringAsync(fileUri, base64EditedImage, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
 
     return fileUri;
   } catch (error) {
-    console.error('[imageGeneration.ts]: Ideogram edit error:', error);
+    console.error('[imageGeneration.ts]: Nano Banana Pro edit error:', error);
     throw error;
   }
 }
@@ -292,7 +289,7 @@ export async function editImageWithGPT(
 }
 
 /**
- * Generate equipment mockup visualization
+ * Generate equipment mockup visualization using Nano Banana Pro
  */
 export async function generateEquipmentMockup(
   equipmentName: string,
@@ -303,17 +300,16 @@ export async function generateEquipmentMockup(
     ? `Professional, photorealistic image of ${equipmentName} installed in a ${roomType}. Clean, well-lit, modern interior design. High quality, architectural photography style.`
     : `Technical diagram showing ${equipmentName} installation in a ${roomType}. Clean schematic style with measurements and specifications. Professional technical illustration.`;
 
-  return generateImageWithIdeogram({
+  return generateImageWithNanoBanana({
     prompt,
-    aspectRatio: '16x9',
-    renderingSpeed: 'TURBO',
-    styleType: style === 'realistic' ? 'REALISTIC' : 'DESIGN',
-    magicPrompt: 'ON',
+    aspectRatio: '16:9',
+    resolution: '2048x2048',
+    numberOfImages: 1,
   });
 }
 
 /**
- * Generate property modification visualization
+ * Generate property modification visualization using Nano Banana Pro
  */
 export async function generatePropertyModification(
   modificationType: string,
@@ -322,15 +318,16 @@ export async function generatePropertyModification(
 ): Promise<string> {
   const prompt = `Professional architectural visualization showing ${modificationType} in a ${roomType}. ${details}. Photorealistic, well-lit, modern design. High quality interior rendering.`;
 
-  return generateImageWithGPT({
+  return generateImageWithNanoBanana({
     prompt,
-    size: '1536x1024',
-    quality: 'high',
+    aspectRatio: '3:2',
+    resolution: '2048x2048',
+    numberOfImages: 1,
   });
 }
 
 /**
- * Generate IoT device placement visualization
+ * Generate IoT device placement visualization using Nano Banana Pro
  */
 export async function generateIoTDevicePlacementVisualization(
   deviceName: string,
@@ -339,11 +336,10 @@ export async function generateIoTDevicePlacementVisualization(
 ): Promise<string> {
   const prompt = `Photorealistic interior view of a ${roomType} showing ${deviceName} placement. ${placementDetails}. Professional, well-lit, modern smart home design. Clear visibility of device location.`;
 
-  return generateImageWithIdeogram({
+  return generateImageWithNanoBanana({
     prompt,
-    aspectRatio: '4x3',
-    renderingSpeed: 'DEFAULT',
-    styleType: 'REALISTIC',
-    magicPrompt: 'ON',
+    aspectRatio: '4:3',
+    resolution: '2048x2048',
+    numberOfImages: 1,
   });
 }
