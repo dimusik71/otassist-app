@@ -373,7 +373,10 @@ Functional assessment based on FIM and Barthel Index
 
 **Form Features:**
 - **Detailed Questions** with clinical context and descriptions
-- **Yes/No, Text, Multiple Choice, and Rating** response types
+- **Multiple Question Types** - Yes/No, Text, Multiple Choice, Checkbox, and Rating response types
+- **Checkbox Questions** - Multi-select options with mandatory validation
+- **Required Field Validation** - Enforce completion of critical questions before proceeding
+- **Smart Pre-filling** - Automatically populate answers from previous completed assessments for the same client
 - **Media Documentation** - Photo/video upload for each question
 - **Real-time AI Analysis** - Instant feedback using appropriate AI model (GPT-4o, Gemini 2.5 Flash)
 - **Contextual AI Prompts** - Each question has specific analysis instructions for OT best practices
@@ -383,7 +386,29 @@ Functional assessment based on FIM and Barthel Index
 
 ### Recent Updates
 
-**LATEST: Gemini 3 Pro Image & Video Integration:**
+**LATEST: Checkbox Questions & Smart Pre-filling:**
+- ✅ **Checkbox Question Type** - Multi-select questions for comprehensive data collection
+  - Multiple selection support (e.g., "Indoor use", "Outdoor use", "Community access")
+  - Visual checkbox UI with teal accent colors
+  - Stored as JSON arrays for structured data
+- ✅ **Required Field Validation** - Mandatory questions must be completed before proceeding
+  - Checkbox validation ensures at least one option selected
+  - Alert messages for incomplete required fields
+  - Applies to yes/no, multiple choice, and checkbox questions
+- ✅ **Smart Pre-filling System** - Automatically populate answers from previous assessments
+  - Fetches responses from completed/approved assessments for the same client
+  - Questions can define `prefillFrom` array to specify related question IDs
+  - Visual indicator shows when data is pre-filled
+  - Works across different assessment types (e.g., mobility data pre-fills scooter assessment)
+- ✅ **Backend API** - New endpoint `/api/assessments/client/:clientId/previous-responses`
+  - Retrieves all responses from completed assessments
+  - Sorted by most recent first
+  - Proper authorization and client verification
+- ✅ **Fixed Navigation** - Creating new assessments now goes directly to ConductAssessment screen
+  - Previously incorrectly went to AssessmentDetail
+  - Now properly shows assessment form for data entry
+
+**PREVIOUS: Gemini 3 Pro Image & Video Integration:**
 - ✅ **Gemini 3 Pro Image** - Advanced image analysis across all assessment types
   - 4K resolution support with 4096 max output tokens
   - Enhanced visual inspection for equipment, hazards, and accessibility

@@ -7,10 +7,12 @@ export type AssessmentQuestion = {
   id: string;
   question: string;
   description?: string;
-  type: "yes_no" | "text" | "rating" | "multiple_choice";
+  type: "yes_no" | "text" | "rating" | "multiple_choice" | "checkbox";
   options?: string[];
   requiresMedia?: boolean;
+  required?: boolean; // Mark question as mandatory
   aiPrompt: string; // Specific prompt for AI analysis
+  prefillFrom?: string[]; // Array of question IDs to prefill from (e.g., ["scooter_env_1", "entrance_1"])
 };
 
 export type AssessmentSection = {

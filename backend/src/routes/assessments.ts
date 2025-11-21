@@ -679,4 +679,44 @@ assessmentsRouter.get("/:assessmentId/responses", async (c) => {
   return c.json({ success: true, responses });
 });
 
+// GET /api/assessments/client/:clientId/previous-responses - Get all responses from previous assessments for a client
+assessmentsRouter.get("/client/:clientId/previous-responses", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { clientId } = c.req.param();
+
+  // Verify that the client belongs to this user
+  const client = await db.client.findFirst({
+    where: { id: clientId, userId: user.id },
+  });
+
+  if (!client) {
+    return c.json({ error: "Client not found" }, 404);
+  }
+
+  // Get all completed assessments for this client (excluding current assessment if any)
+  const assessments = await db.assessment.findMany({
+    where: {
+      clientId,
+      userId: user.id,
+      status: { in: ["completed", "approved"] }, // Only get completed assessments for pre-filling
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  // Get all responses from these assessments
+  const assessmentIds = assessments.map((a) => a.id);
+  const responses = await db.assessmentResponse.findMany({
+    where: {
+      assessmentId: { in: assessmentIds },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  return c.json({ success: true, responses });
+});
+
 export default assessmentsRouter;

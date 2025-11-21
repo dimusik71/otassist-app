@@ -16,19 +16,23 @@ export const MOBILITY_SCOOTER_ASSESSMENT: AssessmentSection[] = [
       {
         id: "scooter_1",
         question: "What is the primary purpose for the mobility scooter?",
-        description: "Indoor use, outdoor use, or both",
-        type: "multiple_choice",
-        options: ["Indoor only", "Outdoor only", "Indoor and outdoor", "Community access"],
+        description: "Select all that apply - at least one required",
+        type: "checkbox",
+        options: ["Indoor use", "Outdoor use", "Community access", "Shopping/errands"],
+        required: true,
         requiresMedia: false,
         aiPrompt: "Analyze the client's stated purpose for the mobility scooter. Consider their lifestyle, community participation goals, and NDIS reasonable and necessary criteria. Recommend appropriate scooter class and features.",
+        prefillFrom: ["entrance_1", "scooter_env_1"], // Can prefill from previous environmental assessments
       },
       {
         id: "scooter_2",
         question: "What is the client's current mobility level?",
         type: "multiple_choice",
         options: ["Walks independently", "Uses walking aid", "Wheelchair user", "Limited walking distance"],
+        required: true,
         requiresMedia: false,
         aiPrompt: "Assess the client's baseline mobility. Determine if a scooter is the most appropriate mobility aid or if other options should be considered. Evaluate for NDIS funding eligibility.",
+        prefillFrom: ["movement_transfers_1", "movement_walking_1"], // Can prefill from movement assessment
       },
       {
         id: "scooter_3",

@@ -64,31 +64,87 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
     currentQuestionIndex;
 
   const [answer, setAnswer] = useState<string>("");
+  const [checkboxSelections, setCheckboxSelections] = useState<string[]>([]);
   const [notes, setNotes] = useState<string>("");
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<string | null>(null);
 
-  // Load existing responses
+  // Load existing responses for this assessment
   const { data: responsesData } = useQuery({
     queryKey: ["assessment-responses", assessmentId],
     queryFn: () => api.get<{ success: boolean; responses: any[] }>(`/api/assessments/${assessmentId}/responses`),
   });
 
-  // Load existing response for current question
+  // Load previous assessments for pre-filling (for the same client)
+  const { data: assessmentDetail } = useQuery({
+    queryKey: ["assessment-detail", assessmentId],
+    queryFn: () => api.get<{ assessment: any }>(`/api/assessments/${assessmentId}`),
+  });
+
+  const { data: previousResponsesData } = useQuery({
+    queryKey: ["previous-responses", assessmentDetail?.assessment?.clientId],
+    queryFn: async () => {
+      if (!assessmentDetail?.assessment?.clientId) return { responses: [] };
+      return api.get<{ success: boolean; responses: any[] }>(
+        `/api/assessments/client/${assessmentDetail.assessment.clientId}/previous-responses`
+      );
+    },
+    enabled: !!assessmentDetail?.assessment?.clientId,
+  });
+
+  // Load existing response for current question with pre-filling
   React.useEffect(() => {
     const existingResponse = responsesData?.responses?.find((r) => r.questionId === currentQuestion.id);
+
     if (existingResponse) {
-      setAnswer(existingResponse.answer || "");
+      // Load saved response
+      if (currentQuestion.type === "checkbox") {
+        try {
+          const parsed = JSON.parse(existingResponse.answer || "[]");
+          setCheckboxSelections(Array.isArray(parsed) ? parsed : []);
+        } catch {
+          setCheckboxSelections([]);
+        }
+      } else {
+        setAnswer(existingResponse.answer || "");
+      }
       setNotes(existingResponse.notes || "");
       setMediaUrl(existingResponse.mediaUrl || null);
       setMediaType(existingResponse.mediaType || null);
     } else {
-      setAnswer("");
-      setNotes("");
+      // Try to pre-fill from previous assessments
+      if (currentQuestion.prefillFrom && previousResponsesData?.responses) {
+        const prefillResponse = previousResponsesData.responses.find((r: any) =>
+          currentQuestion.prefillFrom?.includes(r.questionId)
+        );
+        if (prefillResponse) {
+          if (currentQuestion.type === "checkbox") {
+            try {
+              const parsed = JSON.parse(prefillResponse.answer || "[]");
+              setCheckboxSelections(Array.isArray(parsed) ? parsed : []);
+            } catch {
+              setCheckboxSelections([]);
+            }
+          } else {
+            setAnswer(prefillResponse.answer || "");
+          }
+          setNotes(prefillResponse.notes || "");
+        } else {
+          // No pre-fill data, reset
+          setAnswer("");
+          setCheckboxSelections([]);
+          setNotes("");
+        }
+      } else {
+        // No pre-fill configured, reset
+        setAnswer("");
+        setCheckboxSelections([]);
+        setNotes("");
+      }
       setMediaUrl(null);
       setMediaType(null);
     }
-  }, [currentQuestion.id, responsesData]);
+  }, [currentQuestion.id, responsesData, previousResponsesData]);
 
   const { mutate: saveResponse, isPending: saving } = useMutation({
     mutationFn: (data: any) => api.post(`/api/assessments/${assessmentId}/responses`, data),
@@ -175,11 +231,25 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
   };
 
   const handleSaveAndNext = () => {
+    // Validate required fields
+    if (currentQuestion.required) {
+      if (currentQuestion.type === "checkbox" && checkboxSelections.length === 0) {
+        Alert.alert("Required Field", "Please select at least one option before continuing.");
+        return;
+      }
+      if ((currentQuestion.type === "yes_no" || currentQuestion.type === "multiple_choice") && !answer) {
+        Alert.alert("Required Field", "Please answer this question before continuing.");
+        return;
+      }
+    }
+
     // Save current response
+    const answerToSave = currentQuestion.type === "checkbox" ? JSON.stringify(checkboxSelections) : answer;
+
     saveResponse({
       questionId: currentQuestion.id,
       sectionId: currentSection.id,
-      answer,
+      answer: answerToSave,
       notes,
       mediaUrl,
       mediaType,
@@ -188,7 +258,7 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
     // Move to next question
     if (currentQuestionIndex < currentSection.questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else if (currentSectionIndex < ASSESSMENT_FORM.length - 1) {
+    } else if (currentSectionIndex < assessmentForm.length - 1) {
       setCurrentSectionIndex(currentSectionIndex + 1);
       setCurrentQuestionIndex(0);
     } else {
@@ -207,7 +277,7 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
     } else if (currentSectionIndex > 0) {
       setCurrentSectionIndex(currentSectionIndex - 1);
-      setCurrentQuestionIndex(ASSESSMENT_FORM[currentSectionIndex - 1].questions.length - 1);
+      setCurrentQuestionIndex(assessmentForm[currentSectionIndex - 1].questions.length - 1);
     }
   };
 
@@ -324,6 +394,91 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
           />
         )}
 
+        {/* Multiple Choice */}
+        {currentQuestion.type === "multiple_choice" && currentQuestion.options && (
+          <View className="mb-6">
+            {currentQuestion.options.map((option) => (
+              <Pressable
+                key={option}
+                onPress={() => setAnswer(option)}
+                className={`mb-3 py-4 px-4 rounded-xl flex-row items-center ${
+                  answer === option ? "bg-blue-600 border-2 border-blue-600" : "bg-white border-2 border-gray-300"
+                }`}
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.05,
+                  shadowRadius: 2,
+                  elevation: 1,
+                }}
+              >
+                <View
+                  className={`w-5 h-5 rounded-full mr-3 items-center justify-center ${
+                    answer === option ? "bg-white" : "bg-gray-200"
+                  }`}
+                >
+                  {answer === option && <View className="w-3 h-3 rounded-full bg-blue-600" />}
+                </View>
+                <Text className={`font-semibold ${answer === option ? "text-white" : "text-gray-900"}`}>
+                  {option}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
+        {/* Checkbox */}
+        {currentQuestion.type === "checkbox" && currentQuestion.options && (
+          <View className="mb-6">
+            {currentQuestion.prefillFrom && previousResponsesData?.responses && (
+              <View className="bg-teal-50 border border-teal-200 rounded-xl p-3 mb-3">
+                <Text className="text-teal-700 text-sm font-semibold">
+                  ✨ Pre-filled from previous assessment
+                </Text>
+              </View>
+            )}
+            {currentQuestion.options.map((option) => {
+              const isSelected = checkboxSelections.includes(option);
+              return (
+                <Pressable
+                  key={option}
+                  onPress={() => {
+                    if (isSelected) {
+                      setCheckboxSelections(checkboxSelections.filter((s) => s !== option));
+                    } else {
+                      setCheckboxSelections([...checkboxSelections, option]);
+                    }
+                  }}
+                  className={`mb-3 py-4 px-4 rounded-xl flex-row items-center ${
+                    isSelected ? "bg-teal-50 border-2 border-teal-600" : "bg-white border-2 border-gray-300"
+                  }`}
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.05,
+                    shadowRadius: 2,
+                    elevation: 1,
+                  }}
+                >
+                  <View
+                    className={`w-5 h-5 rounded mr-3 items-center justify-center ${
+                      isSelected ? "bg-teal-600" : "bg-gray-200 border border-gray-400"
+                    }`}
+                  >
+                    {isSelected && <CheckCircle size={20} color="white" />}
+                  </View>
+                  <Text className={`font-semibold ${isSelected ? "text-teal-900" : "text-gray-900"}`}>
+                    {option}
+                  </Text>
+                </Pressable>
+              );
+            })}
+            {currentQuestion.required && (
+              <Text className="text-red-600 text-sm mt-2">* At least one selection required</Text>
+            )}
+          </View>
+        )}
+
         {/* Notes */}
         <Text className="text-sm font-semibold text-gray-700 mb-2">Additional Notes (Optional)</Text>
         <TextInput
@@ -411,7 +566,7 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
         )}
 
         {/* AI Feedback Button */}
-        {(answer || notes || mediaUrl) && (
+        {(answer || checkboxSelections.length > 0 || notes || mediaUrl) && (
           <LinearGradient
             colors={["#7C3AED", "#1D4ED8"]}
             start={{ x: 0, y: 0 }}
@@ -487,11 +642,11 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
           )}
           <Pressable
             onPress={handleSaveAndNext}
-            disabled={saving || (currentQuestion.type === "yes_no" && !answer)}
+            disabled={saving}
             className="py-4 px-6 rounded-xl flex-1 flex-row items-center justify-center gap-2"
             style={{
               backgroundColor: "#1D4ED8",
-              opacity: saving || (currentQuestion.type === "yes_no" && !answer) ? 0.5 : 1,
+              opacity: saving ? 0.5 : 1,
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.15,
@@ -504,7 +659,7 @@ function ConductAssessmentScreen({ navigation, route }: Props) {
             ) : (
               <>
                 <Text className="text-white font-bold text-base">
-                  {currentSectionIndex === ASSESSMENT_FORM.length - 1 &&
+                  {currentSectionIndex === assessmentForm.length - 1 &&
                   currentQuestionIndex === currentSection.questions.length - 1
                     ? "Complete"
                     : "Next"}
