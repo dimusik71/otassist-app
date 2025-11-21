@@ -3,13 +3,15 @@
 
 /**
  * Agent Types:
- * - VISION: Image analysis (Gemini 2.5 Flash - multimodal)
+ * - VISION: Image/Video analysis (Gemini 3 Pro Image - advanced multimodal)
+ * - VIDEO: Video analysis (Gemini 3 Pro Video - specialized video understanding)
  * - TRANSCRIPTION: Audio transcription (OpenAI Whisper / GPT-4O)
  * - ANALYSIS: Text analysis and summarization (GPT-5 Mini)
  * - RECOMMENDATION: Equipment recommendations (Grok 4 Fast)
+ * - IMAGE_GENERATION: Image generation (Nano Banana Pro - Gemini 3 Pro Image)
  */
 
-export type AgentType = "vision" | "transcription" | "analysis" | "recommendation";
+export type AgentType = "vision" | "video" | "transcription" | "analysis" | "recommendation" | "image_generation";
 
 export interface AgentTask {
   type: AgentType;
@@ -25,16 +27,17 @@ export interface AgentResponse {
 }
 
 /**
- * Vision Agent - Analyzes images using Gemini 2.5 Flash
- * Best for: Photo analysis, equipment identification, environment assessment
+ * Vision Agent - Analyzes images using Gemini 3 Pro Image
+ * Best for: Photo analysis, equipment identification, environment assessment, detailed visual inspection
  */
 export async function visionAgent(
   imageBase64: string,
-  prompt: string
+  prompt: string,
+  mimeType: string = "image/jpeg"
 ): Promise<AgentResponse> {
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent",
       {
         method: "POST",
         headers: {
@@ -49,7 +52,7 @@ export async function visionAgent(
                 { text: prompt },
                 {
                   inline_data: {
-                    mime_type: "image/jpeg",
+                    mime_type: mimeType,
                     data: imageBase64,
                   },
                 },
@@ -58,15 +61,17 @@ export async function visionAgent(
           ],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 2048,
-            thinkingConfig: { thinkingBudget: 0 },
+            maxOutputTokens: 4096,
+            topP: 0.95,
+            topK: 40,
           },
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`Gemini 3 API error: ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -75,13 +80,78 @@ export async function visionAgent(
     return {
       success: true,
       data: { analysis: text },
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-image",
     };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Vision analysis failed",
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-image",
+    };
+  }
+}
+
+/**
+ * Video Agent - Analyzes videos using Gemini 3 Pro Video
+ * Best for: Video walkthroughs, gait analysis, transfer assessments, functional mobility
+ */
+export async function videoAgent(
+  videoBase64: string,
+  prompt: string,
+  mimeType: string = "video/mp4"
+): Promise<AgentResponse> {
+  try {
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-video:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: prompt },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: videoBase64,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 8192, // More tokens for detailed video analysis
+            topP: 0.95,
+            topK: 40,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini 3 Video API error: ${response.statusText} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    return {
+      success: true,
+      data: { analysis: text },
+      model: "gemini-3-pro-video",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Video analysis failed",
+      model: "gemini-3-pro-video",
     };
   }
 }
@@ -199,7 +269,7 @@ export async function recommendationAgent(
 }
 
 /**
- * Structured Analysis Agent - Returns JSON using Gemini
+ * Structured Analysis Agent - Returns JSON using Gemini 3 Pro
  * Best for: Structured data extraction, form filling, categorization
  */
 export async function structuredAnalysisAgent<T = unknown>(
@@ -208,7 +278,7 @@ export async function structuredAnalysisAgent<T = unknown>(
 ): Promise<AgentResponse> {
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro:generateContent",
       {
         method: "POST",
         headers: {
@@ -226,14 +296,14 @@ export async function structuredAnalysisAgent<T = unknown>(
             responseMimeType: "application/json",
             responseSchema: schema,
             temperature: 0.5,
-            thinkingConfig: { thinkingBudget: 0 },
+            maxOutputTokens: 4096,
           },
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.statusText}`);
+      throw new Error(`Gemini 3 API error: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -243,13 +313,13 @@ export async function structuredAnalysisAgent<T = unknown>(
     return {
       success: true,
       data: parsed as T,
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro",
     };
   } catch (error) {
     return {
       success: false,
       error: error instanceof Error ? error.message : "Structured analysis failed",
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro",
     };
   }
 }

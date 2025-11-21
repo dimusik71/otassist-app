@@ -220,7 +220,7 @@ Return ONLY valid JSON in this exact format:
   }
 });
 
-// POST /api/ai/vision-analysis - Analyze images using Gemini
+// POST /api/ai/vision-analysis - Analyze images using Gemini 3 Pro Image
 aiRouter.post("/vision-analysis", async (c) => {
   const user = c.get("user");
   if (!user?.id) {
@@ -228,7 +228,7 @@ aiRouter.post("/vision-analysis", async (c) => {
   }
 
   const body = await c.req.json();
-  const { imageBase64, prompt } = body;
+  const { imageBase64, prompt, mimeType = "image/jpeg" } = body;
 
   if (!imageBase64 || !prompt) {
     return c.json({ error: "Missing imageBase64 or prompt" }, 400);
@@ -236,7 +236,7 @@ aiRouter.post("/vision-analysis", async (c) => {
 
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent",
       {
         method: "POST",
         headers: {
@@ -251,7 +251,7 @@ aiRouter.post("/vision-analysis", async (c) => {
                 { text: prompt },
                 {
                   inline_data: {
-                    mime_type: "image/jpeg",
+                    mime_type: mimeType,
                     data: imageBase64,
                   },
                 },
@@ -260,15 +260,17 @@ aiRouter.post("/vision-analysis", async (c) => {
           ],
           generationConfig: {
             temperature: 0.7,
-            maxOutputTokens: 2048,
-            thinkingConfig: { thinkingBudget: 0 },
+            maxOutputTokens: 4096,
+            topP: 0.95,
+            topK: 40,
           },
         }),
       }
     );
 
     if (!response.ok) {
-      throw new Error("Gemini API request failed");
+      const errorText = await response.text();
+      throw new Error(`Gemini 3 API request failed: ${errorText}`);
     }
 
     const data = (await response.json()) as {
@@ -281,7 +283,7 @@ aiRouter.post("/vision-analysis", async (c) => {
     return c.json({
       success: true,
       analysis,
-      model: "gemini-2.5-flash",
+      model: "gemini-3-pro-image",
     });
   } catch (error) {
     console.error("Vision analysis error:", error);
@@ -595,6 +597,94 @@ aiRouter.post("/generate-3d-map", async (c) => {
     return c.json(
       {
         error: "Failed to generate 3D map",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
+// POST /api/ai/video-analysis - Analyze complete videos using Gemini 3 Pro Video
+aiRouter.post("/video-analysis", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await c.req.json();
+  const { videoBase64, prompt, mimeType = "video/mp4", assessmentType } = body;
+
+  if (!videoBase64 || !prompt) {
+    return c.json({ error: "Missing videoBase64 or prompt" }, 400);
+  }
+
+  try {
+    // Build assessment-specific prompt enhancements
+    let enhancedPrompt = prompt;
+    if (assessmentType === "falls_risk") {
+      enhancedPrompt = `${prompt}\n\nFocus on analyzing: gait pattern, balance, transfer technique, fall risk factors, mobility aids usage, and any safety concerns.`;
+    } else if (assessmentType === "movement_mobility") {
+      enhancedPrompt = `${prompt}\n\nFocus on analyzing: functional mobility, transfer independence, gait biomechanics, speed, step length, symmetry, and mobility aid effectiveness.`;
+    } else if (assessmentType === "mobility_scooter") {
+      enhancedPrompt = `${prompt}\n\nFocus on analyzing: scooter operation skills, steering control, obstacle navigation, transfer ability, and safety awareness.`;
+    }
+
+    const response = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-video:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: enhancedPrompt },
+                {
+                  inline_data: {
+                    mime_type: mimeType,
+                    data: videoBase64,
+                  },
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 8192,
+            topP: 0.95,
+            topK: 40,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini 3 Video API request failed: ${errorText}`);
+    }
+
+    const data = (await response.json()) as {
+      candidates?: Array<{
+        content?: { parts?: Array<{ text?: string }> };
+      }>;
+    };
+    const analysis = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    return c.json({
+      success: true,
+      analysis,
+      model: "gemini-3-pro-video",
+      assessmentType,
+    });
+  } catch (error) {
+    console.error("Video analysis error:", error);
+    return c.json(
+      {
+        error: "Failed to analyze video",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       500

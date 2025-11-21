@@ -42,8 +42,9 @@ This app enables OT/AH professionals to:
 ### AI & Machine Learning (Multi-Agent System)
 - **GPT-5 Mini** (OpenAI) - Assessment summaries and text analysis
 - **GPT-4O** (OpenAI) - Enhanced audio transcription and assessment question analysis
-- **Nano Banana Pro (Gemini 3 Pro Image)** (Google) - Equipment mockups and IoT device placement visualizations
-- **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
+- **Gemini 3 Pro** (Google) - Structured data extraction and JSON responses
+- **Gemini 3 Pro Image** (Google) - Advanced image analysis and equipment mockups (via Nano Banana Pro)
+- **Gemini 3 Pro Video** (Google) - Video analysis for gait, transfers, and mobility assessments
 - **Grok 4 Fast** (xAI) - Equipment recommendations and quick responses
 - **Multi-Agent Orchestrator** - Intelligent task routing to optimal AI model
 
@@ -142,7 +143,8 @@ All routes require authentication except `/health` and `/api/auth/*`
 - `POST /api/assessments/:id/analyze` - AI-powered assessment analysis (GPT-5 Mini)
 - `POST /api/ai/equipment-recommendations` - Equipment recommendations (Grok 4 Fast)
 - `POST /api/ai/generate-quotes` - Generate 3 quote options (Grok 4 Fast)
-- `POST /api/ai/vision-analysis` - Image analysis (Gemini 2.5 Flash)
+- `POST /api/ai/vision-analysis` - Image analysis (Gemini 3 Pro Image)
+- `POST /api/ai/video-analysis` - Video analysis (Gemini 3 Pro Video) with assessment-specific prompts
 
 #### Equipment
 - `GET /api/equipment` - List all equipment items
@@ -381,7 +383,31 @@ Functional assessment based on FIM and Barthel Index
 
 ### Recent Updates
 
-**NEW: Clinical & Mobility Assessment Forms (LATEST!):**
+**LATEST: Gemini 3 Pro Image & Video Integration:**
+- ✅ **Gemini 3 Pro Image** - Advanced image analysis across all assessment types
+  - 4K resolution support with 4096 max output tokens
+  - Enhanced visual inspection for equipment, hazards, and accessibility
+  - Supports all image formats (JPEG, PNG, WebP, HEIC)
+  - Higher accuracy for mobility aid identification and environmental assessment
+- ✅ **Gemini 3 Pro Video** - Full video analysis capabilities
+  - 8K token detailed analysis for comprehensive video assessment
+  - Gait analysis, balance testing, transfer technique evaluation
+  - Falls risk assessment through movement patterns
+  - Mobility scooter operation skill assessment
+  - Automatic assessment-type-specific prompt enhancement
+- ✅ **Gemini 3 Pro** - Structured data extraction and JSON schemas
+  - Enhanced reliability for form filling and categorization
+  - 4096 token responses for complex structured outputs
+- ✅ **Nano Banana Pro** - Latest Gemini 3 Pro Image generation
+  - Ultra-high quality equipment mockups and visualizations
+  - Multiple aspect ratios and resolution options (up to 3840x2160)
+  - Photorealistic, technical, and artistic style support
+  - Negative prompts for precise control
+- ✅ **Updated backend AI routes** with assessment-specific video analysis
+- ✅ **MIME type support** for all image and video formats
+- ✅ **Backward compatible** with existing assessment workflows
+
+**NEW: Clinical & Mobility Assessment Forms:**
 - ✅ **Mobility Scooter Assessment** - NDIS-compliant AS 3695 (31 questions across 5 sections)
   - Client capability assessment for safe scooter operation
   - Environmental home and community access evaluation
