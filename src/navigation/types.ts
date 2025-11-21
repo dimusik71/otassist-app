@@ -13,7 +13,7 @@ export type RootStackParamList = {
   Tabs: NavigatorScreenParams<BottomTabParamList> | undefined;
   LoginModalScreen: undefined;
   CreateAssessment: { clientId?: string };
-  ConductAssessment: { assessmentId: string };
+  ConductAssessment: { assessmentId: string; assessmentType: "home" | "assistive_tech" | "general" | "mobility_scooter" | "falls_risk" | "movement_mobility" };
   AssessmentDetail: { assessmentId: string };
   CreateClient: undefined;
   ClientDetail: { clientId: string };

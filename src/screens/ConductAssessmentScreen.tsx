@@ -25,22 +25,42 @@ import {
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
-import { ASSESSMENT_FORM, type AssessmentQuestion } from "@/constants/assessmentForm";
+import { ASSESSMENT_FORM, type AssessmentSection } from "@/constants/assessmentForm";
+import { MOBILITY_SCOOTER_ASSESSMENT } from "@/constants/mobilityScooterAssessment";
+import { FALLS_RISK_ASSESSMENT, MOVEMENT_MOBILITY_ASSESSMENT } from "@/constants/clinicalAssessment";
 
 type Props = RootStackScreenProps<"ConductAssessment">;
 
 function ConductAssessmentScreen({ navigation, route }: Props) {
-  const { assessmentId } = route.params;
+  const { assessmentId, assessmentType } = route.params;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
 
-  const currentSection = ASSESSMENT_FORM[currentSectionIndex];
-  const currentQuestion = currentSection.questions[currentQuestionIndex];
-  const totalQuestions = ASSESSMENT_FORM.reduce((sum, section) => sum + section.questions.length, 0);
+  // Select the appropriate assessment form based on type
+  const getAssessmentForm = (): AssessmentSection[] => {
+    switch (assessmentType) {
+      case "mobility_scooter":
+        return MOBILITY_SCOOTER_ASSESSMENT;
+      case "falls_risk":
+        return FALLS_RISK_ASSESSMENT;
+      case "movement_mobility":
+        return MOVEMENT_MOBILITY_ASSESSMENT;
+      case "home":
+      case "assistive_tech":
+      case "general":
+      default:
+        return ASSESSMENT_FORM;
+    }
+  };
+
+  const assessmentForm = getAssessmentForm();
+  const currentSection = assessmentForm[currentSectionIndex];
+  const currentQuestion = currentSection?.questions[currentQuestionIndex];
+  const totalQuestions = assessmentForm.reduce((sum, section) => sum + section.questions.length, 0);
   const completedQuestions =
-    ASSESSMENT_FORM.slice(0, currentSectionIndex).reduce((sum, section) => sum + section.questions.length, 0) +
+    assessmentForm.slice(0, currentSectionIndex).reduce((sum, section) => sum + section.questions.length, 0) +
     currentQuestionIndex;
 
   const [answer, setAnswer] = useState<string>("");

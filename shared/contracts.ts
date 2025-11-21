@@ -119,7 +119,7 @@ export type GetAssessmentsResponse = z.infer<typeof getAssessmentsResponseSchema
 // POST /api/assessments
 export const createAssessmentRequestSchema = z.object({
   clientId: z.string(),
-  assessmentType: z.enum(["home", "assistive_tech", "general"]),
+  assessmentType: z.enum(["home", "assistive_tech", "general", "mobility_scooter", "falls_risk", "movement_mobility"]),
   location: z.string().optional(),
   notes: z.string().optional(),
 });

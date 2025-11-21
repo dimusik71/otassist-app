@@ -6,6 +6,11 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 This app enables OT/AH professionals to:
 - Conduct AI-guided assessments with photo, video, and audio capture
+  - **Home Environmental Assessments** (50+ questions based on AOTA/CAOT standards)
+  - **Mobility Scooter Assessments** (NDIS-compliant AS 3695)
+  - **Falls Risk Assessments** (FRAT-based comprehensive evaluation)
+  - **Movement & Mobility Assessments** (FIM/Barthel Index)
+  - **Assistive Technology Assessments**
 - Manage client information and assessment history
 - Browse and recommend equipment from a comprehensive catalog
 - **Create 3D maps of properties with rooms and outdoor areas**
@@ -324,10 +329,10 @@ The app includes a comprehensive voice and audio AI system powered by GPT-4O and
 
 ### Environmental Assessment Form
 
-The app includes a comprehensive, structured environmental assessment form based on AOTA and CAOT standards for home safety assessments. This guided form ensures thorough, consistent evaluations with AI-powered feedback.
+The app includes comprehensive, structured assessment forms based on AOTA, CAOT standards, NDIS guidelines, and Australian legislation:
 
-**Form Structure:**
-- **8 Major Sections** covering all areas of home assessment:
+**1. Home Environmental Assessment (50+ questions)**
+- **8 Major Sections** covering all areas of home safety:
   1. **Entrance & Exit** (7 questions) - Accessibility, lighting, stairs, handrails
   2. **Bathroom** (8 questions) - Grab bars, toilet height, non-slip surfaces, space
   3. **Kitchen** (8 questions) - Storage access, lighting, appliances, safety
@@ -337,32 +342,69 @@ The app includes a comprehensive, structured environmental assessment form based
   7. **Safety & Emergency** (5 questions) - Detectors, exits, emergency contacts
   8. **Outdoor Spaces** (4 questions) - Pathways, lighting, steps, accessibility
 
-**Question Features:**
-- **50+ Detailed Questions** covering all aspects of home safety
-- **Yes/No and Text Responses** with optional additional notes
+**2. Mobility Scooter Assessment (NDIS-Compliant)**
+Based on AS 3695 and NDIS Assistive Technology Guidelines
+- **5 Major Sections** (31 questions total):
+  1. **Client Assessment** (7 questions) - Purpose, mobility level, transfer ability, cognitive function
+  2. **Environmental Assessment** (7 questions) - Storage, doorways, ramps, surfaces, turning space
+  3. **Scooter Specification** (6 questions) - Class selection, range, configuration, seating, safety features
+  4. **Safety & Training** (6 questions) - Operation, slope navigation, battery safety, maintenance
+  5. **NDIS Funding Justification** (5 questions) - Reasonable and necessary criteria, goals, alternatives
+
+**3. Falls Risk Assessment (FRAT-Based)**
+Comprehensive falls assessment based on FRAT and Aged Care Quality Standard 3
+- **5 Major Sections** (25 questions total):
+  1. **Falls History** (4 questions) - Previous falls, injuries, fear of falling, activity avoidance
+  2. **Mobility & Balance** (6 questions) - TUG test, sit-to-stand, balance, gait, mobility aids
+  3. **Medical Risk Factors** (6 questions) - Medications, dizziness, vision, conditions, blood pressure
+  4. **Environmental Hazards** (6 questions) - Rugs, lighting, stairs, grab rails, footwear, storage
+  5. **Falls Risk Score & Plan** (5 questions) - Risk rating, interventions, referrals, equipment, follow-up
+
+**4. Movement & Mobility Assessment (FIM/Barthel)**
+Functional assessment based on FIM and Barthel Index
+- **5 Major Sections** (25 questions total):
+  1. **Transfers** (5 questions) - Bed, chair, toilet, shower, car transfers with independence scoring
+  2. **Walking & Ambulation** (6 questions) - Distance, aids, stairs, outdoor surfaces, speed, gait
+  3. **Wheelchair Mobility** (5 questions) - Type, propulsion, fit, brakes, accessibility
+  4. **ADL Mobility Components** (4 questions) - Dressing, bathing, domestic tasks, meal prep
+  5. **Mobility Goals & Plan** (5 questions) - Goals, rehabilitation potential, equipment, referrals, scores
+
+**Form Features:**
+- **Detailed Questions** with clinical context and descriptions
+- **Yes/No, Text, Multiple Choice, and Rating** response types
 - **Media Documentation** - Photo/video upload for each question
-- **Real-time AI Analysis** - Get instant feedback using GPT-4o
-- **Contextual AI Prompts** - Each question has specific analysis instructions
+- **Real-time AI Analysis** - Instant feedback using appropriate AI model (GPT-4o, Gemini 2.5 Flash)
+- **Contextual AI Prompts** - Each question has specific analysis instructions for OT best practices
 - **Progress Tracking** - Visual progress bar shows completion status
 - **Response Persistence** - Answers automatically saved and can be resumed
-
-**AI Guidance:**
-- Upload photos/videos for any question
-- AI analyzes the media against OT best practices
-- Provides specific recommendations for improvements
-- Identifies if more documentation is needed
-- Suggests next steps and safety modifications
-
-**User Experience:**
-- One question at a time to focus attention
-- Section badges show current area being assessed
-- Previous/Next navigation with auto-save
-- Can exit and resume assessment anytime
-- Completed responses highlighted for easy tracking
+- **Risk Scoring** - Automated risk stratification for falls and clinical assessments
 
 ### Recent Updates
 
-**Voice & Audio AI (LATEST!):**
+**NEW: Clinical & Mobility Assessment Forms (LATEST!):**
+- ✅ **Mobility Scooter Assessment** - NDIS-compliant AS 3695 (31 questions across 5 sections)
+  - Client capability assessment for safe scooter operation
+  - Environmental home and community access evaluation
+  - Scooter class selection and specification (Class 1/2/3)
+  - Safety training and maintenance protocols
+  - NDIS funding justification with reasonable and necessary criteria
+- ✅ **Falls Risk Assessment** - FRAT-based comprehensive evaluation (25 questions across 5 sections)
+  - Falls history and fear of falling assessment
+  - Mobility and balance testing (TUG, functional reach, single-leg stance)
+  - Medical risk factors (medications, orthostatic hypotension, vision)
+  - Environmental hazard identification
+  - Risk stratification (Low/Moderate/High) and intervention planning
+- ✅ **Movement & Mobility Assessment** - FIM/Barthel functional assessment (25 questions across 5 sections)
+  - Transfer assessment (bed, chair, toilet, shower, car) with independence scoring
+  - Ambulation evaluation (distance, aids, stairs, gait analysis, 6MWT)
+  - Wheelchair mobility for manual and power chair users
+  - ADL mobility components (dressing, bathing, housework, meal prep)
+  - Goal-setting and rehabilitation potential determination
+- ✅ **Updated assessment type selection** with 6 assessment categories
+- ✅ **Dynamic form loading** based on assessment type
+- ✅ **Compliance with NDIS Practice Standards, Aged Care Quality Standards, and Australian legislation**
+
+**Voice & Audio AI:**
 - ✅ GPT-4O transcription with 99%+ accuracy and multi-language support
 - ✅ Contextual transcription for OT/AH terminology
 - ✅ ElevenLabs TTS integration with 4 professional voices

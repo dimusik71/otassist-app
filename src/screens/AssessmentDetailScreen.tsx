@@ -516,7 +516,10 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
           }}
         >
           <Pressable
-            onPress={() => navigation.navigate("ConductAssessment", { assessmentId })}
+            onPress={() => navigation.navigate("ConductAssessment", {
+              assessmentId,
+              assessmentType: assessment.assessmentType as "home" | "assistive_tech" | "general" | "mobility_scooter" | "falls_risk" | "movement_mobility"
+            })}
             className="p-5 flex-row items-center justify-between"
           >
             <View className="flex-1">

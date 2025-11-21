@@ -19,7 +19,7 @@ const CreateAssessmentScreen = ({ navigation, route }: Props) => {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(
     preselectedClientId || null
   );
-  const [assessmentType, setAssessmentType] = useState<"home" | "assistive_tech" | "general">(
+  const [assessmentType, setAssessmentType] = useState<"home" | "assistive_tech" | "general" | "mobility_scooter" | "falls_risk" | "movement_mobility">(
     "home"
   );
   const [location, setLocation] = useState("");
@@ -53,13 +53,17 @@ const CreateAssessmentScreen = ({ navigation, route }: Props) => {
   };
 
   const assessmentTypes = [
-    { value: "home" as const, label: "Home Assessment", description: "In-home evaluation" },
+    { value: "home" as const, label: "Home Assessment", description: "In-home environmental evaluation", category: "Environmental" },
     {
       value: "assistive_tech" as const,
-      label: "Assistive Tech",
-      description: "Technology assessment",
+      label: "Assistive Technology",
+      description: "Technology and equipment assessment",
+      category: "Environmental"
     },
-    { value: "general" as const, label: "General", description: "General evaluation" },
+    { value: "mobility_scooter" as const, label: "Mobility Scooter", description: "NDIS scooter prescription assessment", category: "Equipment" },
+    { value: "falls_risk" as const, label: "Falls Risk", description: "Comprehensive falls assessment (FRAT)", category: "Clinical" },
+    { value: "movement_mobility" as const, label: "Movement & Mobility", description: "Functional mobility assessment (FIM)", category: "Clinical" },
+    { value: "general" as const, label: "General", description: "General evaluation", category: "Other" },
   ];
 
   return (
