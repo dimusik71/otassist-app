@@ -12,6 +12,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, DollarSign, Plus, X } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -27,6 +28,7 @@ interface InvoiceItem {
 
 const GenerateInvoiceScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;
+  const insets = useSafeAreaInsets();
   const [items, setItems] = useState<InvoiceItem[]>([
     { description: "Assessment Services", quantity: 1, rate: 250 },
   ]);
@@ -100,15 +102,15 @@ const GenerateInvoiceScreen = ({ navigation, route }: Props) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+      style={{ flex: 1 }}
     >
-      <View className="flex-1 bg-gray-50">
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
         {/* Header */}
         <LinearGradient
           colors={["#2563EB", "#4F46E5"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="px-6 py-8"
+          style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
         >
           <View className="flex-row items-center mb-4">
             <Pressable

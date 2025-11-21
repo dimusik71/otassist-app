@@ -10,6 +10,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, FileText, Sparkles } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -31,6 +32,7 @@ interface QuoteOption {
 
 const GenerateQuoteScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;
+  const insets = useSafeAreaInsets();
   const [generating, setGenerating] = useState(false);
   const [quoteOptions, setQuoteOptions] = useState<QuoteOption[]>([]);
   const queryClient = useQueryClient();
@@ -85,13 +87,13 @@ const GenerateQuoteScreen = ({ navigation, route }: Props) => {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       {/* Header */}
       <LinearGradient
         colors={["#16A34A", "#059669"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="px-6 py-8"
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
       >
         <View className="flex-row items-center mb-4">
           <Pressable

@@ -8,7 +8,7 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Video, Camera, Square, CheckCircle, AlertTriangle, Edit3 } from "lucide-react-native";
@@ -35,6 +35,7 @@ const ROOM_TYPES = [
 
 export default function VideoWalkthroughScreen({ navigation, route }: Props) {
   const { assessmentId } = route.params;
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const [isRecording, setIsRecording] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
@@ -70,12 +71,15 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
 
   if (!permission.granted) {
     return (
-      <View className="flex-1 bg-white">
-        <SafeAreaView edges={["top"]} className="bg-blue-700">
-          <LinearGradient colors={["#1E40AF", "#3B82F6"]} className="px-6 py-4">
-            <Text className="text-white text-3xl font-bold">Camera Permission</Text>
-          </LinearGradient>
-        </SafeAreaView>
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+        <LinearGradient
+          colors={["#1E40AF", "#3B82F6"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+        >
+          <Text className="text-white text-3xl font-bold">Camera Permission</Text>
+        </LinearGradient>
         <View className="flex-1 justify-center items-center p-6">
           <Camera color="#1E40AF" size={64} />
           <Text className="text-xl font-bold text-gray-800 mt-6 mb-4 text-center">
@@ -227,14 +231,12 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
 
   return (
     <View className="flex-1 bg-black">
-      <SafeAreaView edges={["top"]} className="z-10">
-        <View className="px-6 py-4 bg-black/50">
-          <Text className="text-white text-2xl font-bold">AI Video Walkthrough</Text>
-          <Text className="text-gray-300 text-sm mt-1">
-            Rooms scanned: {roomsScanned.length} | Frames: {capturedFrames.length}
-          </Text>
-        </View>
-      </SafeAreaView>
+      <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 16, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10 }}>
+        <Text className="text-white text-2xl font-bold">AI Video Walkthrough</Text>
+        <Text className="text-gray-300 text-sm mt-1">
+          Rooms scanned: {roomsScanned.length} | Frames: {capturedFrames.length}
+        </Text>
+      </View>
 
       {/* Camera View - Live Preview */}
       <CameraView
@@ -320,7 +322,7 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
       </CameraView>
 
       {/* Controls */}
-      <SafeAreaView edges={["bottom"]} className="absolute bottom-0 left-0 right-0">
+      <View style={{ position: 'absolute', bottom: insets.bottom, left: 0, right: 0 }}>
         <View className="bg-black/80 px-6 py-6">
           {!isComplete ? (
             <View className="flex-row items-center justify-center gap-4">
@@ -368,7 +370,7 @@ export default function VideoWalkthroughScreen({ navigation, route }: Props) {
             </TouchableOpacity>
           )}
         </View>
-      </SafeAreaView>
+      </View>
 
       {/* Room Type Picker Modal */}
       <Modal

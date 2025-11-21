@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -28,6 +30,7 @@ const categories = [
 ];
 
 const AddEquipmentScreen = ({ navigation }: Props) => {
+  const insets = useSafeAreaInsets();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -79,9 +82,14 @@ const AddEquipmentScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       {/* Header */}
-      <View className="bg-orange-600 pt-12 pb-6 px-6">
+      <LinearGradient
+        colors={["#EA580C", "#F97316"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+      >
         <View className="flex-row items-center">
           <Pressable
             onPress={() => navigation.goBack()}
@@ -94,7 +102,7 @@ const AddEquipmentScreen = ({ navigation }: Props) => {
             <Text className="text-orange-100">New equipment item</Text>
           </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}

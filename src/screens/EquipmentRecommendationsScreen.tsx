@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, ActivityIndicator, Alert, TextInput 
 import { LinearGradient } from "expo-linear-gradient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Sparkles, ArrowLeft, Package, Plus, Trash2, Save } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -35,6 +36,7 @@ interface Equipment {
 
 const EquipmentRecommendationsScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;
+  const insets = useSafeAreaInsets();
   const [aiRecommendations, setAiRecommendations] = useState<string>("");
   const [loadingAI, setLoadingAI] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -132,13 +134,13 @@ const EquipmentRecommendationsScreen = ({ navigation, route }: Props) => {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       {/* Header */}
       <LinearGradient
         colors={["#9333EA", "#DB2777"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="pt-12 pb-6 px-6"
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
       >
         <View className="flex-row items-center">
           <Pressable onPress={() => navigation.goBack()} className="w-10 h-10 items-center justify-center">

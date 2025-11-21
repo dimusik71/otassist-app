@@ -8,7 +8,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ArrowLeft,
@@ -64,6 +64,7 @@ interface DevicePlacement {
 
 export default function DevicePlacementScreen({ navigation, route }: Props) {
   const { houseMapId, assessmentId } = route.params;
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -180,15 +181,18 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-white">
-        <SafeAreaView edges={["top"]} className="bg-purple-700">
-          <LinearGradient colors={["#7C3AED", "#A855F7"]} className="px-6 py-4">
-            <TouchableOpacity onPress={() => navigation.goBack()} className="mb-2">
-              <ArrowLeft color="#fff" size={24} />
-            </TouchableOpacity>
-            <Text className="text-white text-3xl font-bold">Device Placement</Text>
-          </LinearGradient>
-        </SafeAreaView>
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+        <LinearGradient
+          colors={["#7C3AED", "#A855F7"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+        >
+          <TouchableOpacity onPress={() => navigation.goBack()} className="mb-2">
+            <ArrowLeft color="#fff" size={24} />
+          </TouchableOpacity>
+          <Text className="text-white text-3xl font-bold">Device Placement</Text>
+        </LinearGradient>
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#7C3AED" />
         </View>
@@ -197,9 +201,13 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <SafeAreaView edges={["top"]} className="bg-purple-700">
-        <LinearGradient colors={["#7C3AED", "#A855F7"]} className="px-6 py-4">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+      <LinearGradient
+        colors={["#7C3AED", "#A855F7"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+      >
           <TouchableOpacity onPress={() => navigation.goBack()} className="mb-2">
             <ArrowLeft color="#fff" size={24} />
           </TouchableOpacity>
@@ -230,7 +238,6 @@ export default function DevicePlacementScreen({ navigation, route }: Props) {
             )}
           </View>
         </LinearGradient>
-      </SafeAreaView>
 
       <ScrollView className="flex-1">
         <View className="p-6">

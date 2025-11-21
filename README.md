@@ -670,6 +670,18 @@ Functional assessment based on FIM and Barthel Index
 
 ## Recent Bug Fixes
 
+### SafeArea Implementation for iPhone Pro Max (Latest)
+- **Issue**: Content overlapping with notch, clock, and battery icons on iPhone Pro Max and devices with dynamic island
+- **Cause**: Stack navigation screens were not using `useSafeAreaInsets` hook for proper top padding
+- **Fixes Applied**:
+  - Added `useSafeAreaInsets` hook to all 15+ screens with headers
+  - Updated all LinearGradient headers to use `style={{ paddingTop: insets.top + 16, ... }}`
+  - Replaced className with style prop for consistent safe area handling
+  - Fixed tab screens (AssessmentsScreen, ClientsScreen, EquipmentScreen)
+  - Fixed stack screens (AssessmentDetailScreen, CreateAssessmentScreen, CreateClientScreen, ConductAssessmentScreen, GenerateQuoteScreen, GenerateInvoiceScreen, EquipmentRecommendationsScreen, IoTDeviceLibraryScreen, HouseMappingScreen, DevicePlacementScreen, VideoWalkthroughScreen, AddEquipmentScreen)
+- **Result**: All screens now properly respect safe areas on all iPhone models including Pro Max, preventing content from being hidden behind system UI elements
+- **Location**: All screen files in `/src/screens/`
+
 ### TypeScript Errors Fixed (Latest)
 - **Issue**: Multiple TypeScript compilation errors in backend preventing type safety
 - **Errors Fixed**:
@@ -714,7 +726,7 @@ Functional assessment based on FIM and Barthel Index
 - Decimal fields (prices, totals) are returned as numbers
 - Equipment specifications stored as JSON strings
 - Invoice/quote items stored as JSON strings
-- Safe area handling is automatic via React Navigation
+- **Safe area handling**: Tab screens have automatic bottom insets via React Navigation tabs. Stack screens use `useSafeAreaInsets` hook for top padding on headers to avoid notch/dynamic island overlap.
 - Authentication required for all client data access
 - Tab screens use inline shadow styles instead of NativeWind shadow classes to avoid runtime CSS parsing issues
 - Auth client uses only Expo plugin (no OTP) to match backend email/password setup

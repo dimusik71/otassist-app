@@ -3,6 +3,7 @@ import { View, Text, Pressable, ScrollView, FlatList, ActivityIndicator } from "
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { X, Check, User } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -16,6 +17,7 @@ type Props = RootStackScreenProps<"CreateAssessment">;
 
 const CreateAssessmentScreen = ({ navigation, route }: Props) => {
   const preselectedClientId = route.params?.clientId;
+  const insets = useSafeAreaInsets();
   const [selectedClientId, setSelectedClientId] = useState<string | null>(
     preselectedClientId || null
   );
@@ -67,13 +69,13 @@ const CreateAssessmentScreen = ({ navigation, route }: Props) => {
   ];
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
       {/* Header */}
       <LinearGradient
         colors={["#1D4ED8", "#0D9488"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        className="px-6 py-8"
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-1">

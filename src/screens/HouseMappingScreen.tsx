@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Home, Plus, Edit2, Trash2, MapPin, Video } from "lucide-react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -19,6 +19,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "HouseMapping">;
 
 export default function HouseMappingScreen({ navigation, route }: Props) {
   const { assessmentId } = route.params;
+  const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [houseMap, setHouseMap] = useState<any>(null);
@@ -207,12 +208,15 @@ export default function HouseMappingScreen({ navigation, route }: Props) {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-white">
-        <SafeAreaView edges={["top"]} className="bg-blue-700">
-          <LinearGradient colors={["#1E40AF", "#3B82F6"]} className="px-6 py-4">
-            <Text className="text-white text-3xl font-bold">House Mapping</Text>
-          </LinearGradient>
-        </SafeAreaView>
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+        <LinearGradient
+          colors={["#1E40AF", "#3B82F6"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+        >
+          <Text className="text-white text-3xl font-bold">House Mapping</Text>
+        </LinearGradient>
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#1E40AF" />
         </View>
@@ -221,13 +225,16 @@ export default function HouseMappingScreen({ navigation, route }: Props) {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <SafeAreaView edges={["top"]} className="bg-blue-700">
-        <LinearGradient colors={["#1E40AF", "#3B82F6"]} className="px-6 py-4">
+    <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
+      <LinearGradient
+        colors={["#1E40AF", "#3B82F6"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
+      >
           <Text className="text-white text-3xl font-bold">House Mapping</Text>
           <Text className="text-blue-100 text-sm mt-1">Create 3D property layout</Text>
         </LinearGradient>
-      </SafeAreaView>
 
       <ScrollView className="flex-1">
         {!houseMap ? (

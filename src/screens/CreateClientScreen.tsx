@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Pla
 import { LinearGradient } from "expo-linear-gradient";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -11,6 +12,7 @@ import type { CreateClientRequest, CreateClientResponse } from "@/shared/contrac
 type Props = RootStackScreenProps<"CreateClient">;
 
 const CreateClientScreen = ({ navigation }: Props) => {
+  const insets = useSafeAreaInsets();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -47,15 +49,15 @@ const CreateClientScreen = ({ navigation }: Props) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+      style={{ flex: 1 }}
     >
-      <View className="flex-1 bg-gray-50">
+      <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
         {/* Header */}
         <LinearGradient
           colors={["#0D9488", "#1D4ED8"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          className="px-6 py-8"
+          style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
         >
           <View className="flex-row items-center justify-between">
             <View className="flex-1">
