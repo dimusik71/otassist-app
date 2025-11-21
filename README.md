@@ -35,10 +35,11 @@ This app enables OT/AH professionals to:
 - **Zod** for schema validation
 
 ### AI & Machine Learning (Multi-Agent System)
-- **Gemini 2.5 Flash** (Google) - Text analysis, assessment summaries, and equipment recommendations
-- **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
+- **GPT-5 Mini** (OpenAI) - Assessment summaries and text analysis
+- **GPT-4O** (OpenAI) - Enhanced audio transcription and assessment question analysis
 - **Nano Banana Pro (Gemini 3 Pro Image)** (Google) - Equipment mockups and IoT device placement visualizations
-- **GPT-4O** (OpenAI) - Enhanced audio transcription with multi-language support
+- **Gemini 2.5 Flash** (Google) - Image analysis and structured data extraction
+- **Grok 4 Fast** (xAI) - Equipment recommendations and quick responses
 - **Multi-Agent Orchestrator** - Intelligent task routing to optimal AI model
 
 ### Audio & Voice
@@ -340,7 +341,7 @@ The app includes a comprehensive, structured environmental assessment form based
 - **50+ Detailed Questions** covering all aspects of home safety
 - **Yes/No and Text Responses** with optional additional notes
 - **Media Documentation** - Photo/video upload for each question
-- **Real-time AI Analysis** - Get instant feedback using Gemini 2.5 Flash
+- **Real-time AI Analysis** - Get instant feedback using GPT-4o
 - **Contextual AI Prompts** - Each question has specific analysis instructions
 - **Progress Tracking** - Visual progress bar shows completion status
 - **Response Persistence** - Answers automatically saved and can be resumed
@@ -490,8 +491,9 @@ The app includes a comprehensive, structured environmental assessment form based
 
 **Multi-Agent AI System:**
 - Intelligent task routing to optimal AI model
-- Gemini 2.5 Flash for professional summaries, analysis, and recommendations
-- Gemini 2.5 Flash for vision and structured data extraction
+- GPT-5 Mini for professional summaries and analysis
+- Gemini 2.5 Flash for vision and structured data
+- Grok 4 Fast for quick equipment recommendations
 - Orchestrated workflows combining multiple agents
 
 **Equipment Catalog:**
@@ -517,14 +519,15 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ Image picker for gallery photos/videos
 - ✅ Audio recording with permissions
 - ✅ **Multi-agent AI orchestrator with intelligent routing**
-- ✅ **Gemini 2.5 Flash integration for assessment summaries and recommendations**
+- ✅ **GPT-5 Mini integration for assessment summaries**
 - ✅ **Gemini 2.5 Flash integration for vision analysis**
+- ✅ **Grok 4 Fast integration for equipment recommendations**
 - ✅ Assessment detail screen with media gallery
 - ✅ Client and assessment creation forms
 
 #### Phase 3 (Completed)
 - ✅ **Audio transcription with Whisper API**
-- ✅ **Equipment recommendations screen with Gemini 2.5 Flash**
+- ✅ **Equipment recommendations screen with Grok 4 Fast**
 - ✅ **Quote generation with 3 pricing options (Essential, Recommended, Premium)**
 - ✅ **Invoice generation with hourly rates and itemized line items**
 - ✅ Navigation integration for all Phase 3 features
@@ -562,7 +565,7 @@ The app includes a comprehensive, structured environmental assessment form based
 - ✅ User authentication and authorization
 - ✅ Complete CRUD for all entities (Clients, Assessments, Equipment, Quotes, Invoices)
 - ✅ Media upload system (photos, videos, audio)
-- ✅ AI-powered features (Gemini 2.5 Flash, Nano Banana Pro, GPT-4O)
+- ✅ AI-powered features (GPT-5 Mini, Gemini 2.5 Flash, Grok 4 Fast, Nano Banana Pro, GPT-4O)
 - ✅ Audio transcription with Whisper API
 - ✅ Multi-agent AI orchestration
 - ✅ Quote generation (3 pricing tiers)

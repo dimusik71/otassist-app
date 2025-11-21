@@ -232,40 +232,33 @@ Provide a concise professional summary (3-4 paragraphs) including:
 3. Client needs identified
 4. Recommended next steps`;
 
-    const summaryResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: `You are an expert Occupational Therapist assistant specializing in client assessments and care planning.\n\n${summaryPrompt}`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 1000,
-            thinkingConfig: { thinkingBudget: 0 },
+    const summaryResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-5-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert Occupational Therapist assistant specializing in client assessments and care planning.",
           },
-        }),
-      }
-    );
+          { role: "user", content: summaryPrompt },
+        ],
+        max_completion_tokens: 1000,
+        temperature: 1,
+      }),
+    });
 
     let aiSummary = "";
     if (summaryResponse.ok) {
       const summaryData = (await summaryResponse.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        choices: Array<{ message: { content: string } }>;
       };
-      aiSummary = summaryData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      aiSummary = summaryData.choices?.[0]?.message?.content || "";
     } else {
       aiSummary = `Assessment for ${assessment.client.name} (${assessment.assessmentType}). ${assessment.media.length} media items captured. Detailed analysis pending.`;
     }
@@ -279,7 +272,7 @@ Provide a concise professional summary (3-4 paragraphs) including:
     return c.json({
       success: true,
       summary: aiSummary,
-      model: "gemini-2.5-flash",
+      model: "gpt-5-mini",
       mediaAnalyzed: assessment.media.length,
     });
   } catch (error) {
@@ -604,42 +597,35 @@ Provide:
 2. Specific suggestions for improvement
 3. Whether more documentation is needed (photos, videos, or descriptions)`;
 
-    const aiResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: `You are an expert Occupational Therapist conducting home environmental assessments. Provide detailed, actionable feedback to guide the assessment process.\n\n${analysisPrompt}`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 500,
-            thinkingConfig: { thinkingBudget: 0 },
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert Occupational Therapist conducting home environmental assessments. Provide detailed, actionable feedback to guide the assessment process.",
           },
-        }),
-      }
-    );
+          { role: "user", content: analysisPrompt },
+        ],
+        max_completion_tokens: 500,
+        temperature: 0.7,
+      }),
+    });
 
     if (!aiResponse.ok) {
       throw new Error("AI API request failed");
     }
 
     const aiData = (await aiResponse.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      choices: Array<{ message: { content: string } }>;
     };
-    const analysis = aiData.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const analysis = aiData.choices?.[0]?.message?.content || "";
 
     // Update the response with AI analysis
     await db.assessmentResponse.update({
@@ -653,7 +639,7 @@ Provide:
     return c.json({
       success: true,
       analysis,
-      model: "gemini-2.5-flash",
+      model: "gpt-4o",
     });
   } catch (error) {
     console.error("AI analysis error:", error);

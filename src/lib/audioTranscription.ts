@@ -106,34 +106,30 @@ export async function transcribeAndAnalyzeAudioNote(audioUri: string): Promise<{
       };
     }
 
-    // Step 2: Analyze transcription with Gemini 2.5 Flash
-    const analysisResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: `You are an OT/AH assistant. Extract key points and provide a brief analysis of assessment notes.\n\nAnalyze this assessment note and extract key points:\n\n${transcriptionResult.transcription}\n\nProvide:\n1. Brief summary (2-3 sentences)\n2. Key points (bullet list)\n3. Any action items or concerns`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 500,
-            thinkingConfig: { thinkingBudget: 0 },
+    // Step 2: Analyze transcription with GPT-5 Mini
+    const analysisResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-5-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an OT/AH assistant. Extract key points and provide a brief analysis of assessment notes.",
           },
-        }),
-      }
-    );
+          {
+            role: "user",
+            content: `Analyze this assessment note and extract key points:\n\n${transcriptionResult.transcription}\n\nProvide:\n1. Brief summary (2-3 sentences)\n2. Key points (bullet list)\n3. Any action items or concerns`,
+          },
+        ],
+        max_completion_tokens: 500,
+        temperature: 1,
+      }),
+    });
 
     if (!analysisResponse.ok) {
       // Return transcription even if analysis fails
@@ -146,7 +142,7 @@ export async function transcribeAndAnalyzeAudioNote(audioUri: string): Promise<{
     }
 
     const analysisData = await analysisResponse.json();
-    const analysis = analysisData.candidates?.[0]?.content?.parts?.[0]?.text ?? "Analysis unavailable";
+    const analysis = analysisData.choices[0].message.content;
 
     // Extract key points (simple parsing)
     const keyPoints = analysis

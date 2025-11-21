@@ -40,23 +40,25 @@ aiRouter.post("/equipment-recommendations", async (c) => {
     )
     .join("\n");
 
-  // Use Gemini 2.5 Flash for fast equipment recommendations
+  // Use Grok for fast equipment recommendations
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: `You are an equipment specialist for OT/AH assessments. Recommend appropriate assistive equipment based on client needs.\n\nAssessment Details:
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "grok-4-fast-non-reasoning",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an equipment specialist for OT/AH assessments. Recommend appropriate assistive equipment based on client needs.",
+          },
+          {
+            role: "user",
+            content: `Assessment Details:
 - Client: ${assessment.client.name}
 - Type: ${assessment.assessmentType}
 - Location: ${assessment.location || "N/A"}
@@ -72,32 +74,26 @@ Based on this assessment, recommend 3-5 equipment items with:
 4. Estimated cost
 
 Format as a numbered list with clear justifications.`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.8,
-            maxOutputTokens: 1500,
-            thinkingConfig: { thinkingBudget: 0 },
           },
-        }),
-      }
-    );
+        ],
+        max_tokens: 1500,
+        temperature: 0.8,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error("Gemini API request failed");
+      throw new Error("Grok API request failed");
     }
 
     const data = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      choices: Array<{ message: { content: string } }>;
     };
-    const recommendations = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const recommendations = data.choices?.[0]?.message?.content || "";
 
     return c.json({
       success: true,
       recommendations,
-      model: "gemini-2.5-flash",
+      model: "grok-4-fast",
       equipmentCount: equipment.length,
     });
   } catch (error) {
@@ -142,21 +138,23 @@ aiRouter.post("/generate-quotes", async (c) => {
     .join("\n");
 
   try {
-    const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "x-goog-api-key": process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: `You are a pricing specialist. Generate 3 quote options (Essential, Recommended, Premium) with appropriate equipment selections.\n\nGenerate 3 quote options for this assessment:
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "grok-4-fast-non-reasoning",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a pricing specialist. Generate 3 quote options (Essential, Recommended, Premium) with appropriate equipment selections.",
+          },
+          {
+            role: "user",
+            content: `Generate 3 quote options for this assessment:
 
 Assessment: ${assessment.assessmentType} for ${assessment.client.name}
 
@@ -181,27 +179,21 @@ Return ONLY valid JSON in this exact format:
     }
   ]
 }`,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2000,
-            thinkingConfig: { thinkingBudget: 0 },
           },
-        }),
-      }
-    );
+        ],
+        max_tokens: 2000,
+        temperature: 0.7,
+      }),
+    });
 
     if (!response.ok) {
-      throw new Error("Gemini API request failed");
+      throw new Error("Grok API request failed");
     }
 
     const data = (await response.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      choices: Array<{ message: { content: string } }>;
     };
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const content = data.choices?.[0]?.message?.content || "";
 
     // Parse JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -214,7 +206,7 @@ Return ONLY valid JSON in this exact format:
     return c.json({
       success: true,
       quotes: quotes.quotes,
-      model: "gemini-2.5-flash",
+      model: "grok-4-fast",
     });
   } catch (error) {
     console.error("Quote generation error:", error);

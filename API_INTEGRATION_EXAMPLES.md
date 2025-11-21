@@ -385,8 +385,11 @@ await speakPrompt('assessmentComplete');
 
 Make sure these are configured in your Vibecode app:
 
-- `EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY` - For GPT-4O transcription and GPT Image 1
+- `EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY` - For GPT-5 Mini, GPT-4O transcription and GPT Image 1
 - `EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY` - For Gemini 2.5 Flash and Nano Banana Pro (Gemini 3 Pro Image)
+- `EXPO_PUBLIC_VIBECODE_GROK_API_KEY` - For Grok 4 Fast equipment recommendations
+- `EXPO_PUBLIC_VIBECODE_IDEOGRAM_API_KEY` - For Ideogram 3.0 (legacy, use Nano Banana Pro instead)
 - `EXPO_PUBLIC_VIBECODE_ELEVENLABS_API_KEY` - For ElevenLabs TTS
 
 All these should already be configured in your Vibecode environment via the API integrations tab.
+
