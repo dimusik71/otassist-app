@@ -83,20 +83,28 @@ model Profile {
 // OT/AH Assessment App Models
 
 model Client {
-  id          String       @id @default(cuid())
-  name        String
-  email       String?
-  phone       String?
-  address     String?
-  latitude    Float?
-  longitude   Float?
-  dateOfBirth DateTime?
-  notes       String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  assessments Assessment[]
+  id                String       @id @default(cuid())
+  name              String
+  email             String?
+  phone             String?
+  address           String?
+  latitude          Float?
+  longitude         Float?
+  dateOfBirth       DateTime?
+  notes             String?
+
+  // Archival and deletion tracking
+  isArchived        Boolean      @default(false)
+  archivedAt        DateTime?
+  deletionReason    String?
+  canDeleteAfter    DateTime?    // Calculated based on client age and retention policy
+  isChild           Boolean      @default(false) // For 7-year retention calculation
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  userId            String
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessments       Assessment[]
 
   @@map("client")
 }
@@ -108,7 +116,7 @@ model Assessment {
   userId            String
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   assessmentType    String              // "home", "assistive_tech", "iot_devices", "general"
-  status            String              @default("draft") // "draft", "in_progress", "completed", "approved"
+  status            String              @default("draft") // "draft", "in_progress", "completed", "approved", "archived"
   location          String?
   latitude          Float?
   longitude         Float?
@@ -116,6 +124,14 @@ model Assessment {
   notes             String?
   aiSummary         String?
   reportGenerated   Boolean             @default(false)
+
+  // Archival and deletion tracking
+  isArchived        Boolean             @default(false)
+  archivedAt        DateTime?
+  deletionReason    String?
+  canDeleteAfter    DateTime?           // Calculated based on completion date and retention policy
+  completedAt       DateTime?           // Track when assessment was completed for retention calculation
+
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   media             AssessmentMedia[]
