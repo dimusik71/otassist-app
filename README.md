@@ -123,20 +123,27 @@ This app enables OT/AH professionals to:
 All routes require authentication except `/health` and `/api/auth/*`
 
 #### Clients
-- `GET /api/clients` - List all clients for current user
+- `GET /api/clients` - List all active (non-archived) clients for current user
+- `GET /api/clients/archived?search=query` - Search and list archived clients
 - `POST /api/clients` - Create new client
 - `PUT /api/clients/:id` - Update client information
-- `DELETE /api/clients/:id` - Delete client
+- `DELETE /api/clients/:id` - Archive client (requires `reason` in body, cascades to assessments)
+- `DELETE /api/clients/:id/permanent` - Permanently delete archived client (only after retention period)
+- `POST /api/clients/:id/restore` - Restore archived client and associated assessments
 
 #### Assessments
-- `GET /api/assessments` - List all assessments with client info
+- `GET /api/assessments` - List all active (non-archived) assessments with client info
+- `GET /api/assessments/archived?search=query` - Search and list archived assessments
 - `GET /api/assessments/:id` - Get assessment details with media and equipment
 - `POST /api/assessments` - Create new assessment
 - `PUT /api/assessments/:id` - Update assessment (status, notes, location)
-- `DELETE /api/assessments/:id` - Delete assessment
+- `DELETE /api/assessments/:id` - Archive assessment (requires `reason` in body)
+- `DELETE /api/assessments/:id/permanent` - Permanently delete archived assessment (only after retention period)
+- `POST /api/assessments/:id/restore` - Restore archived assessment
 - `POST /api/assessments/:id/media` - Upload media for assessment
 - `POST /api/assessments/:assessmentId/responses` - Save/update response to assessment question
 - `GET /api/assessments/:assessmentId/responses` - Get all responses for an assessment
+- `GET /api/assessments/client/:clientId/previous-responses` - Get responses from previous assessments for pre-filling
 - `POST /api/assessments/:assessmentId/responses/:responseId/analyze` - Get AI analysis for specific response
 
 #### AI Services
@@ -386,7 +393,43 @@ Functional assessment based on FIM and Barthel Index
 
 ### Recent Updates
 
-**LATEST: Checkbox Questions & Smart Pre-filling:**
+**LATEST: Healthcare Record Archival & Retention System:**
+- ✅ **Compliant Archival System** - Meets Australian healthcare record retention requirements
+  - Soft delete (archival) instead of permanent deletion
+  - Records retained for legally required periods
+  - Full audit trail with deletion reasons
+  - Restore capability for mistaken deletions
+- ✅ **Retention Policies** - Automatic calculation of retention periods
+  - **Adult clients**: 7 years from archival date
+  - **Child clients**: 7 years from turning 18 (up to 25 years total)
+  - **Completed assessments**: 7 years from completion date
+  - **Incomplete assessments**: 30 days (can be deleted sooner)
+- ✅ **Backend API Routes** - Complete archival management
+  - Archive clients/assessments with required deletion reason
+  - Search archived records with full-text search
+  - Restore archived records
+  - Permanent deletion (only after retention period expires)
+  - Cascade archival: deleting client archives all assessments
+- ✅ **DeleteConfirmationModal Component** - Beautiful, informative deletion UI
+  - Required reason input (minimum 5 characters)
+  - Shows retention policy information
+  - Different messages for adults/children and complete/incomplete
+  - Displays cascade impact (e.g., "will archive 5 assessments")
+  - Validation and loading states
+- ✅ **Database Schema** - Archival tracking fields
+  - `isArchived`, `archivedAt`, `deletionReason`
+  - `canDeleteAfter` - Calculated retention expiry date
+  - `isChild` flag for child retention rules
+  - `completedAt` for assessment completion tracking
+- ✅ **Compliance Features**
+  - NDIS Practice Standards compliant
+  - Aged Care Quality Standards compliant
+  - Privacy Act 1988 compliant
+  - Automatic retention period enforcement
+  - Blocks permanent deletion until retention expires
+  - Shows days remaining for retained records
+
+**PREVIOUS: Checkbox Questions & Smart Pre-filling:**
 - ✅ **Checkbox Question Type** - Multi-select questions for comprehensive data collection
   - Multiple selection support (e.g., "Indoor use", "Outdoor use", "Community access")
   - Visual checkbox UI with teal accent colors

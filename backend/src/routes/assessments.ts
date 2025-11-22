@@ -15,10 +15,14 @@ import {
   getEquipmentRecommendationsResponseSchema,
   deleteEquipmentRecommendationResponseSchema,
 } from "@/shared/contracts";
+import {
+  calculateAssessmentRetentionDate,
+  canPermanentlyDelete,
+} from "../utils/retention";
 
 const assessmentsRouter = new Hono<AppType>();
 
-// GET /api/assessments - Get all assessments for the current user
+// GET /api/assessments - Get all active (non-archived) assessments for the current user
 assessmentsRouter.get("/", async (c) => {
   const user = c.get("user");
   if (!user?.id) {
@@ -26,7 +30,7 @@ assessmentsRouter.get("/", async (c) => {
   }
 
   const assessments = await db.assessment.findMany({
-    where: { userId: user.id },
+    where: { userId: user.id, isArchived: false },
     include: {
       client: true,
       media: true,
@@ -322,7 +326,7 @@ assessmentsRouter.put("/:id", zValidator("json", updateAssessmentRequestSchema),
   });
 });
 
-// DELETE /api/assessments/:id - Delete an assessment
+// DELETE /api/assessments/:id - Archive an assessment (soft delete)
 assessmentsRouter.delete("/:id", async (c) => {
   const user = c.get("user");
   if (!user?.id) {
@@ -330,25 +334,179 @@ assessmentsRouter.delete("/:id", async (c) => {
   }
 
   const { id } = c.req.param();
+  const body = await c.req.json();
+  const deletionReason = body.reason || "No reason provided";
 
   // Verify that the assessment belongs to this user
   const existingAssessment = await db.assessment.findFirst({
     where: { id, userId: user.id },
+    include: { client: true },
   });
 
   if (!existingAssessment) {
     return c.json({ error: "Assessment not found" }, 404);
   }
 
-  // Delete associated media, equipment, quotes, and invoices
-  // Prisma cascading deletes should handle this
+  const now = new Date();
+  const retentionDate = calculateAssessmentRetentionDate(
+    existingAssessment.status,
+    existingAssessment.completedAt,
+    now,
+    existingAssessment.client.dateOfBirth
+  );
+
+  // Archive the assessment
+  await db.assessment.update({
+    where: { id },
+    data: {
+      isArchived: true,
+      archivedAt: now,
+      deletionReason,
+      canDeleteAfter: retentionDate,
+    },
+  });
+
+  return c.json({
+    success: true,
+    message: "Assessment archived successfully",
+    canDeleteAfter: retentionDate.toISOString(),
+    retentionInfo:
+      existingAssessment.status === "draft" || existingAssessment.status === "in_progress"
+        ? "Incomplete assessment can be permanently deleted in 30 days"
+        : "Completed assessment must be retained for 7 years",
+  });
+});
+
+// GET /api/assessments/archived - Get all archived assessments with search
+assessmentsRouter.get("/archived", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const search = c.req.query("search") || "";
+
+  const assessments = await db.assessment.findMany({
+    where: {
+      userId: user.id,
+      isArchived: true,
+      ...(search
+        ? {
+            OR: [
+              { client: { name: { contains: search } } },
+              { assessmentType: { contains: search } },
+              { location: { contains: search } },
+            ],
+          }
+        : {}),
+    },
+    include: {
+      client: { select: { id: true, name: true } },
+      media: { select: { id: true } },
+    },
+    orderBy: { archivedAt: "desc" },
+  });
+
+  const response = {
+    assessments: assessments.map((assessment) => ({
+      ...assessment,
+      assessmentDate: assessment.assessmentDate.toISOString(),
+      archivedAt: assessment.archivedAt?.toISOString() ?? null,
+      canDeleteAfter: assessment.canDeleteAfter?.toISOString() ?? null,
+      completedAt: assessment.completedAt?.toISOString() ?? null,
+      createdAt: assessment.createdAt.toISOString(),
+      updatedAt: assessment.updatedAt.toISOString(),
+      canPermanentlyDelete: canPermanentlyDelete(assessment.canDeleteAfter),
+      mediaCount: assessment.media.length,
+    })),
+  };
+
+  return c.json(response);
+});
+
+// DELETE /api/assessments/:id/permanent - Permanently delete an archived assessment
+assessmentsRouter.delete("/:id/permanent", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+
+  // Verify that the assessment belongs to this user and is archived
+  const existingAssessment = await db.assessment.findFirst({
+    where: { id, userId: user.id, isArchived: true },
+  });
+
+  if (!existingAssessment) {
+    return c.json({ error: "Assessment not found or not archived" }, 404);
+  }
+
+  // Check if retention period has passed
+  if (!canPermanentlyDelete(existingAssessment.canDeleteAfter)) {
+    const daysRemaining = Math.ceil(
+      (existingAssessment.canDeleteAfter!.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return c.json(
+      {
+        error: "Cannot delete yet",
+        message: `This assessment must be retained for ${daysRemaining} more days due to healthcare record retention requirements.`,
+        canDeleteAfter: existingAssessment.canDeleteAfter?.toISOString(),
+      },
+      403
+    );
+  }
+
+  // Permanently delete the assessment (Prisma cascade will delete media, responses, etc.)
   await db.assessment.delete({
     where: { id },
   });
 
   return c.json({
     success: true,
-    message: "Assessment deleted successfully",
+    message: "Assessment and all associated records permanently deleted",
+  });
+});
+
+// POST /api/assessments/:id/restore - Restore an archived assessment
+assessmentsRouter.post("/:id/restore", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const { id } = c.req.param();
+
+  // Verify that the assessment belongs to this user and is archived
+  const existingAssessment = await db.assessment.findFirst({
+    where: { id, userId: user.id, isArchived: true },
+  });
+
+  if (!existingAssessment) {
+    return c.json({ error: "Assessment not found or not archived" }, 404);
+  }
+
+  // Restore the assessment
+  const assessment = await db.assessment.update({
+    where: { id },
+    data: {
+      isArchived: false,
+      archivedAt: null,
+      deletionReason: null,
+      canDeleteAfter: null,
+    },
+  });
+
+  return c.json({
+    success: true,
+    message: "Assessment restored successfully",
+    assessment: {
+      ...assessment,
+      assessmentDate: assessment.assessmentDate.toISOString(),
+      completedAt: assessment.completedAt?.toISOString() ?? null,
+      createdAt: assessment.createdAt.toISOString(),
+      updatedAt: assessment.updatedAt.toISOString(),
+    },
   });
 });
 
