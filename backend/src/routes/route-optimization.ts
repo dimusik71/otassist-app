@@ -127,8 +127,8 @@ routeOptimizationRouter.post("/optimize", zValidator("json", optimizeRouteSchema
       }
 
       // Validate coordinates
-      if (!validateCoordinates(latitude, longitude)) {
-        console.warn(`⚠️  [Route] Invalid coordinates for appointment ${apt.id}: ${latitude}, ${longitude}`);
+      if (!latitude || !longitude || !validateCoordinates(latitude, longitude)) {
+        console.warn(`⚠️  [Route] Invalid coordinates for appointment ${apt.id}`);
         return null;
       }
 
@@ -316,6 +316,8 @@ routeOptimizationRouter.get("/summary/today", async (c) => {
       const prev = appointmentsWithLocation[i - 1];
       const curr = appointmentsWithLocation[i];
 
+      if (!prev || !curr) continue;
+
       const prevLat = prev.client?.latitude || 0;
       const prevLon = prev.client?.longitude || 0;
       const currLat = curr.client?.latitude || 0;
@@ -423,6 +425,8 @@ routeOptimizationRouter.get("/summary/week", async (c) => {
       for (let i = 1; i < appointmentsWithLocation.length; i++) {
         const prev = appointmentsWithLocation[i - 1];
         const curr = appointmentsWithLocation[i];
+
+        if (!prev || !curr) continue;
 
         const prevLat = prev.client?.latitude || 0;
         const prevLon = prev.client?.longitude || 0;
