@@ -4,7 +4,22 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
-### November 23, 2025
+### November 23, 2025 - SECURITY & COMPLIANCE OVERHAUL ✅
+
+**🔒 Critical Security Enhancements (Healthcare Compliance)**:
+- **Multi-Factor Authentication (MFA)**: TOTP-based 2FA using Better Auth - Complies with APP 11.1
+- **Session Timeout**: 15-minute idle timeout with automatic logout
+- **Encrypted Mobile Storage**: AES-256 encryption for AHPRA numbers, banking details, profile data
+- **Input Validation**: Comprehensive Zod schemas preventing XSS/SQL injection
+- **File Upload Authentication**: Patient photos/videos require valid session
+- **Rate Limiting**: Protection against brute force (auth: 5/15min, AI: 10/min, uploads: 20/min)
+- **Audit Logging**: Tracks all data access and third-party AI disclosures (APP 11, 13)
+- **Privacy Policy**: Legal-compliant policy covering all Australian Privacy Principles
+- **AI Consent Tracking**: Database fields for informed consent on cross-border data sharing
+
+**📊 Compliance**: Australian Privacy Act 1988 + APPs - **CRITICAL REQUIREMENTS MET** ✅
+
+### November 23, 2025 - PROFESSIONAL PROFILE SYSTEM
 - **Added**: Complete Professional Profile System
   - 3-step onboarding wizard for collecting AHPRA, business details, and custom rates (src/screens/ProfessionalProfileSetupScreen.tsx)
   - Settings screen for editing profile after setup (src/screens/SettingsScreen.tsx)

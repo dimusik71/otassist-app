@@ -168,6 +168,11 @@ model Assessment {
   aiSummary         String?
   reportGenerated   Boolean             @default(false)
 
+  // AI Consent Tracking (APP 6, APP 8 compliance)
+  aiConsentGiven    Boolean             @default(false) // Has client consented to AI analysis?
+  aiConsentDate     DateTime?           // When consent was given
+  aiServicesUsed    String?             // JSON array of AI services used: ["openai", "google", "xai"]
+
   // Archival and deletion tracking
   isArchived        Boolean             @default(false)
   archivedAt        DateTime?

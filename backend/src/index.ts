@@ -7,6 +7,7 @@ import { rateLimiter } from "hono-rate-limiter";
 
 import { auth } from "./auth";
 import { env } from "./env";
+import { addTimeoutHeaders } from "./middleware/sessionTimeout";
 import { uploadRouter } from "./routes/upload";
 import clientsRouter from "./routes/clients";
 import assessmentsRouter from "./routes/assessments";
@@ -36,6 +37,10 @@ app.use("*", async (c, next) => {
   c.set("session", session?.session ?? null); // type: typeof auth.$Infer.Session.session | null
   return next();
 });
+
+// Session timeout headers (Healthcare compliance - 15-minute idle timeout)
+console.log("⏱️  Adding session timeout headers");
+app.use("/api/*", addTimeoutHeaders);
 
 // Rate limiting for authentication endpoints (Healthcare security compliance)
 console.log("🛡️  Applying rate limiting to auth endpoints");
