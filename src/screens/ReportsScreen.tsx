@@ -18,6 +18,7 @@ import {
   TrendingUp,
   Users,
   ClipboardList,
+  ArrowLeft,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -145,8 +146,17 @@ const ReportsScreen = () => {
         end={{ x: 1, y: 1 }}
         style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 24 }}
       >
-        <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-3xl font-bold text-white">Reports</Text>
+        <View className="flex-row items-center mb-4">
+          <Pressable
+            onPress={() => navigation.goBack()}
+            className="mr-3 w-10 h-10 items-center justify-center rounded-full active:opacity-70"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+          >
+            <ArrowLeft size={24} color="white" />
+          </Pressable>
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-white">Reports</Text>
+          </View>
           <Pressable
             onPress={() => setShowCreateModal(true)}
             className="bg-white px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
@@ -155,7 +165,7 @@ const ReportsScreen = () => {
             <Text className="text-blue-600 font-semibold ml-2">Generate</Text>
           </Pressable>
         </View>
-        <Text style={{ color: "#DBEAFE" }}>Business intelligence and analytics</Text>
+        <Text style={{ color: "#DBEAFE", marginLeft: 52 }}>Business intelligence and analytics</Text>
       </LinearGradient>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>

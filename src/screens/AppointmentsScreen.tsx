@@ -19,6 +19,7 @@ import {
   AlertCircle,
   ShieldCheck,
   ShieldAlert,
+  ArrowLeft,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -189,8 +190,17 @@ const AppointmentsScreen = () => {
         end={{ x: 1, y: 1 }}
         style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 24 }}
       >
-        <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-3xl font-bold text-white">Calendar</Text>
+        <View className="flex-row items-center mb-4">
+          <Pressable
+            onPress={() => navigation.goBack()}
+            className="mr-3 w-10 h-10 items-center justify-center rounded-full active:opacity-70"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+          >
+            <ArrowLeft size={24} color="white" />
+          </Pressable>
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-white">Calendar</Text>
+          </View>
           <Pressable
             onPress={() => setShowCreateModal(true)}
             className="bg-white px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
@@ -199,7 +209,7 @@ const AppointmentsScreen = () => {
             <Text className="text-purple-600 font-semibold ml-2">New</Text>
           </Pressable>
         </View>
-        <Text style={{ color: "#E9D5FF" }}>Manage your appointments</Text>
+        <Text style={{ color: "#E9D5FF", marginLeft: 52 }}>Manage your appointments</Text>
       </LinearGradient>
 
       <ScrollView
