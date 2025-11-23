@@ -27,6 +27,7 @@ model User {
   auditLogs     AuditLog[]
   businessDocuments BusinessDocument[]
   sentInvoices  SentInvoice[]
+  appointments  Appointment[]
 
   @@map("user")
 }
@@ -151,6 +152,7 @@ model Client {
   user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   assessments       Assessment[]
   documents         Document[]
+  appointments      Appointment[]
 
   @@map("client")
 }
@@ -515,4 +517,34 @@ model SentInvoice {
   @@map("sent_invoice")
 }
 
+
+
+
+// Appointment/Calendar Management System
+// Manages appointments with clients, including reminders
+model Appointment {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId          String?
+  client            Client?    @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  title             String
+  description       String?
+  appointmentType   String     // "assessment", "follow_up", "consultation", "phone_call", "home_visit", "other"
+  startTime         DateTime
+  endTime           DateTime
+  location          String?
+  isAllDay          Boolean    @default(false)
+  status            String     @default("scheduled") // "scheduled", "confirmed", "cancelled", "completed", "no_show"
+  reminderSent      Boolean    @default(false)
+  reminderDate      DateTime?  // When to send reminder (e.g., 24 hours before)
+  notes             String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([userId, startTime])
+  @@index([clientId])
+  @@index([status, startTime])
+  @@map("appointment")
+}
 

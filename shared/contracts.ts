@@ -1163,6 +1163,101 @@ export type MarkInvoicePaidResponse = z.infer<typeof markInvoicePaidResponseSche
 
 
 // ====================
+// APPOINTMENT CONTRACTS
+// ====================
+
+// Appointment schema
+export const appointmentSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  clientId: z.string().nullable(),
+  client: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string().nullable(),
+    phone: z.string().nullable(),
+  }).nullable().optional(),
+  title: z.string(),
+  description: z.string().nullable(),
+  appointmentType: z.enum(["assessment", "follow_up", "consultation", "phone_call", "home_visit", "other"]),
+  startTime: z.string(),
+  endTime: z.string(),
+  location: z.string().nullable(),
+  isAllDay: z.boolean(),
+  status: z.enum(["scheduled", "confirmed", "cancelled", "completed", "no_show"]),
+  reminderSent: z.boolean(),
+  reminderDate: z.string().nullable(),
+  notes: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type Appointment = z.infer<typeof appointmentSchema>;
+
+// GET /api/appointments
+export const getAppointmentsResponseSchema = z.object({
+  success: z.boolean(),
+  appointments: z.array(appointmentSchema),
+});
+export type GetAppointmentsResponse = z.infer<typeof getAppointmentsResponseSchema>;
+
+// GET /api/appointments/:id
+export const getAppointmentResponseSchema = z.object({
+  success: z.boolean(),
+  appointment: appointmentSchema,
+});
+export type GetAppointmentResponse = z.infer<typeof getAppointmentResponseSchema>;
+
+// POST /api/appointments
+export const createAppointmentRequestSchema = z.object({
+  clientId: z.string().optional().nullable(),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  appointmentType: z.enum(["assessment", "follow_up", "consultation", "phone_call", "home_visit", "other"]),
+  startTime: z.string(),
+  endTime: z.string(),
+  location: z.string().optional(),
+  isAllDay: z.boolean().default(false),
+  notes: z.string().optional(),
+});
+export type CreateAppointmentRequest = z.infer<typeof createAppointmentRequestSchema>;
+
+export const createAppointmentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  appointment: appointmentSchema,
+});
+export type CreateAppointmentResponse = z.infer<typeof createAppointmentResponseSchema>;
+
+// PUT /api/appointments/:id
+export const updateAppointmentRequestSchema = z.object({
+  clientId: z.string().optional().nullable(),
+  title: z.string().min(1).optional(),
+  description: z.string().optional().nullable(),
+  appointmentType: z.enum(["assessment", "follow_up", "consultation", "phone_call", "home_visit", "other"]).optional(),
+  startTime: z.string().optional(),
+  endTime: z.string().optional(),
+  location: z.string().optional().nullable(),
+  isAllDay: z.boolean().optional(),
+  status: z.enum(["scheduled", "confirmed", "cancelled", "completed", "no_show"]).optional(),
+  notes: z.string().optional().nullable(),
+});
+export type UpdateAppointmentRequest = z.infer<typeof updateAppointmentRequestSchema>;
+
+export const updateAppointmentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  appointment: appointmentSchema,
+});
+export type UpdateAppointmentResponse = z.infer<typeof updateAppointmentResponseSchema>;
+
+// DELETE /api/appointments/:id
+export const deleteAppointmentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteAppointmentResponse = z.infer<typeof deleteAppointmentResponseSchema>;
+
+// ====================
 // DASHBOARD CONTRACTS
 // ====================
 

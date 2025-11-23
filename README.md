@@ -4,6 +4,28 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - APPOINTMENT CALENDAR SYSTEM ✅
+- **New**: Complete appointment management and calendar system
+  - **Calendar Screen**: Beautiful list-based calendar view grouped by date
+  - **Create Appointments**: Full-featured modal for creating new appointments
+  - **Edit Appointments**: Update appointment details, times, and status
+  - **Appointment Types**: Assessment, Follow Up, Consultation, Phone Call, Home Visit, Other
+  - **Client Linking**: Link appointments to client profiles with quick navigation
+  - **Date & Time Pickers**: Native iOS/Android date and time selection
+  - **All-Day Events**: Toggle for all-day appointments
+  - **Status Tracking**: Scheduled, Confirmed, Cancelled, Completed, No Show
+  - **Location Field**: Add appointment locations
+  - **Notes & Description**: Rich text fields for appointment details
+  - **Automated Reminders**: 24-hour reminder system (emails coming soon)
+  - **Dashboard Integration**: Appointment card on main dashboard
+  - **Visual Status Indicators**: Color-coded status badges for quick scanning
+  - **Upcoming Appointments**: Separate view for future appointments
+  - **Past Appointments**: Historical record of completed/cancelled appointments
+  - **Pull to Refresh**: Quick refresh of appointment list
+  - **Backend API**: Complete CRUD operations at `/api/appointments`
+  - **Purple-themed UI**: Professional gradient design matching app aesthetic
+  - Access via Dashboard or direct navigation
+
 ### November 23, 2025 - COMPREHENSIVE DASHBOARD ✅
 - **New**: Beautiful consolidated dashboard for practice overview
   - **Real-time metrics** with auto-refresh every minute

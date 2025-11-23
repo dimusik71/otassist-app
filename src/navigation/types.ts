@@ -32,6 +32,8 @@ export type RootStackParamList = {
   DocumentViewer: { documentId: string; clientId: string; clientName: string };
   BusinessDocuments: undefined;
   UploadCatalog: undefined;
+  Appointments: undefined;
+  AppointmentDetail: { appointmentId: string };
 };
 
 export type BottomTabParamList = {

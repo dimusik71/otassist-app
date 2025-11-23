@@ -32,6 +32,7 @@ import DocumentsScreen from "@/screens/DocumentsScreen";
 import DocumentViewerScreen from "@/screens/DocumentViewerScreen";
 import BusinessDocumentsScreen from "@/screens/BusinessDocumentsScreen";
 import UploadCatalogScreen from "@/screens/UploadCatalogScreen";
+import AppointmentsScreen from "@/screens/AppointmentsScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -146,6 +147,11 @@ const RootNavigator = () => {
         name="UploadCatalog"
         component={UploadCatalogScreen}
         options={{ title: "Upload Catalog", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="Appointments"
+        component={AppointmentsScreen}
+        options={{ title: "Appointments", headerShown: false }}
       />
     </RootStack.Navigator>
   );

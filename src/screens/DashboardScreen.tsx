@@ -16,6 +16,7 @@ import {
   CheckCircle,
   XCircle,
   Calendar,
+  CalendarClock,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -248,6 +249,21 @@ const DashboardScreen = () => {
               {stats.equipment.total}
             </Text>
             <Text className="text-gray-600">Equipment Items</Text>
+          </Pressable>
+
+          {/* Appointments */}
+          <Pressable
+            onPress={() => navigation.navigate("Appointments")}
+            className="bg-white rounded-2xl p-5 mb-3 active:opacity-80"
+            style={{ width: "48%", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}
+          >
+            <View className="w-12 h-12 bg-purple-100 rounded-full items-center justify-center mb-3">
+              <CalendarClock size={24} color="#8B5CF6" />
+            </View>
+            <Text className="text-3xl font-bold text-gray-900 mb-1">
+              --
+            </Text>
+            <Text className="text-gray-600">Appointments</Text>
           </Pressable>
         </View>
 
