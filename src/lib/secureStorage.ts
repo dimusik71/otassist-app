@@ -18,10 +18,32 @@ export class SecureStorage {
    */
   static async setSecure(key: string, value: string): Promise<void> {
     try {
+      // Check if SecureStore is available (may not be on web or some simulators)
+      if (!SecureStore.isAvailableAsync) {
+        console.warn(`[SecureStorage]: SecureStore not available, falling back to AsyncStorage for key ${key}`);
+        await AsyncStorage.setItem(`@secure_fallback_${key}`, value);
+        return;
+      }
+
+      const isAvailable = await SecureStore.isAvailableAsync();
+      if (!isAvailable) {
+        console.warn(`[SecureStorage]: SecureStore not available, falling back to AsyncStorage for key ${key}`);
+        await AsyncStorage.setItem(`@secure_fallback_${key}`, value);
+        return;
+      }
+
       await SecureStore.setItemAsync(key, value);
+      await this.trackKey(key);
     } catch (error) {
       console.error(`[SecureStorage]: Failed to store secure data for key ${key}:`, error);
-      throw error;
+      // Fallback to AsyncStorage if SecureStore fails
+      try {
+        console.warn(`[SecureStorage]: Falling back to AsyncStorage for key ${key}`);
+        await AsyncStorage.setItem(`@secure_fallback_${key}`, value);
+      } catch (fallbackError) {
+        console.error(`[SecureStorage]: Fallback storage also failed for key ${key}:`, fallbackError);
+        throw error;
+      }
     }
   }
 
@@ -30,10 +52,33 @@ export class SecureStorage {
    */
   static async getSecure(key: string): Promise<string | null> {
     try {
-      return await SecureStore.getItemAsync(key);
+      // Check if SecureStore is available
+      if (!SecureStore.isAvailableAsync) {
+        console.warn(`[SecureStorage]: SecureStore not available, checking AsyncStorage fallback for key ${key}`);
+        return await AsyncStorage.getItem(`@secure_fallback_${key}`);
+      }
+
+      const isAvailable = await SecureStore.isAvailableAsync();
+      if (!isAvailable) {
+        console.warn(`[SecureStorage]: SecureStore not available, checking AsyncStorage fallback for key ${key}`);
+        return await AsyncStorage.getItem(`@secure_fallback_${key}`);
+      }
+
+      const value = await SecureStore.getItemAsync(key);
+      // If not found in SecureStore, check fallback
+      if (!value) {
+        return await AsyncStorage.getItem(`@secure_fallback_${key}`);
+      }
+      return value;
     } catch (error) {
       console.error(`[SecureStorage]: Failed to retrieve secure data for key ${key}:`, error);
-      return null;
+      // Try fallback storage
+      try {
+        return await AsyncStorage.getItem(`@secure_fallback_${key}`);
+      } catch (fallbackError) {
+        console.error(`[SecureStorage]: Fallback retrieval also failed for key ${key}:`, fallbackError);
+        return null;
+      }
     }
   }
 
@@ -42,10 +87,23 @@ export class SecureStorage {
    */
   static async deleteSecure(key: string): Promise<void> {
     try {
-      await SecureStore.deleteItemAsync(key);
+      // Check if SecureStore is available
+      if (SecureStore.isAvailableAsync) {
+        const isAvailable = await SecureStore.isAvailableAsync();
+        if (isAvailable) {
+          await SecureStore.deleteItemAsync(key);
+        }
+      }
+      // Also clean up fallback storage
+      await AsyncStorage.removeItem(`@secure_fallback_${key}`);
     } catch (error) {
       console.error(`[SecureStorage]: Failed to delete secure data for key ${key}:`, error);
-      throw error;
+      // Try to at least remove fallback
+      try {
+        await AsyncStorage.removeItem(`@secure_fallback_${key}`);
+      } catch (fallbackError) {
+        console.error(`[SecureStorage]: Fallback deletion also failed for key ${key}:`, fallbackError);
+      }
     }
   }
 

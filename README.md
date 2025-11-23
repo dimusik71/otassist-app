@@ -4,6 +4,13 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - SECURE STORAGE FIX ✅
+- **Fixed**: Non-std C++ exception error in SecureStorage by adding proper availability checks and AsyncStorage fallback
+  - SecureStorage now checks if expo-secure-store is available before use
+  - Automatic fallback to AsyncStorage for web/simulators where SecureStore isn't supported
+  - Graceful error handling prevents app crashes on platforms without native secure storage
+  - Fixed missing `trackKey()` call in `setSecure()` method
+
 ### November 23, 2025 - SECURITY & COMPLIANCE OVERHAUL ✅
 
 **🔒 Critical Security Enhancements (Healthcare Compliance)**:
