@@ -36,6 +36,7 @@ export type RootStackParamList = {
   AppointmentDetail: { appointmentId: string };
   Reports: undefined;
   ReportDetail: { reportId: string };
+  RouteOptimization: { date: string };
 };
 
 export type BottomTabParamList = {

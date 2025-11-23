@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   ShieldAlert,
   ArrowLeft,
+  Route,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -278,6 +279,18 @@ const AppointmentsScreen = () => {
               <View className="flex-row items-center mb-3">
                 <Text className="text-lg font-bold text-gray-900">{formatDate(dateString)}</Text>
                 <View className="flex-1 h-px bg-gray-200 ml-3" />
+                {!isPast && appointments.length > 1 && (
+                  <Pressable
+                    onPress={() => {
+                      const isoDate = new Date(dateString).toISOString().split('T')[0];
+                      navigation.navigate("RouteOptimization", { date: isoDate });
+                    }}
+                    className="ml-2 bg-blue-100 px-3 py-1 rounded-lg flex-row items-center active:opacity-70"
+                  >
+                    <Route size={14} color="#3B82F6" />
+                    <Text className="text-blue-600 font-semibold text-xs ml-1">Route</Text>
+                  </Pressable>
+                )}
                 {isPast && (
                   <Text className="text-xs text-gray-500 ml-2">Past</Text>
                 )}

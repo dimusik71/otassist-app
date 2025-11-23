@@ -1406,3 +1406,69 @@ export const getDashboardStatsResponseSchema = z.object({
 });
 export type GetDashboardStatsResponse = z.infer<typeof getDashboardStatsResponseSchema>;
 
+// ====================
+// ROUTE OPTIMIZATION CONTRACTS
+// ====================
+
+// POST /api/route-optimization/optimize
+export const optimizeRouteRequestSchema = z.object({
+  appointmentIds: z.array(z.string()).min(1, "At least one appointment is required"),
+  startLocation: z
+    .object({
+      latitude: z.number(),
+      longitude: z.number(),
+      address: z.string(),
+    })
+    .optional(),
+});
+export type OptimizeRouteRequest = z.infer<typeof optimizeRouteRequestSchema>;
+
+export const optimizedRouteItemSchema = z.object({
+  appointmentId: z.string(),
+  order: z.number(),
+  title: z.string(),
+  clientName: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  address: z.string(),
+  estimatedTravelTime: z.number(), // in minutes
+  estimatedDistance: z.number(), // in kilometers
+  directions: z.string(),
+  appleMapUrl: z.string(),
+});
+export type OptimizedRouteItem = z.infer<typeof optimizedRouteItemSchema>;
+
+export const optimizeRouteResponseSchema = z.object({
+  success: z.boolean(),
+  optimizedRoute: z.object({
+    route: z.array(optimizedRouteItemSchema),
+    totalEstimatedDuration: z.number(), // in minutes
+    totalDistance: z.number(), // in kilometers
+    optimizationNotes: z.string(),
+  }),
+  appointmentsCount: z.number(),
+  totalEstimatedDuration: z.number(),
+  totalDistance: z.number(),
+});
+export type OptimizeRouteResponse = z.infer<typeof optimizeRouteResponseSchema>;
+
+// GET /api/route-optimization/appointments/:date
+export const getAppointmentsByDateResponseSchema = z.object({
+  success: z.boolean(),
+  date: z.string(),
+  appointments: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      startTime: z.string(),
+      endTime: z.string(),
+      clientName: z.string().nullable(),
+      address: z.string().nullable(),
+      hasLocation: z.boolean(),
+    })
+  ),
+});
+export type GetAppointmentsByDateResponse = z.infer<typeof getAppointmentsByDateResponseSchema>;
+

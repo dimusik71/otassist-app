@@ -35,6 +35,7 @@ import UploadCatalogScreen from "@/screens/UploadCatalogScreen";
 import AppointmentsScreen from "@/screens/AppointmentsScreen";
 import ReportsScreen from "@/screens/ReportsScreen";
 import ReportDetailScreen from "@/screens/ReportDetailScreen";
+import RouteOptimizationScreen from "@/screens/RouteOptimizationScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -164,6 +165,11 @@ const RootNavigator = () => {
         name="ReportDetail"
         component={ReportDetailScreen}
         options={{ title: "Report Detail", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="RouteOptimization"
+        component={RouteOptimizationScreen}
+        options={{ title: "Route Optimization", headerShown: false }}
       />
     </RootStack.Navigator>
   );

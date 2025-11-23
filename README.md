@@ -4,6 +4,60 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - AI-POWERED ROUTE OPTIMIZATION WITH APPLE MAPS 🗺️✅
+- **New**: Intelligent route optimization for appointment scheduling with real-time navigation
+  - **AI Route Optimization**:
+    - Powered by Claude 3.5 Sonnet for intelligent route planning
+    - Analyzes multiple appointments to minimize travel time and distance
+    - Considers appointment time windows and traffic patterns
+    - Generates optimized visit order for maximum efficiency
+    - Provides turn-by-turn directions between locations
+  - **Route Optimization Features**:
+    - Select multiple appointments for a specific day
+    - AI calculates optimal visit order
+    - Displays total distance and estimated travel time
+    - Shows travel time and distance between each stop
+    - Provides directions for each leg of the journey
+    - Respects appointment scheduling constraints
+  - **Apple Maps Integration**:
+    - One-tap navigation to each client location
+    - Opens directly in Apple Maps with directions
+    - Uses client address coordinates for accurate routing
+    - Supports real-time traffic data through Apple Maps
+    - Works seamlessly on iOS devices
+  - **Smart Route Display**:
+    - Beautiful step-by-step route visualization
+    - Numbered stops showing optimal visit order
+    - Travel time and distance for each segment
+    - Client name and appointment details at each stop
+    - Color-coded route summary card
+    - AI optimization notes explaining strategy
+  - **Quick Access**:
+    - "Route" button appears on days with 2+ appointments
+    - Only shows for upcoming appointments (not past dates)
+    - Auto-filters appointments with valid location data
+    - Select all or individual appointments
+    - Real-time route recalculation
+  - **Location Requirements**:
+    - Uses client address with latitude/longitude coordinates
+    - Falls back to appointment location field if available
+    - Validates location data before optimization
+    - Graceful handling of appointments without coordinates
+  - **UI Features**:
+    - Blue gradient theme matching appointment system
+    - Stats showing total appointments and selected count
+    - Select All / Clear buttons for quick selection
+    - Checkboxes for individual appointment selection
+    - Optimized route results with navigation buttons
+    - Distance in kilometers, time in hours/minutes
+  - **Backend API**:
+    - POST `/api/route-optimization/optimize` - Generate optimized route with AI
+    - GET `/api/route-optimization/appointments/:date` - Get appointments for specific day
+    - Haversine formula for distance calculations
+    - Graceful fallback if AI unavailable
+  - **Database**: Uses existing Client latitude/longitude and Appointment location fields
+  - Access via "Route" button next to date headers in Calendar screen
+
 ### November 23, 2025 - APPOINTMENT CALENDAR SYSTEM ✅
 - **New**: Complete appointment management and calendar system
   - **Calendar Screen**: Beautiful list-based calendar view grouped by date

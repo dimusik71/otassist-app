@@ -24,6 +24,7 @@ import sentInvoicesRouter from "./routes/sentInvoices";
 import dashboardRouter from "./routes/dashboard";
 import appointmentsRouter from "./routes/appointments";
 import reportsRouter from "./routes/reports";
+import routeOptimizationRouter from "./routes/route-optimization";
 import { type AppType } from "./types";
 
 // AppType context adds user and session to the context, will be null if the user or session is null
@@ -158,6 +159,9 @@ app.route("/api/appointments", appointmentsRouter);
 
 console.log("📊 Mounting reports routes at /api/reports");
 app.route("/api/reports", reportsRouter);
+
+console.log("🗺️  Mounting route optimization routes at /api/route-optimization");
+app.route("/api/route-optimization", routeOptimizationRouter);
 
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running
