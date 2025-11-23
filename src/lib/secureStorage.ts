@@ -137,11 +137,12 @@ export class AppStorage {
 }
 
 // Key constants for secure storage
+// Note: SecureStore only allows alphanumeric, ".", "-", and "_" characters
 export const SECURE_KEYS = {
-  PROFESSIONAL_PROFILE: '@secure:professional_profile',
-  SESSION_TOKEN: '@secure:session_token',
-  CACHED_CLIENT_DATA: '@secure:cached_clients',
-  CACHED_ASSESSMENT_DATA: '@secure:cached_assessments',
+  PROFESSIONAL_PROFILE: 'secure_professional_profile',
+  SESSION_TOKEN: 'secure_session_token',
+  CACHED_CLIENT_DATA: 'secure_cached_clients',
+  CACHED_ASSESSMENT_DATA: 'secure_cached_assessments',
 } as const;
 
 // Key constants for regular storage
