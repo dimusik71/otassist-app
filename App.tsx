@@ -60,7 +60,11 @@ export default function App() {
   }
 
   if (showOnboarding) {
-    return <OnboardingScreen onComplete={handleOnboardingComplete} />;
+    return (
+      <SafeAreaProvider>
+        <OnboardingScreen onComplete={handleOnboardingComplete} />
+      </SafeAreaProvider>
+    );
   }
 
   return (
