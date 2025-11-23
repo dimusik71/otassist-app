@@ -26,6 +26,42 @@ A professional mobile application for Occupational Therapists and Allied Health 
   - **Purple-themed UI**: Professional gradient design matching app aesthetic
   - Access via Dashboard or direct navigation
 
+### November 23, 2025 - APPOINTMENT CONSENT & GUIDELINES SYSTEM ✅
+- **New**: Comprehensive consent tracking and appointment preparation system
+  - **Appointment Summary**: Add custom summary of what the appointment is about
+  - **Guidelines Field**: Include detailed guidelines for what to expect during appointment
+  - **Consent Requirement Toggle**: Enable/disable consent requirement per appointment
+  - **Consent Tracking**:
+    - Track whether client has given consent
+    - Record who gave consent (email/identifier)
+    - Timestamp when consent was given
+    - Track consent method (email reply, phone, in-person, portal)
+    - Automatic status change to "Confirmed" when consent is received
+  - **Visual Consent Indicators**:
+    - Green shield with "Consent Confirmed" for approved appointments
+    - Amber shield with "Awaiting Consent" for pending appointments
+    - Shows consent date when available
+  - **Reminder Email Integration** (Ready for implementation):
+    - Summary and guidelines will be included in reminder emails
+    - Consent form template asking client to reply "YES" to confirm
+    - Terms of service and consent to visit included in email
+    - Backend endpoint `/api/appointments/:id/consent` ready for recording consent responses
+  - **Database Fields**:
+    - `summary` - Brief appointment description for reminders
+    - `guidelines` - What to expect during appointment
+    - `consentRequired` - Whether consent is needed (default: true)
+    - `consentGiven` - Whether consent was received
+    - `consentGivenAt` - Timestamp of consent
+    - `consentGivenBy` - Who gave consent (email/identifier)
+    - `consentMethod` - How consent was given (email_reply, phone, in_person, portal)
+  - **UI Updates**:
+    - Summary and guidelines fields in appointment creation modal
+    - Help text explaining fields will be included in reminders
+    - Consent requirement toggle with explanation
+    - Consent status visible in appointment list
+  - **Backend API**: POST `/api/appointments/:id/consent` for recording consent
+  - Access all features via appointment creation/edit modal
+
 ### November 23, 2025 - COMPREHENSIVE DASHBOARD ✅
 - **New**: Beautiful consolidated dashboard for practice overview
   - **Real-time metrics** with auto-refresh every minute

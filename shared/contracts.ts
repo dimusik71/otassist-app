@@ -1188,6 +1188,15 @@ export const appointmentSchema = z.object({
   reminderSent: z.boolean(),
   reminderDate: z.string().nullable(),
   notes: z.string().nullable(),
+  // Appointment summary and guidelines
+  summary: z.string().nullable(),
+  guidelines: z.string().nullable(),
+  consentRequired: z.boolean(),
+  // Consent tracking
+  consentGiven: z.boolean(),
+  consentGivenAt: z.string().nullable(),
+  consentGivenBy: z.string().nullable(),
+  consentMethod: z.string().nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -1218,6 +1227,9 @@ export const createAppointmentRequestSchema = z.object({
   location: z.string().optional(),
   isAllDay: z.boolean().default(false),
   notes: z.string().optional(),
+  summary: z.string().optional(),
+  guidelines: z.string().optional(),
+  consentRequired: z.boolean().default(true),
 });
 export type CreateAppointmentRequest = z.infer<typeof createAppointmentRequestSchema>;
 

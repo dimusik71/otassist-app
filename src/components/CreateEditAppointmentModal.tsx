@@ -70,6 +70,9 @@ const CreateEditAppointmentModal: React.FC<CreateEditAppointmentModalProps> = ({
   const [location, setLocation] = useState("");
   const [isAllDay, setIsAllDay] = useState(false);
   const [notes, setNotes] = useState("");
+  const [summary, setSummary] = useState("");
+  const [guidelines, setGuidelines] = useState("");
+  const [consentRequired, setConsentRequired] = useState(true);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
@@ -101,6 +104,9 @@ const CreateEditAppointmentModal: React.FC<CreateEditAppointmentModalProps> = ({
       setLocation(appointmentData.appointment.location || "");
       setIsAllDay(appointmentData.appointment.isAllDay);
       setNotes(appointmentData.appointment.notes || "");
+      setSummary(appointmentData.appointment.summary || "");
+      setGuidelines(appointmentData.appointment.guidelines || "");
+      setConsentRequired(appointmentData.appointment.consentRequired);
       setClientId(appointmentData.appointment.clientId);
     }
   }, [appointmentData]);
@@ -140,6 +146,9 @@ const CreateEditAppointmentModal: React.FC<CreateEditAppointmentModalProps> = ({
     setLocation("");
     setIsAllDay(false);
     setNotes("");
+    setSummary("");
+    setGuidelines("");
+    setConsentRequired(true);
   };
 
   const handleSave = () => {
@@ -163,6 +172,9 @@ const CreateEditAppointmentModal: React.FC<CreateEditAppointmentModalProps> = ({
       location: location.trim() || undefined,
       isAllDay,
       notes: notes.trim() || undefined,
+      summary: summary.trim() || undefined,
+      guidelines: guidelines.trim() || undefined,
+      consentRequired,
     };
 
     if (appointmentId) {
@@ -370,6 +382,63 @@ const CreateEditAppointmentModal: React.FC<CreateEditAppointmentModalProps> = ({
                 textAlignVertical="top"
                 className="bg-white border border-gray-300 rounded-xl p-4 text-gray-900"
               />
+            </View>
+
+            {/* Summary */}
+            <View className="mb-4">
+              <Text className="text-gray-700 font-semibold mb-2">Appointment Summary (Optional)</Text>
+              <Text className="text-gray-500 text-sm mb-2">
+                Brief summary of what the appointment is about - will be included in reminder email
+              </Text>
+              <TextInput
+                value={summary}
+                onChangeText={setSummary}
+                placeholder="e.g., Home assessment to evaluate mobility and accessibility needs"
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+                className="bg-white border border-gray-300 rounded-xl p-4 text-gray-900"
+              />
+            </View>
+
+            {/* Guidelines */}
+            <View className="mb-4">
+              <Text className="text-gray-700 font-semibold mb-2">Guidelines (Optional)</Text>
+              <Text className="text-gray-500 text-sm mb-2">
+                What to expect during the appointment - will be included in reminder email
+              </Text>
+              <TextInput
+                value={guidelines}
+                onChangeText={setGuidelines}
+                placeholder="e.g., Please ensure all areas of the home are accessible. The assessment will take approximately 1-2 hours. Feel free to ask questions throughout."
+                placeholderTextColor="#9CA3AF"
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                className="bg-white border border-gray-300 rounded-xl p-4 text-gray-900"
+              />
+            </View>
+
+            {/* Consent Required Toggle */}
+            <View className="mb-4">
+              <Pressable
+                onPress={() => setConsentRequired(!consentRequired)}
+                className="flex-row items-center justify-between bg-white border border-gray-300 rounded-xl p-4"
+              >
+                <View className="flex-1 mr-4">
+                  <Text className="text-gray-700 font-semibold mb-1">Require Client Consent</Text>
+                  <Text className="text-gray-500 text-sm">
+                    Client must reply &quot;YES&quot; to reminder email to confirm consent
+                  </Text>
+                </View>
+                <View
+                  className={`w-12 h-6 rounded-full ${consentRequired ? "bg-purple-600" : "bg-gray-300"}`}
+                  style={{ justifyContent: "center", alignItems: consentRequired ? "flex-end" : "flex-start", paddingHorizontal: 2 }}
+                >
+                  <View className="w-5 h-5 bg-white rounded-full" />
+                </View>
+              </Pressable>
             </View>
           </ScrollView>
         )}

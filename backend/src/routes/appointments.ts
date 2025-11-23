@@ -17,6 +17,9 @@ const createAppointmentSchema = z.object({
   location: z.string().optional(),
   isAllDay: z.boolean().default(false),
   notes: z.string().optional(),
+  summary: z.string().optional(),
+  guidelines: z.string().optional(),
+  consentRequired: z.boolean().default(true),
 });
 
 const updateAppointmentSchema = z.object({
@@ -30,6 +33,9 @@ const updateAppointmentSchema = z.object({
   isAllDay: z.boolean().optional(),
   status: z.enum(["scheduled", "confirmed", "cancelled", "completed", "no_show"]).optional(),
   notes: z.string().optional().nullable(),
+  summary: z.string().optional().nullable(),
+  guidelines: z.string().optional().nullable(),
+  consentRequired: z.boolean().optional(),
 });
 
 // GET /api/appointments - Get all appointments for the user
@@ -75,6 +81,7 @@ appointmentsRouter.get("/", async (c) => {
         startTime: apt.startTime.toISOString(),
         endTime: apt.endTime.toISOString(),
         reminderDate: apt.reminderDate?.toISOString() || null,
+        consentGivenAt: apt.consentGivenAt?.toISOString() || null,
         createdAt: apt.createdAt.toISOString(),
         updatedAt: apt.updatedAt.toISOString(),
       })),
@@ -121,6 +128,7 @@ appointmentsRouter.get("/:id", async (c) => {
         startTime: appointment.startTime.toISOString(),
         endTime: appointment.endTime.toISOString(),
         reminderDate: appointment.reminderDate?.toISOString() || null,
+        consentGivenAt: appointment.consentGivenAt?.toISOString() || null,
         createdAt: appointment.createdAt.toISOString(),
         updatedAt: appointment.updatedAt.toISOString(),
       },
@@ -168,6 +176,9 @@ appointmentsRouter.post("/", zValidator("json", createAppointmentSchema), async 
         isAllDay: body.isAllDay,
         reminderDate,
         notes: body.notes || null,
+        summary: body.summary || null,
+        guidelines: body.guidelines || null,
+        consentRequired: body.consentRequired,
         status: "scheduled",
       },
       include: {
@@ -190,6 +201,7 @@ appointmentsRouter.post("/", zValidator("json", createAppointmentSchema), async 
         startTime: appointment.startTime.toISOString(),
         endTime: appointment.endTime.toISOString(),
         reminderDate: appointment.reminderDate?.toISOString() || null,
+        consentGivenAt: appointment.consentGivenAt?.toISOString() || null,
         createdAt: appointment.createdAt.toISOString(),
         updatedAt: appointment.updatedAt.toISOString(),
       },
@@ -246,6 +258,9 @@ appointmentsRouter.put("/:id", zValidator("json", updateAppointmentSchema), asyn
     if (body.isAllDay !== undefined) updateData.isAllDay = body.isAllDay;
     if (body.status) updateData.status = body.status;
     if (body.notes !== undefined) updateData.notes = body.notes;
+    if (body.summary !== undefined) updateData.summary = body.summary;
+    if (body.guidelines !== undefined) updateData.guidelines = body.guidelines;
+    if (body.consentRequired !== undefined) updateData.consentRequired = body.consentRequired;
 
     const appointment = await db.appointment.update({
       where: { id },
@@ -270,6 +285,7 @@ appointmentsRouter.put("/:id", zValidator("json", updateAppointmentSchema), asyn
         startTime: appointment.startTime.toISOString(),
         endTime: appointment.endTime.toISOString(),
         reminderDate: appointment.reminderDate?.toISOString() || null,
+        consentGivenAt: appointment.consentGivenAt?.toISOString() || null,
         createdAt: appointment.createdAt.toISOString(),
         updatedAt: appointment.updatedAt.toISOString(),
       },
@@ -367,6 +383,70 @@ appointmentsRouter.post("/check-reminders", async (c) => {
   } catch (error) {
     console.error("Check reminders error:", error);
     return c.json({ error: "Failed to check reminders" }, 500);
+  }
+});
+
+// POST /api/appointments/:id/consent - Record client consent for appointment
+appointmentsRouter.post("/:id/consent", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const id = c.req.param("id");
+  const body = await c.req.json();
+  const { consentGivenBy, consentMethod } = body;
+
+  try {
+    // Check appointment exists and belongs to user
+    const existing = await db.appointment.findFirst({
+      where: { id, userId: user.id },
+    });
+
+    if (!existing) {
+      return c.json({ error: "Appointment not found" }, 404);
+    }
+
+    // Record consent
+    const appointment = await db.appointment.update({
+      where: { id },
+      data: {
+        consentGiven: true,
+        consentGivenAt: new Date(),
+        consentGivenBy: consentGivenBy || null,
+        consentMethod: consentMethod || "email_reply",
+        status: "confirmed", // Automatically confirm when consent is given
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+          },
+        },
+      },
+    });
+
+    console.log(`✅ [Appointments] Consent recorded for appointment: ${appointment.title}`);
+
+    return c.json({
+      success: true,
+      message: "Consent recorded successfully",
+      appointment: {
+        ...appointment,
+        startTime: appointment.startTime.toISOString(),
+        endTime: appointment.endTime.toISOString(),
+        reminderDate: appointment.reminderDate?.toISOString() || null,
+        consentGivenAt: appointment.consentGivenAt?.toISOString() || null,
+        createdAt: appointment.createdAt.toISOString(),
+        updatedAt: appointment.updatedAt.toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("Record consent error:", error);
+    return c.json({ error: "Failed to record consent" }, 500);
   }
 });
 

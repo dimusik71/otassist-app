@@ -17,6 +17,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -338,6 +340,27 @@ const AppointmentsScreen = () => {
                       <View className="flex-row items-center mb-2">
                         <MapPin size={14} color="#6B7280" />
                         <Text className="text-gray-600 text-sm ml-2">{appointment.location}</Text>
+                      </View>
+                    )}
+
+                    {/* Consent Status */}
+                    {appointment.consentRequired && (
+                      <View className="flex-row items-center mb-2">
+                        {appointment.consentGiven ? (
+                          <>
+                            <ShieldCheck size={14} color="#10B981" />
+                            <Text className="text-green-600 text-sm ml-2 font-medium">
+                              Consent Confirmed
+                              {appointment.consentGivenAt &&
+                                ` on ${new Date(appointment.consentGivenAt).toLocaleDateString()}`}
+                            </Text>
+                          </>
+                        ) : (
+                          <>
+                            <ShieldAlert size={14} color="#F59E0B" />
+                            <Text className="text-amber-600 text-sm ml-2 font-medium">Awaiting Consent</Text>
+                          </>
+                        )}
                       </View>
                     )}
 

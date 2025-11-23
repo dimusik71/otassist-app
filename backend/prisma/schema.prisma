@@ -539,12 +539,25 @@ model Appointment {
   reminderSent      Boolean    @default(false)
   reminderDate      DateTime?  // When to send reminder (e.g., 24 hours before)
   notes             String?
+
+  // Appointment summary and guidelines
+  summary           String?    // Summary of what the appointment is about
+  guidelines        String?    // Guidelines for what to expect during appointment
+  consentRequired   Boolean    @default(true) // Whether client consent is required
+
+  // Consent tracking
+  consentGiven      Boolean    @default(false)
+  consentGivenAt    DateTime?
+  consentGivenBy    String?    // Email or identifier of person who gave consent
+  consentMethod     String?    // "email_reply", "phone", "in_person", "portal"
+
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
 
   @@index([userId, startTime])
   @@index([clientId])
   @@index([status, startTime])
+  @@index([consentGiven])
   @@map("appointment")
 }
 
