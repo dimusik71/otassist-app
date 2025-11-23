@@ -25,6 +25,8 @@ model User {
   clients       Client[]
   assessments   Assessment[]
   auditLogs     AuditLog[]
+  businessDocuments BusinessDocument[]
+  sentInvoices  SentInvoice[]
 
   @@map("user")
 }
@@ -457,4 +459,60 @@ model AuditLog {
   @@index([action, timestamp])
   @@map("audit_log")
 }
+
+// Business Document Management System
+// Stores user's own business documents (invoices sent, registration, insurance, etc.)
+model BusinessDocument {
+  id              String     @id @default(cuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentType    String     // "invoice_sent", "quote_sent", "insurance", "registration", "license", "certification", "contract", "note", "receipt", "tax_document"
+  title           String     // Human-readable title
+  content         String?    // JSON content or text notes
+  fileUrl         String?    // URL to uploaded file
+  amount          Decimal?   // For invoices/receipts
+  dueDate         DateTime?  // For invoices sent
+  paidDate        DateTime?  // When payment was received
+  status          String     @default("active") // "active", "paid", "overdue", "archived", "expired"
+  reminderSent    Boolean    @default(false)
+  reminderDate    DateTime?  // Last reminder sent date
+  tags            String?    // JSON array of tags
+  notes           String?
+  metadata        String?    // JSON: {recipientEmail, invoiceNumber, etc}
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  expiryDate      DateTime?  // For insurance, registration, licenses
+
+  @@index([userId, documentType])
+  @@index([userId, status])
+  @@index([userId, dueDate])
+  @@map("business_document")
+}
+
+// Tracks invoices sent to clients/providers for payment reminders
+model SentInvoice {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessDocumentId String?   // Optional link to BusinessDocument
+  recipientEmail    String
+  recipientName     String?
+  invoiceNumber     String
+  amount            Decimal
+  issueDate         DateTime   @default(now())
+  dueDate           DateTime
+  paidDate          DateTime?
+  status            String     @default("pending") // "pending", "reminded_3_days", "reminded_overdue", "paid", "cancelled"
+  remindersSent     Int        @default(0)
+  lastReminderDate  DateTime?
+  notes             String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([userId, status])
+  @@index([dueDate])
+  @@index([status, dueDate])
+  @@map("sent_invoice")
+}
+
 

@@ -27,6 +27,8 @@ import IoTDeviceLibraryScreen from "@/screens/IoTDeviceLibraryScreen";
 import DevicePlacementScreen from "@/screens/DevicePlacementScreen";
 import UserGuideScreen from "@/screens/UserGuideScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
+import DocumentsScreen from "@/screens/DocumentsScreen";
+import DocumentViewerScreen from "@/screens/DocumentViewerScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -121,6 +123,16 @@ const RootNavigator = () => {
         name="Settings"
         component={SettingsScreen}
         options={{ title: "Settings", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="Documents"
+        component={DocumentsScreen}
+        options={{ title: "Documents", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="DocumentViewer"
+        component={DocumentViewerScreen}
+        options={{ title: "Document Viewer", headerShown: false }}
       />
     </RootStack.Navigator>
   );

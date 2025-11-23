@@ -1012,3 +1012,116 @@ export const deleteDocumentResponseSchema = z.object({
 });
 export type DeleteDocumentResponse = z.infer<typeof deleteDocumentResponseSchema>;
 
+// ====================
+// BUSINESS DOCUMENT CONTRACTS
+// ====================
+
+// Business Document schema
+export const businessDocumentSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  documentType: z.enum(["invoice_sent", "quote_sent", "insurance", "registration", "license", "certification", "contract", "note", "receipt", "tax_document"]),
+  title: z.string(),
+  content: z.string().nullable(),
+  fileUrl: z.string().nullable(),
+  amount: z.number().nullable(),
+  dueDate: z.string().nullable(),
+  paidDate: z.string().nullable(),
+  status: z.enum(["active", "paid", "overdue", "archived", "expired"]),
+  reminderSent: z.boolean(),
+  reminderDate: z.string().nullable(),
+  tags: z.string().nullable(), // JSON string
+  notes: z.string().nullable(),
+  metadata: z.string().nullable(), // JSON string
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  expiryDate: z.string().nullable(),
+});
+export type BusinessDocument = z.infer<typeof businessDocumentSchema>;
+
+// GET /api/business-documents
+export const getBusinessDocumentsResponseSchema = z.object({
+  documents: z.array(businessDocumentSchema),
+});
+export type GetBusinessDocumentsResponse = z.infer<typeof getBusinessDocumentsResponseSchema>;
+
+// POST /api/business-documents
+export const createBusinessDocumentRequestSchema = z.object({
+  documentType: z.enum(["invoice_sent", "quote_sent", "insurance", "registration", "license", "certification", "contract", "note", "receipt", "tax_document"]),
+  title: z.string().min(1),
+  content: z.string().optional(),
+  fileUrl: z.string().optional(),
+  amount: z.number().optional(),
+  dueDate: z.string().optional(),
+  status: z.enum(["active", "paid", "overdue", "archived", "expired"]).default("active"),
+  tags: z.array(z.string()).optional(),
+  notes: z.string().optional(),
+  metadata: z.string().optional(),
+  expiryDate: z.string().optional(),
+});
+export type CreateBusinessDocumentRequest = z.infer<typeof createBusinessDocumentRequestSchema>;
+
+// PUT /api/business-documents/:id
+export const updateBusinessDocumentRequestSchema = z.object({
+  title: z.string().min(1).optional(),
+  content: z.string().optional(),
+  fileUrl: z.string().optional(),
+  amount: z.number().optional(),
+  dueDate: z.string().optional(),
+  paidDate: z.string().optional(),
+  status: z.enum(["active", "paid", "overdue", "archived", "expired"]).optional(),
+  tags: z.array(z.string()).optional(),
+  notes: z.string().optional(),
+  metadata: z.string().optional(),
+  expiryDate: z.string().optional(),
+});
+export type UpdateBusinessDocumentRequest = z.infer<typeof updateBusinessDocumentRequestSchema>;
+
+// Sent Invoice schema
+export const sentInvoiceSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  businessDocumentId: z.string().nullable(),
+  recipientEmail: z.string(),
+  recipientName: z.string().nullable(),
+  invoiceNumber: z.string(),
+  amount: z.number(),
+  issueDate: z.string(),
+  dueDate: z.string(),
+  paidDate: z.string().nullable(),
+  status: z.enum(["pending", "reminded_3_days", "reminded_overdue", "paid", "cancelled"]),
+  remindersSent: z.number(),
+  lastReminderDate: z.string().nullable(),
+  notes: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type SentInvoice = z.infer<typeof sentInvoiceSchema>;
+
+// GET /api/sent-invoices
+export const getSentInvoicesResponseSchema = z.object({
+  invoices: z.array(sentInvoiceSchema),
+});
+export type GetSentInvoicesResponse = z.infer<typeof getSentInvoicesResponseSchema>;
+
+// POST /api/sent-invoices
+export const createSentInvoiceRequestSchema = z.object({
+  recipientEmail: z.string().email(),
+  recipientName: z.string().optional(),
+  invoiceNumber: z.string().min(1),
+  amount: z.number().positive(),
+  issueDate: z.string().optional(),
+  dueDate: z.string(),
+  notes: z.string().optional(),
+  businessDocumentId: z.string().optional(),
+});
+export type CreateSentInvoiceRequest = z.infer<typeof createSentInvoiceRequestSchema>;
+
+// PUT /api/sent-invoices/:id/mark-paid
+export const markInvoicePaidResponseSchema = z.object({
+  success: z.boolean(),
+  invoice: sentInvoiceSchema,
+});
+export type MarkInvoicePaidResponse = z.infer<typeof markInvoicePaidResponseSchema>;
+
+

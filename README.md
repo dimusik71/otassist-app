@@ -4,6 +4,36 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - COMPREHENSIVE DOCUMENT MANAGEMENT SYSTEM ✅
+- **Client Documents**: Complete document management for client-related files
+  - Store invoices, quotes, reports, house maps, and assessment summaries
+  - Filter documents by type (invoices, quotes, reports, maps, summaries)
+  - View, edit, and delete documents with version tracking
+  - Automatic document generation when creating invoices/quotes
+  - Beautiful document viewer with formatted content display
+  - Direct access from Client Detail screen
+
+- **Business Documents**: Personal business document management for the practitioner
+  - Track invoices sent to clients/providers with payment status
+  - Store insurance policies, registrations, licenses, certifications
+  - Manage contracts, receipts, tax documents, and notes
+  - Support for file uploads and JSON content
+  - Expiry date tracking for time-sensitive documents
+  - Tag system for easy organization
+
+- **Invoice Tracking & Reminders**: Automated payment reminder system
+  - Track invoice status (pending, paid, overdue)
+  - Automatic reminder 3 days before due date
+  - Overdue reminder system for late payments
+  - Mark invoices as paid with one tap
+  - Links business documents to sent invoices
+  - Backend scheduler endpoint (`/api/sent-invoices/check-reminders`)
+
+- **Database Models**:
+  - `Document` - Client assessment documents
+  - `BusinessDocument` - Practitioner's business documents
+  - `SentInvoice` - Invoice tracking with payment reminders
+
 ### November 23, 2025 - SECURE STORAGE FIX ✅
 - **Fixed**: Non-std C++ exception error in SecureStorage by adding proper availability checks and AsyncStorage fallback
   - SecureStorage now checks if expo-secure-store is available before use
