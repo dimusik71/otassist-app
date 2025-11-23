@@ -1,17 +1,25 @@
 {
   "expo": {
-    "name": "vibecode",
+    "name": "OT/AH Assessment",
     "slug": "vibecode",
     "scheme": "vibecode",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "owner": "SMPLS INNOVATION PTY LTD",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.smplsinnovation.otassessment",
+      "buildNumber": "1"
     },
     "android": {
+      "package": "com.smplsinnovation.otassessment",
+      "versionCode": 1,
       "edgeToEdgeEnabled": true
+    },
+    "extra": {
+      "companyName": "SMPLS INNOVATION PTY LTD"
     }
   }
 }
