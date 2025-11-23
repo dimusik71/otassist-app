@@ -3,7 +3,7 @@
 
 /**
  * Transcribe audio using OpenAI Whisper API
- * @param audioUri - Local file URI from expo-av recording
+ * @param audioUri - Local file URI from expo-audio recording
  * @returns Transcribed text
  */
 export async function transcribeAudio(audioUri: string): Promise<{

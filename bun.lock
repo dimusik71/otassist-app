@@ -35,8 +35,8 @@
         "expo": "53.0.9",
         "expo-application": "~6.1.4",
         "expo-asset": "11.1.5",
+        "expo-audio": "^1.0.15",
         "expo-auth-session": "^6.0.3",
-        "expo-av": "~15.1.4",
         "expo-background-fetch": "~13.1.5",
         "expo-battery": "~9.1.4",
         "expo-blob": "0.1.6",
@@ -1185,9 +1185,9 @@
 
     "expo-asset": ["expo-asset@11.1.5", "", { "dependencies": { "@expo/image-utils": "^0.7.4", "expo-constants": "~17.1.5" }, "peerDependencies": { "expo": "*", "react": "*", "react-native": "*" } }, "sha512-GEQDCqC25uDBoXHEnXeBuwpeXvI+3fRGvtzwwt0ZKKzWaN+TgeF8H7c76p3Zi4DfBMFDcduM0CmOvJX+yCCLUQ=="],
 
-    "expo-auth-session": ["expo-auth-session@6.1.5", "", { "dependencies": { "expo-application": "~6.1.4", "expo-constants": "~17.1.4", "expo-crypto": "~14.1.4", "expo-linking": "~7.1.4", "expo-web-browser": "~14.1.6", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-KvXWpufwIjze5W9TdX4CqCLm4SAtjBEHvMPE/7CiX6ThB583ckpoo1mgzKGNyrKl7p7eKcdZmHcmXJYldXugkA=="],
+    "expo-audio": ["expo-audio@1.0.15", "", { "peerDependencies": { "expo": "*", "expo-asset": "*", "react": "*", "react-native": "*" } }, "sha512-zXKJ070jhEaxQwOwi44fzEznPUrOkCCltqHDK6mK/AfGdj9/ZfiwrmTxcgcQq4wpq0UeXsG2iEYPiRMsnPgBmg=="],
 
-    "expo-av": ["expo-av@15.1.4", "", { "peerDependencies": { "expo": "*", "react": "*", "react-native": "*", "react-native-web": "*" }, "optionalPeers": ["react-native-web"] }, "sha512-p+U5Hl89i8QQN7uATcUX2Fc9wT5FQcQkvuv43Qwbpi6hUSSjLgVWkXxThDMolqOFDOOsKWM/UM6pmex4XP+uSw=="],
+    "expo-auth-session": ["expo-auth-session@6.1.5", "", { "dependencies": { "expo-application": "~6.1.4", "expo-constants": "~17.1.4", "expo-crypto": "~14.1.4", "expo-linking": "~7.1.4", "expo-web-browser": "~14.1.6", "invariant": "^2.2.4" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-KvXWpufwIjze5W9TdX4CqCLm4SAtjBEHvMPE/7CiX6ThB583ckpoo1mgzKGNyrKl7p7eKcdZmHcmXJYldXugkA=="],
 
     "expo-background-fetch": ["expo-background-fetch@13.1.5", "", { "dependencies": { "expo-task-manager": "~13.1.5" }, "peerDependencies": { "expo": "*" } }, "sha512-tQiQEH68o6iduDDOKdlTx7oa1cWf8d+RsT4vm2dFzoSEIr1gJtdNojN4U2qBxwTGYttJI1ug5/PYKpQUIS5VmA=="],
 

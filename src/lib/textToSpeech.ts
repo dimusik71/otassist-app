@@ -1,7 +1,7 @@
 // ElevenLabs Text-to-Speech Integration
 // Provides high-quality voice synthesis for assessment guidance and accessibility
 
-import { Audio } from 'expo-av';
+import { createAudioPlayer } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
 export interface TTSOptions {
@@ -125,26 +125,17 @@ export async function speakText(text: string, options?: TTSOptions): Promise<boo
       return false;
     }
 
-    // Configure audio mode
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
-    });
+    // Create audio player and play
+    const player = createAudioPlayer(result.audioUri);
+    await player.play();
 
-    // Load and play audio
-    const { sound } = await Audio.Sound.createAsync({ uri: result.audioUri });
-    await sound.playAsync();
-
-    // Clean up when finished
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync();
-        // Delete temp file
-        FileSystem.deleteAsync(result.audioUri!, { idempotent: true });
-      }
-    });
+    // Clean up when finished - wait for playback to complete
+    // Note: expo-audio player stays paused at end after play() completes
+    setTimeout(() => {
+      player.remove();
+      // Delete temp file
+      FileSystem.deleteAsync(result.audioUri!, { idempotent: true });
+    }, 5000); // Give it 5 seconds buffer for most TTS audio
 
     return true;
   } catch (error) {

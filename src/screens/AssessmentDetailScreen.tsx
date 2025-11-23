@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Camera, Image as ImageIcon, Mic, ArrowLeft, Plus, Sparkles, Package, FileText, DollarSign, Edit2, Save, X, CheckCircle, Clock, AlertCircle, Home } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
-import { Audio } from "expo-av";
+import { useAudioRecorder, RecordingPresets, setAudioModeAsync, AudioModule } from "expo-audio";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
@@ -76,8 +76,8 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   const { assessmentId } = route.params;
   const { data: session, isPending: sessionLoading } = useSession();
   const insets = useSafeAreaInsets();
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const [isRecording, setIsRecording] = useState(false);
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState({
     status: "draft" as "draft" | "completed" | "approved",
@@ -238,21 +238,18 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
 
   const startRecording = async () => {
     try {
-      const { status } = await Audio.requestPermissionsAsync();
-      if (status !== "granted") {
+      const { granted } = await AudioModule.requestRecordingPermissionsAsync();
+      if (!granted) {
         Alert.alert("Permission needed", "Microphone permission is required");
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
       });
 
-      const { recording: newRecording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-      setRecording(newRecording);
+      await recorder.record();
       setIsRecording(true);
     } catch (err) {
       Alert.alert("Error", "Failed to start recording");
@@ -260,13 +257,12 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
   };
 
   const stopRecording = async () => {
-    if (!recording) return;
+    if (!recorder.isRecording) return;
 
     try {
       setIsRecording(false);
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      setRecording(null);
+      await recorder.stop();
+      const uri = recorder.uri;
 
       if (uri) {
         // Transcribe audio

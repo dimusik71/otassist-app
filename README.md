@@ -5,6 +5,7 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Migrated**: Upgraded from deprecated expo-av to expo-audio for audio recording and playback (SDK 54 compatibility)
 - **Upgraded**: 3D House Map Generation now uses real Gemini 2.0 Flash AI vision to analyze frames and extract room types, dimensions, and features
 - **Upgraded**: Video Walkthrough frame analysis enhanced to extract AI-estimated dimensions, features, and safety issues from each frame
 - **Improved**: Client Detail screen now groups assessments into "Ongoing" and "Completed" sections for better organization
