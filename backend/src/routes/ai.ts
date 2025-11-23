@@ -3,9 +3,12 @@ import { db } from "../db";
 import type { AppType } from "../types";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import pdfParse from "pdf-parse";
 
 const aiRouter = new Hono<AppType>();
+
+// Import pdf-parse using require for compatibility with Bun
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pdfParse = require("pdf-parse");
 
 // POST /api/ai/equipment-recommendations - Get equipment recommendations using Grok
 aiRouter.post("/equipment-recommendations", async (c) => {
@@ -923,7 +926,7 @@ Be concise, professional, and specific to this app's features. If a user asks ab
   }
 });
 
-// POST /api/ai/parse-catalog - Parse PDF equipment catalog using AI
+// POST /api/ai/parse-catalog - Parse PDF equipment catalog using AI (Hybrid: Vision + Text)
 aiRouter.post("/parse-catalog", async (c) => {
   const user = c.get("user");
   if (!user?.id) {
@@ -950,32 +953,120 @@ aiRouter.post("/parse-catalog", async (c) => {
       return c.json({ error: "PDF file not found" }, 404);
     }
 
-    // Parse PDF to extract text
+    // Parse PDF to extract text first
     const dataBuffer = fs.readFileSync(filePath);
     const pdfData = await pdfParse(dataBuffer);
     const pdfText = pdfData.text;
 
-    console.log(`✅ [AI] PDF parsed successfully. Text length: ${pdfText.length} characters`);
+    console.log(`✅ [AI] PDF parsed successfully. Text length: ${pdfText.length} characters, Pages: ${pdfData.numpages}`);
 
-    if (pdfText.length === 0) {
-      return c.json({ error: "PDF appears to be empty or contains only images" }, 400);
+    // Strategy: Use Gemini Vision for visual PDFs, fallback to Grok text parsing
+    const googleApiKey = process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
+    let equipmentArray: any[] = [];
+    let usingVision = false;
+
+    // If PDF has very little text (image-heavy catalog), try Gemini Vision
+    // For now, we'll use text-based approach but with enhanced Gemini prompt
+    if (googleApiKey && pdfText.length < 500) {
+      // Image-heavy PDF detected
+      console.log("📸 [AI] Image-heavy PDF detected. Converting to base64 for vision analysis...");
+
+      // Convert first page of PDF to base64
+      const pdfBase64 = dataBuffer.toString('base64');
+
+      try {
+        console.log("🤖 [AI] Sending PDF to Gemini 3 Pro Vision for analysis...");
+
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image:generateContent?key=${googleApiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: `This is an equipment catalog PDF. Extract ALL equipment items visible in this catalog and format as JSON.
+
+For each item, extract:
+- name: Product name (required)
+- description: Product description/features
+- category: One of: mobility, bathroom, bedroom, assistive_tech, iot, kitchen, outdoor, safety, other
+- price: Price as number (if visible, otherwise 0)
+- brand: Manufacturer/brand
+- model: Model number/code
+- specifications: Technical specs as JSON string
+
+Return ONLY valid JSON:
+{
+  "equipment": [
+    {
+      "name": "Product Name",
+      "description": "Description",
+      "category": "mobility",
+      "price": 299.99,
+      "brand": "Brand",
+      "model": "MODEL123",
+      "specifications": "{\\"weight\\": \\"10kg\\"}"
+    }
+  ]
+}`
+                    },
+                    {
+                      inline_data: {
+                        mime_type: "application/pdf",
+                        data: pdfBase64
+                      }
+                    }
+                  ]
+                }
+              ],
+              generationConfig: {
+                temperature: 0.3,
+                maxOutputTokens: 8192,
+              },
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data = (await response.json()) as {
+            candidates?: Array<{
+              content?: { parts?: Array<{ text?: string }> };
+            }>;
+          };
+          const visionText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+          const jsonMatch = visionText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsedData = JSON.parse(jsonMatch[0]);
+            equipmentArray = parsedData.equipment || [];
+            usingVision = true;
+            console.log(`✅ [AI] Gemini Vision extracted ${equipmentArray.length} items`);
+          }
+        }
+      } catch (visionError) {
+        console.error("⚠️ [AI] Gemini Vision failed, falling back to text parsing:", visionError);
+      }
     }
 
-    // Use Grok AI to extract equipment items from the PDF text
-    console.log("🤖 [AI] Sending PDF text to Grok for equipment extraction...");
+    // Fallback to text-based parsing with Grok if vision didn't work or PDF has text
+    if (equipmentArray.length === 0 && pdfText.length > 0) {
+      console.log("🤖 [AI] Using Grok text-based parsing...");
 
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "grok-4-fast-non-reasoning",
-        messages: [
-          {
-            role: "system",
-            content: `You are an equipment catalog parser. Extract all equipment items from the provided catalog text and format them as a structured JSON array. Focus on assistive technology, mobility aids, bathroom equipment, bedroom equipment, and related healthcare/OT equipment.
+      const response = await fetch("https://api.x.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "grok-4-fast-non-reasoning",
+          messages: [
+            {
+              role: "system",
+              content: `You are an equipment catalog parser. Extract all equipment items from the provided catalog text and format them as a structured JSON array. Focus on assistive technology, mobility aids, bathroom equipment, bedroom equipment, and related healthcare/OT equipment.
 
 For each item, extract:
 - name: The product name (required)
@@ -1000,40 +1091,47 @@ Return ONLY a valid JSON object with this structure:
     }
   ]
 }`,
-          },
-          {
-            role: "user",
-            content: `Extract all equipment items from this catalog:\n\n${pdfText.slice(0, 15000)}`,
-          },
-        ],
-        max_tokens: 8000,
-        temperature: 0.3,
-      }),
-    });
+            },
+            {
+              role: "user",
+              content: `Extract all equipment items from this catalog:\n\n${pdfText.slice(0, 15000)}`,
+            },
+          ],
+          max_tokens: 8000,
+          temperature: 0.3,
+        }),
+      });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("❌ [AI] Grok API error:", errorText);
-      throw new Error(`Grok API request failed: ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("❌ [AI] Grok API error:", errorText);
+        throw new Error(`Grok API request failed: ${errorText}`);
+      }
+
+      const aiData = (await response.json()) as {
+        choices: Array<{ message: { content: string } }>;
+      };
+      const aiContent = aiData.choices?.[0]?.message?.content || "";
+      console.log("✅ [AI] Received response from Grok");
+
+      // Parse JSON response
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        console.error("❌ [AI] Failed to extract JSON from response:", aiContent.slice(0, 200));
+        throw new Error("Invalid JSON response from AI");
+      }
+
+      const parsedData = JSON.parse(jsonMatch[0]);
+      equipmentArray = parsedData.equipment || [];
     }
 
-    const aiData = (await response.json()) as {
-      choices: Array<{ message: { content: string } }>;
-    };
-    const aiContent = aiData.choices?.[0]?.message?.content || "";
-    console.log("✅ [AI] Received response from Grok");
-
-    // Parse JSON response
-    const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("❌ [AI] Failed to extract JSON from response:", aiContent.slice(0, 200));
-      throw new Error("Invalid JSON response from AI");
+    if (equipmentArray.length === 0) {
+      return c.json({
+        error: "No equipment items found in catalog. The PDF may be empty, corrupted, or in an unsupported format."
+      }, 400);
     }
 
-    const parsedData = JSON.parse(jsonMatch[0]);
-    const equipmentArray = parsedData.equipment || [];
-
-    console.log(`🎉 [AI] Successfully extracted ${equipmentArray.length} equipment items`);
+    console.log(`🎉 [AI] Successfully extracted ${equipmentArray.length} equipment items using ${usingVision ? 'Gemini Vision' : 'Grok text parsing'}`);
 
     // Save equipment to database
     let createdCount = 0;
@@ -1065,6 +1163,7 @@ Return ONLY a valid JSON object with this structure:
       message: `Successfully parsed catalog and added ${createdCount} equipment items`,
       equipmentCount: createdCount,
       equipment: equipmentArray,
+      model: usingVision ? "gemini-3-pro-vision" : "grok-4-fast-text",
     });
   } catch (error) {
     console.error("💥 [AI] Catalog parsing error:", error);
