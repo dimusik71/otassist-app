@@ -822,4 +822,102 @@ aiRouter.post("/video-analysis", async (c) => {
   }
 });
 
+// POST /api/ai/support-chat - AI support chatbot for user guide
+aiRouter.post("/support-chat", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await c.req.json();
+  const { message, conversationHistory } = body as {
+    message: string;
+    conversationHistory?: Array<{ role: string; content: string }>;
+  };
+
+  if (!message || message.trim().length === 0) {
+    return c.json({ error: "Message is required" }, 400);
+  }
+
+  try {
+    // Build conversation context
+    const messages = [
+      {
+        role: "system",
+        content: `You are a helpful AI assistant for the OT/AH Assessment App, designed for Occupational Therapists and Allied Health professionals.
+
+Your role is to help users understand and use the app effectively. You can answer questions about:
+- How to conduct assessments (Home Environmental, Mobility Scooter, Falls Risk, Movement & Mobility, Assistive Technology)
+- Using AI features (image analysis, audio transcription, text-to-speech, equipment recommendations)
+- Creating 3D house maps from video walkthroughs
+- Recommending IoT devices and assistive technology
+- Managing clients and assessment records
+- Generating quotes and invoices
+- Best practices for documentation and photography
+
+Be concise, professional, and specific to this app's features. If a user asks about something outside the app's scope, politely redirect them to app-related topics.`,
+      },
+    ];
+
+    // Add conversation history (last 6 messages for context)
+    if (conversationHistory && Array.isArray(conversationHistory)) {
+      conversationHistory.slice(-6).forEach((msg) => {
+        if (msg.role === "user" || msg.role === "assistant") {
+          messages.push({
+            role: msg.role,
+            content: msg.content,
+          });
+        }
+      });
+    }
+
+    // Add current user message
+    messages.push({
+      role: "user",
+      content: message,
+    });
+
+    // Use OpenAI GPT-4o-mini for fast, cost-effective responses
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages,
+        max_tokens: 500,
+        temperature: 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`OpenAI API request failed: ${errorText}`);
+    }
+
+    const data = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+
+    const assistantResponse = data.choices?.[0]?.message?.content ?? "I'm sorry, I couldn't generate a response. Please try again.";
+
+    return c.json({
+      success: true,
+      response: assistantResponse,
+      model: "gpt-4o-mini",
+    });
+  } catch (error) {
+    console.error("Support chat error:", error);
+    return c.json(
+      {
+        error: "Failed to get AI response",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
 export default aiRouter;

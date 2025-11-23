@@ -5,6 +5,10 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Added**: Interactive User Guide with AI-powered support chatbot (src/screens/UserGuideScreen.tsx)
+  - Comprehensive guide covering all features with expandable sections
+  - Real-time AI assistant using GPT-4o-mini for personalized help
+  - Accessible from help icon in assessments screen header
 - **Migrated**: Upgraded from deprecated expo-av to expo-audio for audio recording and playback (SDK 54 compatibility)
 - **Fixed**: Audio recording now properly calls `prepareToRecordAsync()` before recording (src/screens/AssessmentDetailScreen.tsx:252)
 - **Improved**: Text-to-speech cleanup now uses actual audio duration instead of fixed 5-second timeout (src/lib/textToSpeech.ts:134)

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Calendar } from "lucide-react-native";
+import { Plus, Calendar, HelpCircle } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -50,7 +50,17 @@ function AssessmentsScreen({ navigation }: Props) {
         end={{ x: 1, y: 1 }}
         style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
       >
-        <Text className="text-3xl font-bold text-white mb-2">Assessments</Text>
+        <View className="flex-row items-center justify-between mb-2">
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-white">Assessments</Text>
+          </View>
+          <Pressable
+            onPress={() => navigation.navigate("UserGuide")}
+            className="bg-white/20 p-2 rounded-xl active:opacity-70"
+          >
+            <HelpCircle size={24} color="white" />
+          </Pressable>
+        </View>
         <Text style={{ color: "#DBEAFE" }}>Manage client assessments and reports</Text>
       </LinearGradient>
 
