@@ -160,6 +160,21 @@ app.route("/api/appointments", appointmentsRouter);
 console.log("📊 Mounting reports routes at /api/reports");
 app.route("/api/reports", reportsRouter);
 
+// Rate limiting for route optimization endpoints (prevent abuse of AI-powered operations)
+console.log("🛡️  Applying rate limiting to route optimization endpoints");
+app.use(
+  "/api/route-optimization/*",
+  rateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 10, // 10 route optimization requests per minute
+    standardHeaders: "draft-6",
+    keyGenerator: (c) => {
+      const user = c.get("user");
+      return user?.id || c.req.header("x-forwarded-for") || "unknown";
+    },
+  })
+);
+
 console.log("🗺️  Mounting route optimization routes at /api/route-optimization");
 app.route("/api/route-optimization", routeOptimizationRouter);
 

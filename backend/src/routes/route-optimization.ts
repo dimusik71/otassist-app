@@ -8,14 +8,41 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const routeOptimizationRouter = new Hono<AppType>();
 
+// Helper function to sanitize text for AI prompts (prevent prompt injection)
+function sanitizeForPrompt(text: string): string {
+  if (!text) return "";
+  // Remove potential prompt injection attempts
+  return text
+    .replace(/[<>]/g, "") // Remove angle brackets
+    .replace(/```/g, "") // Remove code blocks
+    .replace(/\n{3,}/g, "\n\n") // Limit excessive newlines
+    .replace(/\{|\}/g, "") // Remove curly braces that could break JSON
+    .trim()
+    .slice(0, 200); // Limit length to prevent abuse
+}
+
+// Helper function to validate coordinates
+function validateCoordinates(lat: number, lon: number): boolean {
+  return (
+    typeof lat === "number" &&
+    typeof lon === "number" &&
+    !isNaN(lat) &&
+    !isNaN(lon) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lon >= -180 &&
+    lon <= 180
+  );
+}
+
 // Schema for route optimization request
 const optimizeRouteSchema = z.object({
-  appointmentIds: z.array(z.string()).min(1, "At least one appointment is required"),
+  appointmentIds: z.array(z.string()).min(1, "At least one appointment is required").max(20, "Maximum 20 appointments allowed"),
   startLocation: z
     .object({
-      latitude: z.number(),
-      longitude: z.number(),
-      address: z.string(),
+      latitude: z.number().min(-90).max(90),
+      longitude: z.number().min(-180).max(180),
+      address: z.string().max(200),
     })
     .optional(),
 });
@@ -99,15 +126,21 @@ routeOptimizationRouter.post("/optimize", zValidator("json", optimizeRouteSchema
         return null;
       }
 
+      // Validate coordinates
+      if (!validateCoordinates(latitude, longitude)) {
+        console.warn(`⚠️  [Route] Invalid coordinates for appointment ${apt.id}: ${latitude}, ${longitude}`);
+        return null;
+      }
+
       return {
         appointmentId: apt.id,
-        title: apt.title,
-        clientName: apt.client?.name || "Unknown client",
+        title: sanitizeForPrompt(apt.title), // Sanitize user input
+        clientName: sanitizeForPrompt(apt.client?.name || "Unknown client"), // Sanitize user input
         startTime: apt.startTime.toISOString(),
         endTime: apt.endTime.toISOString(),
         latitude,
         longitude,
-        address,
+        address: sanitizeForPrompt(address), // Sanitize user input
       };
     });
 
@@ -119,14 +152,27 @@ routeOptimizationRouter.post("/optimize", zValidator("json", optimizeRouteSchema
 
     // Use AI to optimize the route
     console.log("🤖 [Route] Using AI to optimize route...");
-    const optimizedRoute = await optimizeRouteWithAI(
-      validLocations,
-      body.startLocation || {
+
+    // Sanitize and validate start location
+    let startLocation = body.startLocation;
+    if (startLocation) {
+      if (!validateCoordinates(startLocation.latitude, startLocation.longitude)) {
+        return c.json({ error: "Invalid start location coordinates" }, 400);
+      }
+      startLocation = {
+        latitude: startLocation.latitude,
+        longitude: startLocation.longitude,
+        address: sanitizeForPrompt(startLocation.address),
+      };
+    } else {
+      startLocation = {
         latitude: validLocations[0].latitude,
         longitude: validLocations[0].longitude,
-        address: "Starting point",
-      }
-    );
+        address: sanitizeForPrompt("Starting point"),
+      };
+    }
+
+    const optimizedRoute = await optimizeRouteWithAI(validLocations, startLocation);
 
     console.log(`✅ [Route] Route optimized successfully`);
 
