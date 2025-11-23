@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -37,6 +37,16 @@ const GenerateQuoteScreen = ({ navigation, route }: Props) => {
   const [quoteOptions, setQuoteOptions] = useState<QuoteOption[]>([]);
   const queryClient = useQueryClient();
 
+  // Fetch user's profile to get custom rates
+  const { data: profileData } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const response = (await api.get("/api/profile")) as Response;
+      if (!response.ok) throw new Error("Failed to fetch profile");
+      return response.json() as Promise<{ profile: any }>;
+    },
+  });
+
   // Fetch equipment catalog
   const { data: equipmentData } = useQuery({
     queryKey: ["equipment"],
@@ -46,13 +56,28 @@ const GenerateQuoteScreen = ({ navigation, route }: Props) => {
   const generateQuotes = async () => {
     setGenerating(true);
     try {
+      // Pass profile rates to AI for quote generation
+      const profileRates = profileData?.profile
+        ? {
+            hourlyRate: profileData.profile.defaultHourlyRate || 150,
+            assessmentFee: profileData.profile.assessmentFee || 250,
+            reportFee: profileData.profile.reportFee || 180,
+            travelRate: profileData.profile.travelRate || 85,
+          }
+        : {
+            hourlyRate: 150,
+            assessmentFee: 250,
+            reportFee: 180,
+            travelRate: 85,
+          };
+
       // Use Grok to generate 3 quote options
       const response = await fetch(
         `${process.env.EXPO_PUBLIC_VIBECODE_BACKEND_URL}/api/ai/generate-quotes`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ assessmentId }),
+          body: JSON.stringify({ assessmentId, profileRates }),
         }
       );
 

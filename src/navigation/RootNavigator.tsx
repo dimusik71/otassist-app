@@ -26,6 +26,7 @@ import VideoWalkthroughScreen from "@/screens/VideoWalkthroughScreen";
 import IoTDeviceLibraryScreen from "@/screens/IoTDeviceLibraryScreen";
 import DevicePlacementScreen from "@/screens/DevicePlacementScreen";
 import UserGuideScreen from "@/screens/UserGuideScreen";
+import SettingsScreen from "@/screens/SettingsScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -115,6 +116,11 @@ const RootNavigator = () => {
         name="UserGuide"
         component={UserGuideScreen}
         options={{ title: "User Guide", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{ title: "Settings", headerShown: false }}
       />
     </RootStack.Navigator>
   );

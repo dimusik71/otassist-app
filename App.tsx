@@ -9,6 +9,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OnboardingScreen from "@/screens/OnboardingScreen";
+import ProfessionalProfileSetupScreen from "@/screens/ProfessionalProfileSetupScreen";
 
 /*
 IMPORTANT NOTICE: DO NOT REMOVE
@@ -33,6 +34,7 @@ const openai_api_key = Constants.expoConfig.extra.apikey;
 
 export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,10 +44,18 @@ export default function App() {
   const checkOnboardingStatus = async () => {
     try {
       const hasCompletedOnboarding = await AsyncStorage.getItem("@onboarding_completed");
-      setShowOnboarding(!hasCompletedOnboarding);
+      const hasCompletedProfile = await AsyncStorage.getItem("@profile_setup_completed");
+      const hasSkippedProfile = await AsyncStorage.getItem("@profile_setup_skipped");
+
+      if (!hasCompletedOnboarding) {
+        setShowOnboarding(true);
+      } else if (!hasCompletedProfile && !hasSkippedProfile) {
+        setShowProfileSetup(true);
+      }
     } catch (error) {
       console.error("Failed to check onboarding status:", error);
       setShowOnboarding(false);
+      setShowProfileSetup(false);
     } finally {
       setIsLoading(false);
     }
@@ -53,6 +63,12 @@ export default function App() {
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
+    // After onboarding, check if we need to show profile setup
+    checkOnboardingStatus();
+  };
+
+  const handleProfileSetupComplete = () => {
+    setShowProfileSetup(false);
   };
 
   if (isLoading) {
@@ -63,6 +79,17 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <OnboardingScreen onComplete={handleOnboardingComplete} />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (showProfileSetup) {
+    return (
+      <SafeAreaProvider>
+        <ProfessionalProfileSetupScreen
+          onComplete={handleProfileSetupComplete}
+          onSkip={handleProfileSetupComplete}
+        />
       </SafeAreaProvider>
     );
   }

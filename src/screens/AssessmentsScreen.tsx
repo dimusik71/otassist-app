@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Calendar, HelpCircle, CheckSquare } from "lucide-react-native";
+import { Plus, Calendar, HelpCircle, CheckSquare, Settings } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -107,6 +107,12 @@ function AssessmentsScreen({ navigation }: Props) {
               className="bg-white/20 p-2 rounded-xl active:opacity-70"
             >
               <HelpCircle size={24} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("Settings")}
+              className="bg-white/20 p-2 rounded-xl active:opacity-70"
+            >
+              <Settings size={24} color="white" />
             </Pressable>
           </View>
         </View>

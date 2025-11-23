@@ -25,20 +25,23 @@ This file tracks all features in the OT/AH Assessment App. When adding new featu
 ---
 
 ### 2. Professional Profile
-**Status**: 🚧 In Progress (Database ready, UI pending)
+**Status**: ✅ Implemented
 **Files**:
 - `backend/prisma/schema.prisma` (Profile model)
+- `src/screens/ProfessionalProfileSetupScreen.tsx`
+- `src/screens/SettingsScreen.tsx`
+- `backend/src/routes/profile.ts`
 
 **Description**:
-- AHPRA registration number & expiry date
-- Business details (name, ABN, ACN)
-- Contact information & address
+- 3-step onboarding wizard for new users
+- AHPRA registration number & profession
+- Business details (name, ABN, contact info, address)
 - Customizable rates (hourly, assessment, report, travel)
-- Qualifications & specializations
-- Payment/banking details
-- Logo & branding options
+- Settings screen for editing profile after setup
+- Backend API for profile storage and retrieval
+- Integrated with invoice/quote generation
 
-**User Guide Section**: ⚠️ TO BE ADDED when UI is complete
+**User Guide Section**: Getting Started → Professional Profile Setup
 
 ---
 
@@ -151,7 +154,7 @@ This file tracks all features in the OT/AH Assessment App. When adding new featu
 ---
 
 ### 9. Quotes & Invoices
-**Status**: ✅ Implemented (needs rate integration)
+**Status**: ✅ Implemented
 **Files**:
 - `src/screens/GenerateQuoteScreen.tsx`
 - `src/screens/GenerateInvoiceScreen.tsx`
@@ -161,13 +164,12 @@ This file tracks all features in the OT/AH Assessment App. When adding new featu
 **Description**:
 - Generate professional quotes with multiple options
 - Create itemized invoices
+- Uses custom rates from user's professional profile
 - Track hourly rates and hours worked
 - Include equipment costs (hardware, installation, SaaS)
 - Export as PDF (future enhancement)
 
 **User Guide Section**: Quotes & Invoices (full section)
-
-⚠️ **TODO**: Integrate user's custom rates from Profile
 
 ---
 
@@ -219,11 +221,11 @@ This file tracks all features in the OT/AH Assessment App. When adding new featu
 **Description**: Export quotes, invoices, and assessment reports as PDF
 
 ### Settings Screen
-**Status**: 📋 Planned
-**Description**: Edit professional profile, rates, preferences
+**Status**: ✅ Implemented
+**Description**: Edit professional profile, rates, and business details after initial setup
 
 ### Professional Profile Setup
-**Status**: 🚧 In Progress
+**Status**: ✅ Implemented
 **Description**: Collect AHPRA, business details, rates during onboarding
 
 ### Offline Mode

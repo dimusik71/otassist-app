@@ -27,6 +27,7 @@ export type RootStackParamList = {
   DevicePlacement: { houseMapId: string; assessmentId: string };
   VideoWalkthrough: { assessmentId: string };
   UserGuide: undefined;
+  Settings: undefined;
 };
 
 export type BottomTabParamList = {

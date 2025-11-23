@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { ArrowLeft, DollarSign, Plus, X } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -37,6 +37,29 @@ const GenerateInvoiceScreen = ({ navigation, route }: Props) => {
   const [notes, setNotes] = useState("");
 
   const queryClient = useQueryClient();
+
+  // Fetch user's profile to get custom rates
+  const { data: profileData } = useQuery({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const response = (await api.get("/api/profile")) as Response;
+      if (!response.ok) throw new Error("Failed to fetch profile");
+      return response.json() as Promise<{ profile: any }>;
+    },
+  });
+
+  // Update default rates when profile loads
+  useEffect(() => {
+    if (profileData?.profile) {
+      const profile = profileData.profile;
+      if (profile.defaultHourlyRate) {
+        setHourlyRate(profile.defaultHourlyRate.toString());
+      }
+      if (profile.assessmentFee) {
+        setItems([{ description: "Assessment Services", quantity: 1, rate: profile.assessmentFee }]);
+      }
+    }
+  }, [profileData]);
 
   const { mutate: createInvoice, isPending } = useMutation({
     mutationFn: (data: CreateInvoiceRequest) => api.post("/api/invoices", data),

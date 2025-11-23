@@ -5,6 +5,12 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Added**: Complete Professional Profile System
+  - 3-step onboarding wizard for collecting AHPRA, business details, and custom rates (src/screens/ProfessionalProfileSetupScreen.tsx)
+  - Settings screen for editing profile after setup (src/screens/SettingsScreen.tsx)
+  - Backend API routes for profile management (backend/src/routes/profile.ts)
+  - Integrated with invoice/quote generation - uses custom rates from profile
+  - Accessible via settings icon (gear) in assessments header
 - **Extended**: Database schema with professional profile fields (AHPRA, ABN, business details, customizable rates)
 - **Added**: Complete onboarding experience for new users (src/screens/OnboardingScreen.tsx)
   - Beautiful 5-slide welcome tour introducing key features
