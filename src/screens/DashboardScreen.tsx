@@ -454,7 +454,12 @@ const DashboardScreen = () => {
                 ) : (
                   <>
                     {/* Weekly Stats */}
-                    <View className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 mb-4">
+                    <LinearGradient
+                      colors={["#3B82F6", "#8B5CF6"]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={{ borderRadius: 12, padding: 16, marginBottom: 16 }}
+                    >
                       <Text className="text-white text-sm mb-2">Weekly Overview</Text>
                       <View className="flex-row justify-between">
                         <View>
@@ -477,7 +482,7 @@ const DashboardScreen = () => {
                           <Text className="text-white text-xs opacity-80">Travel Time</Text>
                         </View>
                       </View>
-                    </View>
+                    </LinearGradient>
 
                     {/* Daily Breakdown */}
                     <View className="border-t border-gray-100 pt-3">
