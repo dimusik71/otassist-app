@@ -83,6 +83,42 @@ quotesRouter.post("/", zValidator("json", createQuoteRequestSchema), async (c) =
     },
   });
 
+  // Get client info for business document
+  const client = await db.client.findUnique({
+    where: { id: assessment.clientId },
+    select: { name: true },
+  });
+
+  // Create corresponding Business Document for user's records
+  await db.businessDocument.create({
+    data: {
+      userId: user.id,
+      documentType: "quote_sent",
+      title: `Quote ${quoteNumber} - ${body.optionName} - ${client?.name || "Client"}`,
+      content: JSON.stringify({
+        quoteNumber,
+        optionName: body.optionName,
+        clientName: client?.name,
+        assessmentId: body.assessmentId,
+        items: body.items,
+        subtotal: Number(subtotal),
+        tax: Number(tax),
+        total: Number(total),
+      }),
+      amount: total,
+      status: "active",
+      notes: body.notes || null,
+      expiryDate: body.validUntil ? new Date(body.validUntil) : null,
+      metadata: JSON.stringify({
+        quoteId: quote.id,
+        quoteNumber,
+        optionName: body.optionName,
+        clientId: assessment.clientId,
+        assessmentId: body.assessmentId,
+      }),
+    },
+  });
+
   const response = {
     success: true,
     quote: {

@@ -4,6 +4,16 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - AUTO-CREATE BUSINESS DOCUMENTS ✅
+- **New**: Invoices and quotes automatically create Business Documents
+  - When you generate an invoice, it's automatically added to your Business Documents as "Invoice Sent"
+  - When you generate a quote, it's automatically added to your Business Documents as "Quote Sent"
+  - Includes client name, amount, items, and all relevant details
+  - Track all invoices/quotes you've sent in one place
+  - Due dates automatically set for invoices
+  - Valid until dates automatically set for quotes
+  - No manual entry needed - everything is automatic!
+
 ### November 23, 2025 - BUSINESS DOCUMENTS FEATURE ✅
 - **New**: Complete Business Documents management system for practitioners
   - Store and manage your own professional documents (insurance, licenses, certifications)

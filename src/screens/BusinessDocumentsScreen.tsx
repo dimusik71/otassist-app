@@ -17,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   FileText,
   DollarSign,
+  FileSpreadsheet,
   Shield,
   Award,
   FileCheck,
@@ -119,6 +120,8 @@ const BusinessDocumentsScreen = () => {
     switch (type) {
       case "invoice_sent":
         return <DollarSign size={24} color="#10b981" />;
+      case "quote_sent":
+        return <FileSpreadsheet size={24} color="#f59e0b" />;
       case "insurance":
         return <Shield size={24} color="#3b82f6" />;
       case "registration":
@@ -137,6 +140,7 @@ const BusinessDocumentsScreen = () => {
   const getDocumentTypeLabel = (type: string) => {
     const labels: { [key: string]: string } = {
       invoice_sent: "Invoice Sent",
+      quote_sent: "Quote Sent",
       insurance: "Insurance",
       registration: "Registration",
       license: "License",
@@ -267,6 +271,7 @@ const BusinessDocumentsScreen = () => {
   const filterButtons = [
     { label: "All", value: null },
     { label: "Invoices", value: "invoice_sent" },
+    { label: "Quotes", value: "quote_sent" },
     { label: "Insurance", value: "insurance" },
     { label: "Licenses", value: "license" },
     { label: "Notes", value: "note" },
@@ -411,7 +416,7 @@ const BusinessDocumentsScreen = () => {
               {/* Document Type */}
               <Text className="text-slate-300 font-semibold mb-2">Type</Text>
               <View className="flex-row flex-wrap mb-4">
-                {["note", "invoice_sent", "insurance", "license", "receipt"].map((type) => (
+                {["note", "invoice_sent", "quote_sent", "insurance", "license", "receipt"].map((type) => (
                   <Pressable
                     key={type}
                     onPress={() => setFormData({ ...formData, documentType: type })}

@@ -90,6 +90,40 @@ invoicesRouter.post("/", zValidator("json", createInvoiceRequestSchema), async (
     },
   });
 
+  // Get client info for business document
+  const client = await db.client.findUnique({
+    where: { id: assessment.clientId },
+    select: { name: true },
+  });
+
+  // Create corresponding Business Document for user's records
+  await db.businessDocument.create({
+    data: {
+      userId: user.id,
+      documentType: "invoice_sent",
+      title: `Invoice ${invoiceNumber} - ${client?.name || "Client"}`,
+      content: JSON.stringify({
+        invoiceNumber,
+        clientName: client?.name,
+        assessmentId: body.assessmentId,
+        items: body.items,
+        subtotal: Number(subtotal),
+        tax: Number(tax),
+        total: Number(total),
+      }),
+      amount: total,
+      dueDate: body.dueDate ? new Date(body.dueDate) : null,
+      status: "active",
+      notes: body.notes || null,
+      metadata: JSON.stringify({
+        invoiceId: invoice.id,
+        invoiceNumber,
+        clientId: assessment.clientId,
+        assessmentId: body.assessmentId,
+      }),
+    },
+  });
+
   const response = {
     success: true,
     invoice: {
