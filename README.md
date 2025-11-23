@@ -4,6 +4,21 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - PDF CATALOG UPLOAD & AI PARSING ✅
+- **New**: AI-powered equipment catalog upload feature
+  - Upload PDF equipment catalogs via the Equipment screen
+  - AI automatically extracts all equipment items from the PDF
+  - Parses: name, description, category, price, brand, model, specifications
+  - Adds all items to your equipment database automatically
+  - Uses Grok AI for intelligent catalog parsing
+  - Supports PDFs up to 50MB in size
+  - Beautiful purple-themed upload screen with progress tracking
+  - Success screen shows equipment count and link to view items
+  - Access via "Upload Catalog" button in Equipment header
+  - Backend: PDF parsing with pdf-parse library
+  - Backend: AI catalog parsing endpoint at `/api/ai/parse-catalog`
+  - Backend: PDF upload endpoint at `/api/upload/catalog`
+
 ### November 23, 2025 - AUTO-CREATE BUSINESS DOCUMENTS ✅
 - **New**: Invoices and quotes automatically create Business Documents
   - When you generate an invoice, it's automatically added to your Business Documents as "Invoice Sent"

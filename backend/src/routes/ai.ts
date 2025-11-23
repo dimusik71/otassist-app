@@ -1,6 +1,9 @@
 import { Hono } from "hono";
 import { db } from "../db";
 import type { AppType } from "../types";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import pdfParse from "pdf-parse";
 
 const aiRouter = new Hono<AppType>();
 
@@ -913,6 +916,161 @@ Be concise, professional, and specific to this app's features. If a user asks ab
     return c.json(
       {
         error: "Failed to get AI response",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
+// POST /api/ai/parse-catalog - Parse PDF equipment catalog using AI
+aiRouter.post("/parse-catalog", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await c.req.json();
+  const { fileUrl, filename } = body;
+  console.log("📋 [AI] PDF catalog parsing request:", filename);
+
+  if (!fileUrl || !filename) {
+    return c.json({ error: "Missing fileUrl or filename" }, 400);
+  }
+
+  try {
+    // Read PDF file from uploads directory
+    const uploadsDir = path.join(process.cwd(), "uploads");
+    const filePath = path.join(uploadsDir, filename);
+
+    console.log("📄 [AI] Reading PDF from:", filePath);
+
+    if (!fs.existsSync(filePath)) {
+      console.error("❌ [AI] PDF file not found:", filePath);
+      return c.json({ error: "PDF file not found" }, 404);
+    }
+
+    // Parse PDF to extract text
+    const dataBuffer = fs.readFileSync(filePath);
+    const pdfData = await pdfParse(dataBuffer);
+    const pdfText = pdfData.text;
+
+    console.log(`✅ [AI] PDF parsed successfully. Text length: ${pdfText.length} characters`);
+
+    if (pdfText.length === 0) {
+      return c.json({ error: "PDF appears to be empty or contains only images" }, 400);
+    }
+
+    // Use Grok AI to extract equipment items from the PDF text
+    console.log("🤖 [AI] Sending PDF text to Grok for equipment extraction...");
+
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.EXPO_PUBLIC_VIBECODE_GROK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "grok-4-fast-non-reasoning",
+        messages: [
+          {
+            role: "system",
+            content: `You are an equipment catalog parser. Extract all equipment items from the provided catalog text and format them as a structured JSON array. Focus on assistive technology, mobility aids, bathroom equipment, bedroom equipment, and related healthcare/OT equipment.
+
+For each item, extract:
+- name: The product name (required)
+- description: Product description or features (optional)
+- category: One of: mobility, bathroom, bedroom, assistive_tech, iot, kitchen, outdoor, safety, other
+- price: Price as a number (required, if missing use 0)
+- brand: Manufacturer/brand name (optional)
+- model: Model number/code (optional)
+- specifications: Technical specs or dimensions (optional, as JSON string)
+
+Return ONLY a valid JSON object with this structure:
+{
+  "equipment": [
+    {
+      "name": "Product Name",
+      "description": "Product description",
+      "category": "mobility",
+      "price": 299.99,
+      "brand": "Brand Name",
+      "model": "MODEL123",
+      "specifications": "{\\"weight\\": \\"10kg\\", \\"dimensions\\": \\"50x30x20cm\\"}"
+    }
+  ]
+}`,
+          },
+          {
+            role: "user",
+            content: `Extract all equipment items from this catalog:\n\n${pdfText.slice(0, 15000)}`,
+          },
+        ],
+        max_tokens: 8000,
+        temperature: 0.3,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("❌ [AI] Grok API error:", errorText);
+      throw new Error(`Grok API request failed: ${errorText}`);
+    }
+
+    const aiData = (await response.json()) as {
+      choices: Array<{ message: { content: string } }>;
+    };
+    const aiContent = aiData.choices?.[0]?.message?.content || "";
+    console.log("✅ [AI] Received response from Grok");
+
+    // Parse JSON response
+    const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error("❌ [AI] Failed to extract JSON from response:", aiContent.slice(0, 200));
+      throw new Error("Invalid JSON response from AI");
+    }
+
+    const parsedData = JSON.parse(jsonMatch[0]);
+    const equipmentArray = parsedData.equipment || [];
+
+    console.log(`🎉 [AI] Successfully extracted ${equipmentArray.length} equipment items`);
+
+    // Save equipment to database
+    let createdCount = 0;
+    for (const item of equipmentArray) {
+      try {
+        await db.equipmentItem.create({
+          data: {
+            name: item.name,
+            description: item.description || null,
+            category: item.category || "other",
+            price: item.price || 0,
+            brand: item.brand || null,
+            model: item.model || null,
+            specifications: item.specifications || null,
+            governmentApproved: false,
+          },
+        });
+        createdCount++;
+      } catch (dbError) {
+        console.error("⚠️ [AI] Failed to create equipment item:", item.name, dbError);
+        // Continue with other items
+      }
+    }
+
+    console.log(`💾 [AI] Saved ${createdCount} equipment items to database`);
+
+    return c.json({
+      success: true,
+      message: `Successfully parsed catalog and added ${createdCount} equipment items`,
+      equipmentCount: createdCount,
+      equipment: equipmentArray,
+    });
+  } catch (error) {
+    console.error("💥 [AI] Catalog parsing error:", error);
+    return c.json(
+      {
+        error: "Failed to parse catalog",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       500

@@ -18,6 +18,41 @@ export const uploadImageResponseSchema = z.object({
 });
 export type UploadImageResponse = z.infer<typeof uploadImageResponseSchema>;
 
+// POST /api/upload/catalog
+export const uploadCatalogRequestSchema = z.object({
+  pdf: z.instanceof(File),
+});
+export type UploadCatalogRequest = z.infer<typeof uploadCatalogRequestSchema>;
+export const uploadCatalogResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  url: z.string(),
+  filename: z.string(),
+});
+export type UploadCatalogResponse = z.infer<typeof uploadCatalogResponseSchema>;
+
+// POST /api/ai/parse-catalog
+export const parseCatalogRequestSchema = z.object({
+  fileUrl: z.string(),
+  filename: z.string(),
+});
+export type ParseCatalogRequest = z.infer<typeof parseCatalogRequestSchema>;
+export const parseCatalogResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  equipmentCount: z.number(),
+  equipment: z.array(z.object({
+    name: z.string(),
+    description: z.string().nullable(),
+    category: z.string(),
+    price: z.number(),
+    brand: z.string().nullable(),
+    model: z.string().nullable(),
+    specifications: z.string().nullable(),
+  })),
+});
+export type ParseCatalogResponse = z.infer<typeof parseCatalogResponseSchema>;
+
 // ====================
 // CLIENT CONTRACTS
 // ====================

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, DollarSign, CheckCircle, XCircle } from "lucide-react-native";
+import { Plus, DollarSign, CheckCircle, XCircle, FileUp } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -50,8 +50,26 @@ function EquipmentScreen({ navigation }: Props) {
         end={{ x: 1, y: 1 }}
         style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 32 }}
       >
-        <Text className="text-3xl font-bold text-white mb-2">Equipment</Text>
-        <Text style={{ color: "#FFEDD5" }}>Browse available equipment and pricing</Text>
+        <View className="flex-row items-center justify-between mb-2">
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-white mb-2">Equipment</Text>
+            <Text style={{ color: "#FFEDD5" }}>Browse available equipment and pricing</Text>
+          </View>
+          <Pressable
+            onPress={() => navigation.navigate("UploadCatalog")}
+            className="bg-purple-600 px-4 py-3 rounded-xl flex-row items-center active:opacity-80"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 4,
+              elevation: 4,
+            }}
+          >
+            <FileUp size={20} color="white" />
+            <Text className="text-white font-bold ml-2">Upload Catalog</Text>
+          </Pressable>
+        </View>
       </LinearGradient>
 
       {isLoading ? (

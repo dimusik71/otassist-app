@@ -4,7 +4,12 @@ import * as path from "node:path";
 import { randomUUID } from "node:crypto";
 import { type AppType } from "../types";
 import { zValidator } from "@hono/zod-validator";
-import { uploadImageRequestSchema, type UploadImageResponse } from "@/shared/contracts";
+import {
+  uploadImageRequestSchema,
+  type UploadImageResponse,
+  uploadCatalogRequestSchema,
+  type UploadCatalogResponse
+} from "@/shared/contracts";
 
 // ============================================
 // Uploads directory setup
@@ -92,6 +97,80 @@ uploadRouter.post("/image", zValidator("form", uploadImageRequestSchema), async 
       error instanceof Error ? error.stack : "No stack trace available",
     );
     return c.json({ error: "Failed to upload image" }, 500);
+  }
+});
+
+// ============================================
+// POST /api/upload/catalog - Upload a PDF catalog
+// ============================================
+// Accepts multipart/form-data with "pdf" field
+// Validates file type and size before saving
+// Returns URL to access the uploaded PDF for AI processing
+uploadRouter.post("/catalog", zValidator("form", uploadCatalogRequestSchema), async (c) => {
+  const { pdf } = c.req.valid("form");
+  console.log("📤 [Upload] PDF catalog upload request received");
+
+  try {
+    // Check if file exists in request
+    if (!pdf) {
+      console.log("❌ [Upload] No PDF file provided in request");
+      return c.json({ error: "No PDF file provided" }, 400);
+    }
+    console.log(
+      `📄 [Upload] File received: ${pdf.name} (${pdf.type}, ${(pdf.size / 1024).toFixed(2)} KB)`,
+    );
+
+    // Validate file type - accept PDF only
+    const allowedTypes = ["application/pdf"];
+    if (!allowedTypes.includes(pdf.type)) {
+      console.log(`❌ [Upload] Invalid file type: ${pdf.type}`);
+      return c.json(
+        { error: "Invalid file type. Only PDF files are allowed" },
+        400,
+      );
+    }
+    console.log(`✅ [Upload] File type validated: ${pdf.type}`);
+
+    // Validate file size (50MB limit for PDFs - larger than images)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (pdf.size > maxSize) {
+      console.log(
+        `❌ [Upload] File too large: ${(pdf.size / 1024 / 1024).toFixed(2)} MB (max: 50 MB)`,
+      );
+      return c.json({ error: "File too large. Maximum size is 50MB" }, 400);
+    }
+    console.log(`✅ [Upload] File size validated: ${(pdf.size / 1024).toFixed(2)} KB`);
+
+    // Generate unique filename to prevent collisions
+    const fileExtension = path.extname(pdf.name);
+    const uniqueFilename = `catalog_${randomUUID()}${fileExtension}`;
+    const filePath = path.join(UPLOADS_DIR, uniqueFilename);
+    console.log(`🔑 [Upload] Generated unique filename: ${uniqueFilename}`);
+
+    // Save file to disk
+    console.log(`💾 [Upload] Saving PDF to: ${filePath}`);
+    const arrayBuffer = await pdf.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    fs.writeFileSync(filePath, buffer);
+    console.log(`✅ [Upload] PDF saved successfully`);
+
+    // Return the URL to access the uploaded PDF
+    const pdfUrl = `/uploads/${uniqueFilename}`;
+    console.log(`🎉 [Upload] Upload complete! PDF URL: ${pdfUrl}`);
+
+    return c.json({
+      success: true,
+      message: "PDF catalog uploaded successfully",
+      url: pdfUrl,
+      filename: uniqueFilename,
+    } satisfies UploadCatalogResponse);
+  } catch (error) {
+    console.error("💥 [Upload] PDF upload error:", error);
+    console.error(
+      "Stack trace:",
+      error instanceof Error ? error.stack : "No stack trace available",
+    );
+    return c.json({ error: "Failed to upload PDF" }, 500);
   }
 });
 
