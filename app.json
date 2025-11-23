@@ -1,17 +1,23 @@
 {
   "expo": {
-    "name": "OT/AH Assessment",
-    "slug": "vibecode",
+    "name": "OTAssist",
+    "slug": "otassist",
     "scheme": "vibecode",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "owner": "SMPLS INNOVATION PTY LTD",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.smplsinnovation.otassessment",
-      "buildNumber": "1"
+      "bundleIdentifier": "com.vibecode.otassist-0s8i1m",
+      "buildNumber": "4",
+      "infoPlist": {
+        "NSCameraUsageDescription": "OTAssist uses the camera to capture photos inside the app before you publish them.",
+        "NSMicrophoneUsageDescription": "OTAssist uses the microphone to record audio clips that stay with your in-app creations.",
+        "NSPhotoLibraryUsageDescription": "OTAssist accesses your photo library to let you choose media that appears in the app.",
+        "NSLocationWhenInUseUsageDescription": "OTAssist uses your location to show nearby content and services while you use the app.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.smplsinnovation.otassessment",
@@ -19,7 +25,11 @@
       "edgeToEdgeEnabled": true
     },
     "extra": {
-      "companyName": "SMPLS INNOVATION PTY LTD"
-    }
+      "companyName": "SMPLS INNOVATION PTY LTD",
+      "eas": {
+        "projectId": "53a1de97-0845-443e-8c67-1da0452e9673"
+      }
+    },
+    "icon": "./icon.png"
   }
 }
