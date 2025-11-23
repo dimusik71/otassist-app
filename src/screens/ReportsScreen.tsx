@@ -19,6 +19,7 @@ import {
   Users,
   ClipboardList,
   ArrowLeft,
+  X,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -280,7 +281,12 @@ const ReportsScreen = () => {
       </ScrollView>
 
       {/* Generate Report Modal */}
-      <Modal visible={showCreateModal} animationType="slide" presentationStyle="pageSheet">
+      <Modal
+        visible={showCreateModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowCreateModal(false)}
+      >
         <View style={{ flex: 1, backgroundColor: "#F9FAFB" }}>
           <LinearGradient
             colors={["#3B82F6", "#1D4ED8"]}
@@ -290,8 +296,12 @@ const ReportsScreen = () => {
           >
             <View className="flex-row items-center justify-between mb-2">
               <Text className="text-3xl font-bold text-white">Generate Report</Text>
-              <Pressable onPress={() => setShowCreateModal(false)} className="p-2">
-                <Text className="text-white font-semibold">Cancel</Text>
+              <Pressable
+                onPress={() => setShowCreateModal(false)}
+                className="w-10 h-10 items-center justify-center rounded-full active:opacity-70"
+                style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+              >
+                <X size={24} color="white" />
               </Pressable>
             </View>
             <Text style={{ color: "#DBEAFE" }}>Create a custom business report</Text>
