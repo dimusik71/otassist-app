@@ -834,3 +834,46 @@ Functional assessment based on FIM and Barthel Index
 - Tab screens use inline shadow styles instead of NativeWind shadow classes to avoid runtime CSS parsing issues
 - Auth client uses only Expo plugin (no OTP) to match backend email/password setup
 - Use LinearGradient component for gradients (NativeWind doesn't support gradient classes)
+
+## Documentation Workflow
+
+**📝 Important**: When adding or updating features, follow this checklist to keep documentation in sync:
+
+### New Feature Checklist:
+1. ✅ **Implement the feature** in code
+2. ✅ **Update FEATURES.md**:
+   - Add feature entry with status, files, and description
+   - Reference the User Guide section
+3. ✅ **Update User Guide** (`src/screens/UserGuideScreen.tsx`):
+   - Add new section or subsection in `guideSections` array
+   - Include step-by-step instructions
+   - Explain where to find the feature in the app
+4. ✅ **Update README.md**:
+   - Add to "Recent Updates" section
+   - Update relevant sections (API, Features, etc.)
+5. ✅ **Test AI Chatbot**:
+   - Open User Guide
+   - Tap "AI Help"
+   - Ask questions about the new feature
+   - Verify the AI has context to answer
+
+### Feature Enhancement Checklist:
+1. ✅ **Update implementation**
+2. ✅ **Update FEATURES.md** (if behavior changed)
+3. ✅ **Update User Guide** (if UX changed)
+4. ✅ **Update README.md** Recent Updates
+
+### Quick Reference Files:
+- **FEATURES.md**: Complete feature inventory with status tracking
+- **UserGuideScreen.tsx**: User-facing documentation with AI chatbot
+- **README.md**: Developer documentation and changelog
+- **backend/src/routes/ai.ts**: AI chatbot system prompt (line ~847)
+
+### AI Chatbot Auto-Updates:
+The AI support chatbot in the User Guide automatically has context about:
+- All features documented in the User Guide
+- App structure and navigation
+- Best practices and workflows
+- Common troubleshooting
+
+**No manual AI updates needed** - just keep the User Guide sections accurate!
