@@ -4,6 +4,19 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - BUSINESS DOCUMENTS FEATURE ✅
+- **New**: Complete Business Documents management system for practitioners
+  - Store and manage your own professional documents (insurance, licenses, certifications)
+  - Track invoices you've sent to clients with payment status
+  - Manage receipts, contracts, tax documents, and notes
+  - Support for amounts and expiry date tracking
+  - Filter documents by type (invoices sent, insurance, licenses, notes, etc.)
+  - Long-press to delete documents
+  - Add new documents via modal with document type selection
+  - Expiry date warnings (30 days before expiry)
+  - Beautiful teal-themed UI matching client documents
+  - Accessible via Settings screen → "View My Documents" button
+
 ### November 23, 2025 - DOCUMENT GENERATION FIX ✅
 - **Fixed**: Documents now automatically created when generating invoices and quotes
   - Invoice creation now creates a corresponding Document record for the client

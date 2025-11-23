@@ -29,6 +29,7 @@ import UserGuideScreen from "@/screens/UserGuideScreen";
 import SettingsScreen from "@/screens/SettingsScreen";
 import DocumentsScreen from "@/screens/DocumentsScreen";
 import DocumentViewerScreen from "@/screens/DocumentViewerScreen";
+import BusinessDocumentsScreen from "@/screens/BusinessDocumentsScreen";
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
@@ -133,6 +134,11 @@ const RootNavigator = () => {
         name="DocumentViewer"
         component={DocumentViewerScreen}
         options={{ title: "Document Viewer", headerShown: false }}
+      />
+      <RootStack.Screen
+        name="BusinessDocuments"
+        component={BusinessDocumentsScreen}
+        options={{ title: "Business Documents", headerShown: false }}
       />
     </RootStack.Navigator>
   );

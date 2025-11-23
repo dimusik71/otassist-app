@@ -11,8 +11,8 @@ const businessDocuments = new Hono<AppType>();
 // Get all business documents for current user
 businessDocuments.get("/", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -20,7 +20,7 @@ businessDocuments.get("/", async (c) => {
     const status = c.req.query("status");
 
     // Build filter
-    const where: any = { userId: session.user.id };
+    const where: any = { userId: user.id };
     if (documentType) where.documentType = documentType;
     if (status) where.status = status;
 
@@ -54,8 +54,8 @@ businessDocuments.get("/", async (c) => {
 // Get single business document
 businessDocuments.get("/:id", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -68,7 +68,7 @@ businessDocuments.get("/:id", async (c) => {
       return c.json({ error: "Document not found" }, 404);
     }
 
-    if (document.userId !== session.user.id) {
+    if (document.userId !== user.id) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
@@ -93,8 +93,8 @@ businessDocuments.get("/:id", async (c) => {
 // Create new business document
 businessDocuments.post("/", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -106,7 +106,7 @@ businessDocuments.post("/", async (c) => {
 
     const document = await db.businessDocument.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         documentType: validatedData.documentType,
         title: validatedData.title,
         content: validatedData.content,
@@ -146,8 +146,8 @@ businessDocuments.post("/", async (c) => {
 // Update business document
 businessDocuments.put("/:id", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -160,7 +160,7 @@ businessDocuments.put("/:id", async (c) => {
     if (!existing) {
       return c.json({ error: "Document not found" }, 404);
     }
-    if (existing.userId !== session.user.id) {
+    if (existing.userId !== user.id) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
@@ -204,8 +204,8 @@ businessDocuments.put("/:id", async (c) => {
 // Delete business document
 businessDocuments.delete("/:id", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -215,7 +215,7 @@ businessDocuments.delete("/:id", async (c) => {
     if (!document) {
       return c.json({ error: "Document not found" }, 404);
     }
-    if (document.userId !== session.user.id) {
+    if (document.userId !== user.id) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 

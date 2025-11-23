@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { ArrowLeft, Save, User, Briefcase, DollarSign, FileText } from "lucide-react-native";
+import { ArrowLeft, Save, User, Briefcase, DollarSign, FileText, FolderOpen } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -313,6 +313,28 @@ const SettingsScreen = ({ navigation }: Props) => {
                 />
               </View>
             </View>
+          </View>
+
+          {/* Business Documents */}
+          <View className="px-6 py-6 border-t border-slate-800">
+            <View className="flex-row items-center mb-4">
+              <View className="w-10 h-10 bg-teal-100 rounded-full items-center justify-center mr-3">
+                <FolderOpen size={20} color="#14b8a6" />
+              </View>
+              <Text className="text-white text-lg font-bold">Business Documents</Text>
+            </View>
+
+            <Text className="text-slate-400 text-sm mb-4">
+              Manage your professional documents including insurance, licenses, invoices sent, and receipts
+            </Text>
+
+            <Pressable
+              onPress={() => navigation.navigate("BusinessDocuments")}
+              className="bg-teal-600 rounded-xl py-4 items-center flex-row justify-center active:opacity-70"
+            >
+              <FolderOpen size={20} color="white" />
+              <Text className="text-white font-bold ml-2">View My Documents</Text>
+            </Pressable>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
