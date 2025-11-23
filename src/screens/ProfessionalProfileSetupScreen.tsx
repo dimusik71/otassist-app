@@ -75,12 +75,7 @@ const ProfessionalProfileSetupScreen = ({ onComplete, onSkip }: Props) => {
       };
 
       // Send to backend API
-      const response = (await api.post("/api/profile", { json: profileData })) as Response;
-
-      if (!response.ok) {
-        const result = await response.json() as { error?: string };
-        throw new Error(result.error || "Failed to save profile");
-      }
+      await api.post("/api/profile", profileData);
 
       // Store locally as encrypted backup (Healthcare compliant)
       await SecureStorage.setSecureJSON(SECURE_KEYS.PROFESSIONAL_PROFILE, profileData);
