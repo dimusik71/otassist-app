@@ -35,6 +35,7 @@ export type RootStackParamList = {
 };
 
 export type BottomTabParamList = {
+  DashboardTab: undefined;
   AssessmentsTab: undefined;
   ClientsTab: undefined;
   EquipmentTab: undefined;

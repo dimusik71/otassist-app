@@ -1160,3 +1160,69 @@ export const markInvoicePaidResponseSchema = z.object({
 export type MarkInvoicePaidResponse = z.infer<typeof markInvoicePaidResponseSchema>;
 
 
+
+
+// ====================
+// DASHBOARD CONTRACTS
+// ====================
+
+// GET /api/dashboard/stats
+export const getDashboardStatsResponseSchema = z.object({
+  success: z.boolean(),
+  stats: z.object({
+    clients: z.object({
+      total: z.number(),
+      recent: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+        createdAt: z.string(),
+      })),
+    }),
+    assessments: z.object({
+      total: z.number(),
+      pending: z.number(),
+      completed: z.number(),
+      recent: z.array(z.object({
+        id: z.string(),
+        type: z.string(),
+        clientName: z.string(),
+        status: z.string(),
+        date: z.string(),
+      })),
+    }),
+    invoices: z.object({
+      total: z.number(),
+      paid: z.number(),
+      overdue: z.number(),
+      totalRevenue: z.number(),
+      paidRevenue: z.number(),
+      pendingRevenue: z.number(),
+    }),
+    quotes: z.object({
+      total: z.number(),
+    }),
+    equipment: z.object({
+      total: z.number(),
+    }),
+    upcomingTasks: z.array(z.object({
+      id: z.string(),
+      type: z.string(),
+      clientName: z.string(),
+      date: z.string(),
+      status: z.string(),
+    })),
+    alerts: z.object({
+      overdueInvoices: z.number(),
+      expiringDocuments: z.number(),
+      pendingAssessments: z.number(),
+      documents: z.array(z.object({
+        id: z.string(),
+        title: z.string(),
+        type: z.string(),
+        expiryDate: z.string().nullable(),
+      })),
+    }),
+  }),
+});
+export type GetDashboardStatsResponse = z.infer<typeof getDashboardStatsResponseSchema>;
+

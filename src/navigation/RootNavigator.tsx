@@ -4,9 +4,10 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
-import { ClipboardList, Users, Wrench } from "lucide-react-native";
+import { ClipboardList, Users, Wrench, LayoutDashboard } from "lucide-react-native";
 
 import type { BottomTabParamList, RootStackParamList } from "@/navigation/types";
+import DashboardScreen from "@/screens/DashboardScreen";
 import AssessmentsScreen from "@/screens/AssessmentsScreen";
 import ClientsScreen from "@/screens/ClientsScreen";
 import EquipmentScreen from "@/screens/EquipmentScreen";
@@ -163,7 +164,7 @@ const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 const BottomTabNavigator = () => {
   return (
     <BottomTab.Navigator
-      initialRouteName="AssessmentsTab"
+      initialRouteName="DashboardTab"
       screenOptions={{
         tabBarStyle: {
           position: "absolute",
@@ -179,6 +180,14 @@ const BottomTabNavigator = () => {
         },
       })}
     >
+      <BottomTab.Screen
+        name="DashboardTab"
+        component={DashboardScreen}
+        options={{
+          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+        }}
+      />
       <BottomTab.Screen
         name="AssessmentsTab"
         component={AssessmentsScreen}

@@ -21,6 +21,7 @@ import profileRouter from "./routes/profile";
 import documentsRouter from "./routes/documents";
 import businessDocumentsRouter from "./routes/businessDocuments";
 import sentInvoicesRouter from "./routes/sentInvoices";
+import dashboardRouter from "./routes/dashboard";
 import { type AppType } from "./types";
 
 // AppType context adds user and session to the context, will be null if the user or session is null
@@ -146,6 +147,9 @@ app.route("/api/business-documents", businessDocumentsRouter);
 
 console.log("📨 Mounting sent invoices routes at /api/sent-invoices");
 app.route("/api/sent-invoices", sentInvoicesRouter);
+
+console.log("📊 Mounting dashboard routes at /api/dashboard");
+app.route("/api/dashboard", dashboardRouter);
 
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running

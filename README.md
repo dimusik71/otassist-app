@@ -4,6 +4,26 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - COMPREHENSIVE DASHBOARD ✅
+- **New**: Beautiful consolidated dashboard for practice overview
+  - **Real-time metrics** with auto-refresh every minute
+  - **Revenue Overview** card showing total, paid, and pending revenue
+  - **Quick Stats Grid**: Clients, Assessments, Invoices, Equipment counts
+  - **Upcoming Tasks** section for in-progress assessments
+  - **Recent Activity** feed showing latest assessments
+  - **Smart Alerts System**:
+    - Overdue invoices notification
+    - Documents expiring within 30 days
+    - Pending assessments requiring attention
+  - **Assessment Progress Tracking**: See pending vs completed counts
+  - **Invoice Status**: Track paid vs overdue invoices at a glance
+  - **Visual Status Indicators**: Color-coded badges for quick scanning
+  - **Direct Navigation**: Tap any metric to jump to relevant screen
+  - Set as default home screen (first tab)
+  - Blue/purple gradient theme for professional look
+  - Backend endpoint: `/api/dashboard/stats`
+  - **Makes it easy to see what's happening, what's done, and what needs attention**
+
 ### November 23, 2025 - PDF CATALOG UPLOAD & AI PARSING ✅
 - **New**: AI-powered equipment catalog upload feature with **Hybrid Multimodal Parsing**
   - Upload PDF equipment catalogs via the Equipment screen
