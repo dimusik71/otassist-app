@@ -38,6 +38,23 @@ A professional mobile application for Occupational Therapists and Allied Health 
     - Auto-filters appointments with valid location data
     - Select all or individual appointments
     - Real-time route recalculation
+  - **Dashboard Route Planning Tabs** 📊:
+    - **Today's Routes**: Quick overview of today's appointment schedule
+      - Shows total appointments, estimated distance, and travel time
+      - Lists first 3 appointments with times and client names
+      - Quick "Optimize Route" button when 2+ appointments with locations
+      - Updates every minute for real-time accuracy
+    - **Weekly Overview**: Complete week planning at a glance
+      - Total weekly appointments, distance, and travel time
+      - Beautiful gradient stats card with key metrics
+      - Daily breakdown showing appointments per day
+      - Tap any day to jump to route optimization
+      - Shows which days have multiple appointments (route icon)
+      - Updates every 5 minutes
+    - **Tab Switching**: Toggle between Today and This Week views
+    - **Location Indicators**: Green pin icon shows appointments with valid addresses
+    - **Empty States**: Clean messaging when no appointments scheduled
+    - **Direct Navigation**: Tap any day or "Optimize Route" to start planning
   - **Location Requirements**:
     - Uses client address with latitude/longitude coordinates
     - Falls back to appointment location field if available
@@ -53,10 +70,12 @@ A professional mobile application for Occupational Therapists and Allied Health 
   - **Backend API**:
     - POST `/api/route-optimization/optimize` - Generate optimized route with AI
     - GET `/api/route-optimization/appointments/:date` - Get appointments for specific day
+    - GET `/api/route-optimization/summary/today` - Get today's route summary for dashboard
+    - GET `/api/route-optimization/summary/week` - Get weekly route summary for dashboard
     - Haversine formula for distance calculations
     - Graceful fallback if AI unavailable
   - **Database**: Uses existing Client latitude/longitude and Appointment location fields
-  - Access via "Route" button next to date headers in Calendar screen
+  - Access via Dashboard "Route Planning" card, or "Route" button next to date headers in Calendar screen
 
 ### November 23, 2025 - APPOINTMENT CALENDAR SYSTEM ✅
 - **New**: Complete appointment management and calendar system

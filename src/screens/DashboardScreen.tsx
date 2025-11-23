@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable, ScrollView, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigation } from "@react-navigation/native";
@@ -18,6 +18,9 @@ import {
   Calendar,
   CalendarClock,
   BarChart3,
+  MapPin,
+  Navigation,
+  Route,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -30,12 +33,29 @@ const DashboardScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const insets = useSafeAreaInsets();
   const { data: session } = useSession();
+  const [routeTab, setRouteTab] = useState<"today" | "week">("today");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: () => api.get<GetDashboardStatsResponse>("/api/dashboard/stats"),
     enabled: !!session,
     refetchInterval: 60000, // Refresh every minute
+  });
+
+  // Fetch today's route summary
+  const { data: todayRoute } = useQuery({
+    queryKey: ["route-summary-today"],
+    queryFn: () => api.get<any>("/api/route-optimization/summary/today"),
+    enabled: !!session,
+    refetchInterval: 60000,
+  });
+
+  // Fetch week's route summary
+  const { data: weekRoute } = useQuery({
+    queryKey: ["route-summary-week"],
+    queryFn: () => api.get<any>("/api/route-optimization/summary/week"),
+    enabled: !!session,
+    refetchInterval: 300000, // Refresh every 5 minutes
   });
 
   if (!session) {
@@ -282,6 +302,225 @@ const DashboardScreen = () => {
             <Text className="text-gray-600">Reports</Text>
           </Pressable>
         </View>
+
+        {/* Route Planning Tabs */}
+        {(todayRoute?.summary || weekRoute?.summary) && (
+          <View
+            className="bg-white rounded-2xl p-5 mb-4"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.1,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
+          >
+            <View className="flex-row items-center mb-4">
+              <Route size={20} color="#3B82F6" />
+              <Text className="text-lg font-bold text-gray-900 ml-2">Route Planning</Text>
+            </View>
+
+            {/* Tab Selector */}
+            <View className="flex-row bg-gray-100 rounded-xl p-1 mb-4">
+              <Pressable
+                onPress={() => setRouteTab("today")}
+                className={`flex-1 py-2 rounded-lg ${routeTab === "today" ? "bg-blue-600" : ""}`}
+              >
+                <Text
+                  className={`text-center font-semibold ${
+                    routeTab === "today" ? "text-white" : "text-gray-600"
+                  }`}
+                >
+                  Today
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setRouteTab("week")}
+                className={`flex-1 py-2 rounded-lg ${routeTab === "week" ? "bg-blue-600" : ""}`}
+              >
+                <Text
+                  className={`text-center font-semibold ${
+                    routeTab === "week" ? "text-white" : "text-gray-600"
+                  }`}
+                >
+                  This Week
+                </Text>
+              </Pressable>
+            </View>
+
+            {/* Today's Route Summary */}
+            {routeTab === "today" && todayRoute?.summary && (
+              <View>
+                {todayRoute.summary.totalAppointments === 0 ? (
+                  <View className="py-8 items-center">
+                    <Calendar size={48} color="#D1D5DB" />
+                    <Text className="text-gray-500 mt-3">No appointments today</Text>
+                  </View>
+                ) : (
+                  <>
+                    {/* Stats Row */}
+                    <View className="flex-row justify-between mb-4">
+                      <View className="flex-1 bg-blue-50 rounded-xl p-3 mr-2">
+                        <View className="flex-row items-center mb-1">
+                          <MapPin size={16} color="#3B82F6" />
+                          <Text className="text-xs text-blue-600 ml-1">Appointments</Text>
+                        </View>
+                        <Text className="text-2xl font-bold text-blue-900">
+                          {todayRoute.summary.totalAppointments}
+                        </Text>
+                      </View>
+                      <View className="flex-1 bg-green-50 rounded-xl p-3 mr-2">
+                        <View className="flex-row items-center mb-1">
+                          <Navigation size={16} color="#10B981" />
+                          <Text className="text-xs text-green-600 ml-1">Distance</Text>
+                        </View>
+                        <Text className="text-2xl font-bold text-green-900">
+                          {todayRoute.summary.estimatedDistance.toFixed(1)}
+                          <Text className="text-sm"> km</Text>
+                        </Text>
+                      </View>
+                      <View className="flex-1 bg-purple-50 rounded-xl p-3">
+                        <View className="flex-row items-center mb-1">
+                          <Clock size={16} color="#8B5CF6" />
+                          <Text className="text-xs text-purple-600 ml-1">Travel</Text>
+                        </View>
+                        <Text className="text-2xl font-bold text-purple-900">
+                          {Math.floor(todayRoute.summary.estimatedTravelTime / 60) > 0 &&
+                            `${Math.floor(todayRoute.summary.estimatedTravelTime / 60)}h `}
+                          {todayRoute.summary.estimatedTravelTime % 60}m
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Appointments List */}
+                    <View className="border-t border-gray-100 pt-3">
+                      {todayRoute.summary.appointments.slice(0, 3).map((apt: any, idx: number) => (
+                        <View
+                          key={apt.id}
+                          className="flex-row items-start py-2 border-b border-gray-50"
+                        >
+                          <View
+                            className="w-6 h-6 rounded-full items-center justify-center mt-1"
+                            style={{ backgroundColor: "#DBEAFE" }}
+                          >
+                            <Text className="text-blue-600 font-semibold text-xs">{idx + 1}</Text>
+                          </View>
+                          <View className="flex-1 ml-3">
+                            <Text className="text-gray-900 font-medium">{apt.title}</Text>
+                            <Text className="text-gray-600 text-sm">{apt.clientName}</Text>
+                            <Text className="text-gray-500 text-xs mt-1">
+                              {new Date(apt.startTime).toLocaleTimeString("en-US", {
+                                hour: "numeric",
+                                minute: "2-digit",
+                              })}
+                            </Text>
+                          </View>
+                          {apt.hasLocation && <MapPin size={16} color="#10B981" />}
+                        </View>
+                      ))}
+                      {todayRoute.summary.appointments.length > 3 && (
+                        <Text className="text-gray-500 text-xs text-center mt-2">
+                          +{todayRoute.summary.appointments.length - 3} more appointments
+                        </Text>
+                      )}
+                    </View>
+
+                    {/* Optimize Button */}
+                    {todayRoute.summary.appointmentsWithLocation > 1 && (
+                      <Pressable
+                        onPress={() => {
+                          const today = new Date().toISOString().split("T")[0];
+                          navigation.navigate("RouteOptimization", { date: today });
+                        }}
+                        className="bg-blue-600 rounded-xl py-3 mt-3 flex-row items-center justify-center active:opacity-80"
+                      >
+                        <Route size={18} color="white" />
+                        <Text className="text-white font-bold ml-2">Optimize Route</Text>
+                      </Pressable>
+                    )}
+                  </>
+                )}
+              </View>
+            )}
+
+            {/* Weekly Route Summary */}
+            {routeTab === "week" && weekRoute?.summary && (
+              <View>
+                {weekRoute.summary.totalAppointments === 0 ? (
+                  <View className="py-8 items-center">
+                    <Calendar size={48} color="#D1D5DB" />
+                    <Text className="text-gray-500 mt-3">No appointments this week</Text>
+                  </View>
+                ) : (
+                  <>
+                    {/* Weekly Stats */}
+                    <View className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 mb-4">
+                      <Text className="text-white text-sm mb-2">Weekly Overview</Text>
+                      <View className="flex-row justify-between">
+                        <View>
+                          <Text className="text-white font-bold text-2xl">
+                            {weekRoute.summary.totalAppointments}
+                          </Text>
+                          <Text className="text-white text-xs opacity-80">Appointments</Text>
+                        </View>
+                        <View>
+                          <Text className="text-white font-bold text-2xl">
+                            {weekRoute.summary.totalEstimatedDistance.toFixed(0)} km
+                          </Text>
+                          <Text className="text-white text-xs opacity-80">Total Distance</Text>
+                        </View>
+                        <View>
+                          <Text className="text-white font-bold text-2xl">
+                            {Math.floor(weekRoute.summary.totalEstimatedTime / 60)}h{" "}
+                            {weekRoute.summary.totalEstimatedTime % 60}m
+                          </Text>
+                          <Text className="text-white text-xs opacity-80">Travel Time</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Daily Breakdown */}
+                    <View className="border-t border-gray-100 pt-3">
+                      <Text className="text-gray-900 font-semibold mb-3">Daily Breakdown</Text>
+                      {weekRoute.summary.dailySummaries.map((day: any) => (
+                        <Pressable
+                          key={day.date}
+                          onPress={() => navigation.navigate("RouteOptimization", { date: day.date })}
+                          className="flex-row items-center justify-between py-3 border-b border-gray-50 active:opacity-70"
+                        >
+                          <View className="flex-1">
+                            <Text className="text-gray-900 font-medium">{day.dayOfWeek}</Text>
+                            <Text className="text-gray-500 text-xs">
+                              {new Date(day.date).toLocaleDateString("en-US", {
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center">
+                            <View className="items-end mr-3">
+                              <Text className="text-gray-900 font-semibold">
+                                {day.totalAppointments} appts
+                              </Text>
+                              {day.estimatedDistance > 0 && (
+                                <Text className="text-gray-500 text-xs">
+                                  {day.estimatedDistance.toFixed(1)} km · {day.estimatedTravelTime}m
+                                </Text>
+                              )}
+                            </View>
+                            {day.appointmentsWithLocation > 1 && (
+                              <Route size={16} color="#3B82F6" />
+                            )}
+                          </View>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </>
+                )}
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Upcoming Tasks */}
         {stats.upcomingTasks.length > 0 && (

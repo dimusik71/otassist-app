@@ -214,6 +214,215 @@ routeOptimizationRouter.get("/appointments/:date", async (c) => {
   }
 });
 
+// GET /api/route-optimization/summary/today - Get today's route summary
+routeOptimizationRouter.get("/summary/today", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  try {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const appointments = await db.appointment.findMany({
+      where: {
+        userId: user.id,
+        startTime: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+        status: {
+          in: ["scheduled", "confirmed"],
+        },
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
+      },
+      orderBy: {
+        startTime: "asc",
+      },
+    });
+
+    const appointmentsWithLocation = appointments.filter(
+      (apt) =>
+        (apt.client?.latitude && apt.client?.longitude) ||
+        (apt.location && apt.location.includes(","))
+    );
+
+    // Calculate total estimated distance and time
+    let totalDistance = 0;
+    let totalTime = 0;
+
+    for (let i = 1; i < appointmentsWithLocation.length; i++) {
+      const prev = appointmentsWithLocation[i - 1];
+      const curr = appointmentsWithLocation[i];
+
+      const prevLat = prev.client?.latitude || 0;
+      const prevLon = prev.client?.longitude || 0;
+      const currLat = curr.client?.latitude || 0;
+      const currLon = curr.client?.longitude || 0;
+
+      if (prevLat && prevLon && currLat && currLon) {
+        const distance = calculateDistance(prevLat, prevLon, currLat, currLon);
+        const time = Math.ceil((distance / 40) * 60); // 40 km/h average speed
+
+        totalDistance += distance;
+        totalTime += time;
+      }
+    }
+
+    return c.json({
+      success: true,
+      summary: {
+        date: now.toISOString().split("T")[0],
+        totalAppointments: appointments.length,
+        appointmentsWithLocation: appointmentsWithLocation.length,
+        estimatedTravelTime: totalTime,
+        estimatedDistance: parseFloat(totalDistance.toFixed(2)),
+        appointments: appointments.map((apt) => ({
+          id: apt.id,
+          title: apt.title,
+          startTime: apt.startTime,
+          endTime: apt.endTime,
+          clientName: apt.client?.name || "Unknown",
+          address: apt.client?.address || apt.location || "No address",
+          hasLocation:
+            (apt.client?.latitude && apt.client?.longitude) ||
+            (apt.location && apt.location.includes(",")),
+        })),
+      },
+    });
+  } catch (error) {
+    console.error("Get today's summary error:", error);
+    return c.json({ error: "Failed to fetch today's summary" }, 500);
+  }
+});
+
+// GET /api/route-optimization/summary/week - Get this week's route summary
+routeOptimizationRouter.get("/summary/week", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  try {
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // End of week (Saturday)
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const appointments = await db.appointment.findMany({
+      where: {
+        userId: user.id,
+        startTime: {
+          gte: startOfWeek,
+          lte: endOfWeek,
+        },
+        status: {
+          in: ["scheduled", "confirmed"],
+        },
+      },
+      include: {
+        client: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
+      },
+      orderBy: {
+        startTime: "asc",
+      },
+    });
+
+    // Group by day
+    const dayGroups = new Map<string, typeof appointments>();
+    appointments.forEach((apt) => {
+      const dateKey = new Date(apt.startTime).toISOString().split("T")[0];
+      const existing = dayGroups.get(dateKey) || [];
+      dayGroups.set(dateKey, [...existing, apt]);
+    });
+
+    // Calculate stats for each day
+    const dailySummaries = Array.from(dayGroups.entries()).map(([date, dayAppointments]) => {
+      const appointmentsWithLocation = dayAppointments.filter(
+        (apt) =>
+          (apt.client?.latitude && apt.client?.longitude) ||
+          (apt.location && apt.location.includes(","))
+      );
+
+      let totalDistance = 0;
+      let totalTime = 0;
+
+      for (let i = 1; i < appointmentsWithLocation.length; i++) {
+        const prev = appointmentsWithLocation[i - 1];
+        const curr = appointmentsWithLocation[i];
+
+        const prevLat = prev.client?.latitude || 0;
+        const prevLon = prev.client?.longitude || 0;
+        const currLat = curr.client?.latitude || 0;
+        const currLon = curr.client?.longitude || 0;
+
+        if (prevLat && prevLon && currLat && currLon) {
+          const distance = calculateDistance(prevLat, prevLon, currLat, currLon);
+          const time = Math.ceil((distance / 40) * 60);
+
+          totalDistance += distance;
+          totalTime += time;
+        }
+      }
+
+      return {
+        date,
+        dayOfWeek: new Date(date).toLocaleDateString("en-US", { weekday: "short" }),
+        totalAppointments: dayAppointments.length,
+        appointmentsWithLocation: appointmentsWithLocation.length,
+        estimatedTravelTime: totalTime,
+        estimatedDistance: parseFloat(totalDistance.toFixed(2)),
+      };
+    });
+
+    const totalWeeklyAppointments = appointments.length;
+    const totalWeeklyDistance = dailySummaries.reduce((sum, day) => sum + day.estimatedDistance, 0);
+    const totalWeeklyTime = dailySummaries.reduce((sum, day) => sum + day.estimatedTravelTime, 0);
+
+    return c.json({
+      success: true,
+      summary: {
+        weekStart: startOfWeek.toISOString().split("T")[0],
+        weekEnd: endOfWeek.toISOString().split("T")[0],
+        totalAppointments: totalWeeklyAppointments,
+        totalEstimatedDistance: parseFloat(totalWeeklyDistance.toFixed(2)),
+        totalEstimatedTime: totalWeeklyTime,
+        dailySummaries,
+      },
+    });
+  } catch (error) {
+    console.error("Get week summary error:", error);
+    return c.json({ error: "Failed to fetch week summary" }, 500);
+  }
+});
+
 // Helper function to optimize route using AI
 async function optimizeRouteWithAI(
   locations: Array<{
