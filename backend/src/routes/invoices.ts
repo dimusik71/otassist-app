@@ -61,6 +61,35 @@ invoicesRouter.post("/", zValidator("json", createInvoiceRequestSchema), async (
     },
   });
 
+  // Create corresponding Document record for client
+  await db.document.create({
+    data: {
+      clientId: assessment.clientId,
+      assessmentId: body.assessmentId,
+      documentType: "invoice",
+      title: `Invoice ${invoiceNumber}`,
+      content: JSON.stringify({
+        invoiceNumber,
+        items: body.items,
+        subtotal: Number(subtotal),
+        tax: Number(tax),
+        total: Number(total),
+        hourlyRate: body.hourlyRate ? Number(body.hourlyRate) : null,
+        hoursWorked: body.hoursWorked ? Number(body.hoursWorked) : null,
+        dueDate: body.dueDate ?? null,
+        notes: body.notes,
+        status: invoice.status,
+      }),
+      format: "json",
+      metadata: JSON.stringify({
+        invoiceId: invoice.id,
+        invoiceNumber,
+        generatedBy: user.id,
+      }),
+      status: "final",
+    },
+  });
+
   const response = {
     success: true,
     invoice: {

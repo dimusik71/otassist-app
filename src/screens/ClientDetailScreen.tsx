@@ -11,7 +11,7 @@ import {
   Linking,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Edit2, Save, X, Trash2, MapPin, Navigation, Plus } from "lucide-react-native";
+import { ArrowLeft, Edit2, Save, X, Trash2, MapPin, Navigation, Plus, FileText } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
@@ -508,6 +508,23 @@ const ClientDetailScreen = ({ navigation, route }: Props) => {
               </Pressable>
             </View>
           )}
+        </View>
+
+        {/* Documents Section */}
+        <View className="bg-white rounded-2xl p-5 mb-6">
+          <View className="flex-row justify-between items-center">
+            <View>
+              <Text className="text-base font-bold text-gray-900 mb-1">Documents</Text>
+              <Text className="text-sm text-gray-500">Invoices, quotes, and reports</Text>
+            </View>
+            <Pressable
+              onPress={() => navigation.navigate("Documents", { clientId, clientName: client.name })}
+              className="bg-teal-600 px-4 py-2 rounded-lg flex-row items-center"
+            >
+              <FileText size={16} color="white" />
+              <Text className="text-white font-semibold ml-2 text-sm">View</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Action Buttons */}

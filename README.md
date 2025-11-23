@@ -4,6 +4,15 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 23, 2025 - DOCUMENT GENERATION FIX ✅
+- **Fixed**: Documents now automatically created when generating invoices and quotes
+  - Invoice creation now creates a corresponding Document record for the client
+  - Quote creation now creates a corresponding Document record for the client
+  - Documents include full invoice/quote data in JSON format
+  - Document metadata tracks invoice/quote ID and number for reference
+  - Added "View Documents" button in Client Detail screen for easy access
+  - Documents properly filtered by client and accessible via Documents screen
+
 ### November 23, 2025 - COMPREHENSIVE DOCUMENT MANAGEMENT SYSTEM ✅
 - **Client Documents**: Complete document management for client-related files
   - Store invoices, quotes, reports, house maps, and assessment summaries

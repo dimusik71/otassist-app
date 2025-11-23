@@ -54,6 +54,35 @@ quotesRouter.post("/", zValidator("json", createQuoteRequestSchema), async (c) =
     },
   });
 
+  // Create corresponding Document record for client
+  await db.document.create({
+    data: {
+      clientId: assessment.clientId,
+      assessmentId: body.assessmentId,
+      documentType: "quote",
+      title: `Quote ${quoteNumber} - ${body.optionName}`,
+      content: JSON.stringify({
+        quoteNumber,
+        optionName: body.optionName,
+        items: body.items,
+        subtotal: Number(subtotal),
+        tax: Number(tax),
+        total: Number(total),
+        validUntil: body.validUntil ?? null,
+        notes: body.notes,
+        status: quote.status,
+      }),
+      format: "json",
+      metadata: JSON.stringify({
+        quoteId: quote.id,
+        quoteNumber,
+        optionName: body.optionName,
+        generatedBy: user.id,
+      }),
+      status: "final",
+    },
+  });
+
   const response = {
     success: true,
     quote: {
