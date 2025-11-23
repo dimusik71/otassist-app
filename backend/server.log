@@ -7,24 +7,25 @@ $ prisma generate
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 253ms
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 287ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
 
 
-Checked 762 installs across 704 packages (no changes) [1.57s]
+Checked 741 installs across 682 packages (no changes) [1.60s]
 Starting server in dev mode with hot reload...
 $ NODE_ENV=development bun run --hot src/index.ts
 Failed to find Response internal state key
 ✅ Environment variables validated successfully
 🔐 [Auth] Initializing Better Auth...
-✅ [Auth] Better Auth initialized
+✅ [Auth] Better Auth initialized with 2FA
 🔗 [Auth] Base URL: https://preview-aybpuqyhmhfc.share.sandbox.dev
 🌐 [Auth] Trusted origins: vibecode://, http://localhost:3000, https://preview-aybpuqyhmhfc.share.sandbox.dev
 📁 [Upload] Uploads directory exists: /home/user/workspace/backend/uploads
 🔧 Initializing Hono application...
+⏱️  Adding session timeout headers
 🛡️  Applying rate limiting to auth endpoints
 🛡️  Applying rate limiting to AI endpoints
 🛡️  Applying rate limiting to upload endpoints
@@ -65,11 +66,12 @@ Failed to find Response internal state key
 Failed to find Response internal state key
 ✅ Environment variables validated successfully
 🔐 [Auth] Initializing Better Auth...
-✅ [Auth] Better Auth initialized
+✅ [Auth] Better Auth initialized with 2FA
 🔗 [Auth] Base URL: https://preview-aybpuqyhmhfc.share.sandbox.dev
 🌐 [Auth] Trusted origins: vibecode://, http://localhost:3000, https://preview-aybpuqyhmhfc.share.sandbox.dev
 📁 [Upload] Uploads directory exists: /home/user/workspace/backend/uploads
 🔧 Initializing Hono application...
+⏱️  Adding session timeout headers
 🛡️  Applying rate limiting to auth endpoints
 🛡️  Applying rate limiting to AI endpoints
 🛡️  Applying rate limiting to upload endpoints
@@ -107,11 +109,3 @@ Failed to find Response internal state key
   💚 Health:     GET /health
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-error: Cannot find module '@better-auth/core/error' from '/home/user/workspace/backend/node_modules/better-auth/dist/adapters/prisma-adapter/index.mjs'
-error: Cannot find module '@better-auth/core/error' from '/home/user/workspace/backend/node_modules/better-auth/dist/adapters/prisma-adapter/index.mjs'
-error: Cannot find module '@better-auth/core/context' from '/home/user/workspace/backend/node_modules/better-auth/dist/index.mjs'
-error: Cannot find module '@better-auth/core/error' from '/home/user/workspace/backend/node_modules/better-auth/dist/adapters/prisma-adapter/index.mjs'
-error: Cannot find module '@better-auth/core/context' from '/home/user/workspace/backend/node_modules/better-auth/dist/index.mjs'
-error: Cannot find module '@better-auth/core/error' from '/home/user/workspace/backend/node_modules/better-auth/dist/adapters/prisma-adapter/index.mjs'
-error: Cannot find module '@better-auth/core/context' from '/home/user/workspace/backend/node_modules/better-auth/dist/index.mjs'
-error: Cannot find module '@better-auth/core/error' from '/home/user/workspace/backend/node_modules/better-auth/dist/adapters/prisma-adapter/index.mjs'

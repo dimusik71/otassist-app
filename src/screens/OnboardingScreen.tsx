@@ -19,7 +19,7 @@ import {
   ArrowRight,
 } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppStorage, APP_KEYS } from "@/lib/secureStorage";
 
 const { width } = Dimensions.get("window");
 
@@ -100,7 +100,7 @@ const OnboardingScreen = ({ onComplete }: Props) => {
 
   const handleComplete = async () => {
     try {
-      await AsyncStorage.setItem("@onboarding_completed", "true");
+      await AppStorage.set(APP_KEYS.ONBOARDING_COMPLETED, "true");
       onComplete();
     } catch (error) {
       console.error("Failed to save onboarding state:", error);

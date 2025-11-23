@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Plus, Calendar, HelpCircle, CheckSquare, Settings } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppStorage, APP_KEYS } from "@/lib/secureStorage";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -33,8 +33,8 @@ function AssessmentsScreen({ navigation }: Props) {
 
   const checkFirstTimeUser = async () => {
     try {
-      const onboardingCompleted = await AsyncStorage.getItem("@onboarding_completed");
-      const checklistDismissed = await AsyncStorage.getItem("@checklist_dismissed");
+      const onboardingCompleted = await AppStorage.get(APP_KEYS.ONBOARDING_COMPLETED);
+      const checklistDismissed = await AppStorage.get(APP_KEYS.CHECKLIST_DISMISSED);
 
       // Show checklist if onboarding was just completed and checklist hasn't been dismissed
       if (onboardingCompleted && !checklistDismissed) {
@@ -47,7 +47,7 @@ function AssessmentsScreen({ navigation }: Props) {
 
   const handleChecklistClose = async () => {
     try {
-      await AsyncStorage.setItem("@checklist_dismissed", "true");
+      await AppStorage.set(APP_KEYS.CHECKLIST_DISMISSED, "true");
       setShowChecklist(false);
     } catch (error) {
       console.error("Failed to save checklist state:", error);

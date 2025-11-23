@@ -3,7 +3,7 @@ import { View, Text, Pressable, Modal, ScrollView } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { CheckCircle, Circle, X, UserPlus, ClipboardList, Package, BookOpen, Sparkles } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppStorage } from "@/lib/secureStorage";
 
 interface ChecklistItem {
   id: string;
@@ -72,7 +72,7 @@ const QuickStartChecklist = ({ visible, onClose, onNavigate }: Props) => {
 
   const loadChecklist = async () => {
     try {
-      const saved = await AsyncStorage.getItem(CHECKLIST_KEY);
+      const saved = await AppStorage.get(CHECKLIST_KEY);
       if (saved) {
         const savedChecklist = JSON.parse(saved);
         setChecklist((prev) =>
@@ -98,7 +98,7 @@ const QuickStartChecklist = ({ visible, onClose, onNavigate }: Props) => {
         (acc, item) => ({ ...acc, [item.id]: item.completed }),
         {}
       );
-      await AsyncStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklistState));
+      await AppStorage.set(CHECKLIST_KEY, JSON.stringify(checklistState));
     } catch (error) {
       console.error("Failed to save checklist:", error);
     }
