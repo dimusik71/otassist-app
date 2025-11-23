@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { rateLimiter } from "hono-rate-limiter";
 
 import { auth } from "./auth";
 import { env } from "./env";
@@ -36,14 +37,66 @@ app.use("*", async (c, next) => {
   return next();
 });
 
+// Rate limiting for authentication endpoints (Healthcare security compliance)
+console.log("🛡️  Applying rate limiting to auth endpoints");
+app.use(
+  "/api/auth/*",
+  rateLimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 5, // 5 login attempts per 15 minutes
+    standardHeaders: "draft-6",
+    keyGenerator: (c) => {
+      // Use IP address for rate limiting
+      return c.req.header("x-forwarded-for") || c.req.header("x-real-ip") || "unknown";
+    },
+  })
+);
+
+// Rate limiting for AI endpoints (prevent abuse of expensive operations)
+console.log("🛡️  Applying rate limiting to AI endpoints");
+app.use(
+  "/api/ai/*",
+  rateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 10, // 10 AI requests per minute
+    standardHeaders: "draft-6",
+    keyGenerator: (c) => {
+      const user = c.get("user");
+      return user?.id || c.req.header("x-forwarded-for") || "unknown";
+    },
+  })
+);
+
+// Rate limiting for file uploads
+console.log("🛡️  Applying rate limiting to upload endpoints");
+app.use(
+  "/api/upload/*",
+  rateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 20, // 20 uploads per minute
+    standardHeaders: "draft-6",
+    keyGenerator: (c) => {
+      const user = c.get("user");
+      return user?.id || c.req.header("x-forwarded-for") || "unknown";
+    },
+  })
+);
+
 // Better Auth handler
 // Handles all authentication endpoints: /api/auth/sign-in, /api/auth/sign-up, etc.
 console.log("🔐 Mounting Better Auth handler at /api/auth/*");
 app.on(["GET", "POST"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
-// Serve uploaded images statically
-// Files in uploads/ directory are accessible at /uploads/* URLs
-console.log("📁 Serving static files from uploads/ directory");
+// Serve uploaded images statically with authentication (Healthcare compliance)
+// Files in uploads/ directory require valid session
+console.log("📁 Serving static files from uploads/ directory (authenticated)");
+app.use("/uploads/*", async (c, next) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized - Authentication required to access files" }, 401);
+  }
+  return next();
+});
 app.use("/uploads/*", serveStatic({ root: "./" }));
 
 // Mount route modules

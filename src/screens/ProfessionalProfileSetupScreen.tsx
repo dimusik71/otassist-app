@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { Briefcase, DollarSign, FileText, CheckCircle, ArrowRight } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SecureStorage, AppStorage, SECURE_KEYS, APP_KEYS } from "@/lib/secureStorage";
 import { api } from "@/lib/api";
 
 interface Props {
@@ -82,9 +82,9 @@ const ProfessionalProfileSetupScreen = ({ onComplete, onSkip }: Props) => {
         throw new Error(result.error || "Failed to save profile");
       }
 
-      // Store locally as backup
-      await AsyncStorage.setItem("@professional_profile", JSON.stringify(profileData));
-      await AsyncStorage.setItem("@profile_setup_completed", "true");
+      // Store locally as encrypted backup (Healthcare compliant)
+      await SecureStorage.setSecureJSON(SECURE_KEYS.PROFESSIONAL_PROFILE, profileData);
+      await AppStorage.set(APP_KEYS.PROFILE_SETUP_COMPLETED, "true");
 
       onComplete();
     } catch (error) {
@@ -97,7 +97,7 @@ const ProfessionalProfileSetupScreen = ({ onComplete, onSkip }: Props) => {
 
   const handleSkip = async () => {
     try {
-      await AsyncStorage.setItem("@profile_setup_skipped", "true");
+      await AppStorage.set(APP_KEYS.PROFILE_SETUP_SKIPPED, "true");
       if (onSkip) {
         onSkip();
       } else {

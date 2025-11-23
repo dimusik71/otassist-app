@@ -1,6 +1,8 @@
 import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
 import { db } from "../db";
 import type { AppType } from "../index";
+import { updateProfileRequestSchema, type UpdateProfileRequest } from "@/shared/contracts";
 
 const profileRouter = new Hono<AppType>();
 
@@ -23,15 +25,15 @@ profileRouter.get("/", async (c) => {
   }
 });
 
-// Create or update user's profile
-profileRouter.post("/", async (c) => {
+// Create or update user's profile (with Zod validation)
+profileRouter.post("/", zValidator("json", updateProfileRequestSchema), async (c) => {
   const user = c.get("user");
   if (!user?.id) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
   try {
-    const body = await c.req.json();
+    const body = c.req.valid("json") as UpdateProfileRequest;
     const {
       ahpraNumber,
       profession,

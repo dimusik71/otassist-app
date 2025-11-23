@@ -24,6 +24,7 @@ model User {
   Profile       Profile?
   clients       Client[]
   assessments   Assessment[]
+  auditLogs     AuditLog[]
 
   @@map("user")
 }
@@ -408,3 +409,23 @@ model IoTDevicePlacement {
 
   @@map("iot_device_placement")
 }
+
+// Audit Log for Healthcare Compliance (APP 11, APP 13)
+// Tracks all access to sensitive patient data for compliance and breach investigation
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String   // "client_view", "assessment_view", "ai_analysis", "file_upload", "data_export"
+  resource    String?  // "client:123", "assessment:456"
+  details     String?  // JSON with additional context
+  thirdParty  String?  // "openai", "google", "xai" - when data sent to external services
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([action, timestamp])
+  @@map("audit_log")
+}
+

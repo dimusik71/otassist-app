@@ -7,7 +7,7 @@ import RootStackNavigator from "@/navigation/RootNavigator";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppStorage, APP_KEYS } from "@/lib/secureStorage";
 import OnboardingScreen from "@/screens/OnboardingScreen";
 import ProfessionalProfileSetupScreen from "@/screens/ProfessionalProfileSetupScreen";
 
@@ -43,9 +43,9 @@ export default function App() {
 
   const checkOnboardingStatus = async () => {
     try {
-      const hasCompletedOnboarding = await AsyncStorage.getItem("@onboarding_completed");
-      const hasCompletedProfile = await AsyncStorage.getItem("@profile_setup_completed");
-      const hasSkippedProfile = await AsyncStorage.getItem("@profile_setup_skipped");
+      const hasCompletedOnboarding = await AppStorage.get(APP_KEYS.ONBOARDING_COMPLETED);
+      const hasCompletedProfile = await AppStorage.get(APP_KEYS.PROFILE_SETUP_COMPLETED);
+      const hasSkippedProfile = await AppStorage.get(APP_KEYS.PROFILE_SETUP_SKIPPED);
 
       if (!hasCompletedOnboarding) {
         setShowOnboarding(true);

@@ -790,3 +790,147 @@ export const generateIoTQuoteResponseSchema = z.object({
   })),
 });
 export type GenerateIoTQuoteResponse = z.infer<typeof generateIoTQuoteResponseSchema>;
+
+// ====================
+// PROFILE CONTRACTS
+// ====================
+
+// Validation helpers
+const ahpraNumberRegex = /^[A-Z]{3}\d{10}$/; // e.g., OCC0001234567
+const abnRegex = /^\d{11}$/; // 11 digits
+const bsbRegex = /^\d{6}$/; // 6 digits
+const accountNumberRegex = /^\d{1,9}$/; // Up to 9 digits
+
+// POST /api/profile - Create or update profile
+export const updateProfileRequestSchema = z.object({
+  // Professional Registration
+  ahpraNumber: z.string()
+    .regex(ahpraNumberRegex, "AHPRA number must be 3 letters followed by 10 digits (e.g., OCC0001234567)")
+    .optional()
+    .nullable(),
+  profession: z.string()
+    .min(1, "Profession is required if provided")
+    .max(100, "Profession must be less than 100 characters")
+    .optional()
+    .nullable(),
+  registrationExpiry: z.string().datetime().optional().nullable(),
+
+  // Business Details
+  businessName: z.string()
+    .min(1, "Business name is required if provided")
+    .max(200, "Business name must be less than 200 characters")
+    .optional()
+    .nullable(),
+  abn: z.string()
+    .regex(abnRegex, "ABN must be exactly 11 digits")
+    .optional()
+    .nullable(),
+  acn: z.string()
+    .regex(/^\d{9}$/, "ACN must be exactly 9 digits")
+    .optional()
+    .nullable(),
+
+  // Contact & Address
+  businessPhone: z.string()
+    .regex(/^\+?[\d\s()-]{8,20}$/, "Invalid phone number format")
+    .optional()
+    .nullable(),
+  businessEmail: z.string()
+    .email("Invalid email address")
+    .optional()
+    .nullable(),
+  businessAddress: z.string().max(500, "Address too long").optional().nullable(),
+  businessSuburb: z.string().max(100).optional().nullable(),
+  businessState: z.enum(["NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"]).optional().nullable(),
+  businessPostcode: z.string()
+    .regex(/^\d{4}$/, "Postcode must be 4 digits")
+    .optional()
+    .nullable(),
+
+  // Rates & Pricing - must be positive numbers
+  defaultHourlyRate: z.number()
+    .positive("Hourly rate must be positive")
+    .max(10000, "Hourly rate seems unreasonably high")
+    .optional(),
+  assessmentFee: z.number()
+    .positive("Assessment fee must be positive")
+    .max(50000, "Assessment fee seems unreasonably high")
+    .optional(),
+  reportFee: z.number()
+    .positive("Report fee must be positive")
+    .max(50000, "Report fee seems unreasonably high")
+    .optional(),
+  travelRate: z.number()
+    .positive("Travel rate must be positive")
+    .max(10000, "Travel rate seems unreasonably high")
+    .optional(),
+
+  // Additional Professional Info
+  qualifications: z.string().optional().nullable(), // JSON string
+  specializations: z.string().optional().nullable(), // JSON string
+  yearsExperience: z.number()
+    .int("Years of experience must be a whole number")
+    .min(0, "Years of experience cannot be negative")
+    .max(70, "Years of experience seems unreasonably high")
+    .optional()
+    .nullable(),
+
+  // Invoice/Quote Details
+  paymentTerms: z.string().max(500).optional().nullable(),
+  bankAccountName: z.string().max(200).optional().nullable(),
+  bsb: z.string()
+    .regex(bsbRegex, "BSB must be exactly 6 digits")
+    .optional()
+    .nullable(),
+  accountNumber: z.string()
+    .regex(accountNumberRegex, "Account number must be 1-9 digits")
+    .optional()
+    .nullable(),
+
+  // Logo & Branding
+  logoUrl: z.string().url("Invalid logo URL").optional().nullable(),
+  brandColor: z.string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Brand color must be a valid hex color (e.g., #FF5733)")
+    .optional()
+    .nullable(),
+});
+
+export type UpdateProfileRequest = z.infer<typeof updateProfileRequestSchema>;
+
+// GET /api/profile response
+export const getProfileResponseSchema = z.object({
+  profile: z.object({
+    id: z.number(),
+    handle: z.string(),
+    userId: z.string(),
+    ahpraNumber: z.string().nullable(),
+    profession: z.string().nullable(),
+    registrationExpiry: z.string().nullable(),
+    businessName: z.string().nullable(),
+    abn: z.string().nullable(),
+    acn: z.string().nullable(),
+    businessPhone: z.string().nullable(),
+    businessEmail: z.string().nullable(),
+    businessAddress: z.string().nullable(),
+    businessSuburb: z.string().nullable(),
+    businessState: z.string().nullable(),
+    businessPostcode: z.string().nullable(),
+    defaultHourlyRate: z.number().nullable(),
+    assessmentFee: z.number().nullable(),
+    reportFee: z.number().nullable(),
+    travelRate: z.number().nullable(),
+    qualifications: z.string().nullable(),
+    specializations: z.string().nullable(),
+    yearsExperience: z.number().nullable(),
+    paymentTerms: z.string().nullable(),
+    bankAccountName: z.string().nullable(),
+    bsb: z.string().nullable(),
+    accountNumber: z.string().nullable(),
+    logoUrl: z.string().nullable(),
+    brandColor: z.string().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  }).nullable(),
+});
+
+export type GetProfileResponse = z.infer<typeof getProfileResponseSchema>;
