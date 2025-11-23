@@ -5,6 +5,15 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Added**: Complete onboarding experience for new users (src/screens/OnboardingScreen.tsx)
+  - Beautiful 5-slide welcome tour introducing key features
+  - Interactive animations and smooth transitions
+  - Persistent state using AsyncStorage
+- **Added**: Quick Start Checklist to guide new users (src/components/QuickStartChecklist.tsx)
+  - 5 actionable steps: Create client, conduct assessment, browse equipment, read guide, try AI
+  - Progress tracking with visual indicators
+  - Direct navigation to relevant screens
+  - Accessible via checklist icon in assessments header
 - **Added**: Interactive User Guide with AI-powered support chatbot (src/screens/UserGuideScreen.tsx)
   - Comprehensive guide covering all features with expandable sections
   - Real-time AI assistant using GPT-4o-mini for personalized help

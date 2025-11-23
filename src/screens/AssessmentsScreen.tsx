@@ -1,26 +1,67 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, FlatList, ActivityIndicator } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, Calendar, HelpCircle } from "lucide-react-native";
+import { Plus, Calendar, HelpCircle, CheckSquare } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import type { BottomTabScreenProps } from "@/navigation/types";
 import { api } from "@/lib/api";
 import type { GetAssessmentsResponse } from "@/shared/contracts";
 import { useSession } from "@/lib/useSession";
+import QuickStartChecklist from "@/components/QuickStartChecklist";
 
 type Props = BottomTabScreenProps<"AssessmentsTab">;
 
 function AssessmentsScreen({ navigation }: Props) {
   const { data: session } = useSession();
   const insets = useSafeAreaInsets();
+  const [showChecklist, setShowChecklist] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["assessments"],
     queryFn: () => api.get<GetAssessmentsResponse>("/api/assessments"),
     enabled: !!session,
   });
+
+  useEffect(() => {
+    if (session) {
+      checkFirstTimeUser();
+    }
+  }, [session]);
+
+  const checkFirstTimeUser = async () => {
+    try {
+      const onboardingCompleted = await AsyncStorage.getItem("@onboarding_completed");
+      const checklistDismissed = await AsyncStorage.getItem("@checklist_dismissed");
+
+      // Show checklist if onboarding was just completed and checklist hasn't been dismissed
+      if (onboardingCompleted && !checklistDismissed) {
+        setTimeout(() => setShowChecklist(true), 1000);
+      }
+    } catch (error) {
+      console.error("Failed to check first-time user:", error);
+    }
+  };
+
+  const handleChecklistClose = async () => {
+    try {
+      await AsyncStorage.setItem("@checklist_dismissed", "true");
+      setShowChecklist(false);
+    } catch (error) {
+      console.error("Failed to save checklist state:", error);
+      setShowChecklist(false);
+    }
+  };
+
+  const handleNavigateFromChecklist = (screen: string) => {
+    if (screen === "EquipmentTab") {
+      navigation.navigate("EquipmentTab" as any);
+    } else {
+      navigation.navigate(screen as any);
+    }
+  };
 
   if (!session) {
     return (
@@ -54,12 +95,20 @@ function AssessmentsScreen({ navigation }: Props) {
           <View className="flex-1">
             <Text className="text-3xl font-bold text-white">Assessments</Text>
           </View>
-          <Pressable
-            onPress={() => navigation.navigate("UserGuide")}
-            className="bg-white/20 p-2 rounded-xl active:opacity-70"
-          >
-            <HelpCircle size={24} color="white" />
-          </Pressable>
+          <View className="flex-row items-center gap-2">
+            <Pressable
+              onPress={() => setShowChecklist(true)}
+              className="bg-white/20 p-2 rounded-xl active:opacity-70"
+            >
+              <CheckSquare size={24} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => navigation.navigate("UserGuide")}
+              className="bg-white/20 p-2 rounded-xl active:opacity-70"
+            >
+              <HelpCircle size={24} color="white" />
+            </Pressable>
+          </View>
         </View>
         <Text style={{ color: "#DBEAFE" }}>Manage client assessments and reports</Text>
       </LinearGradient>
@@ -146,6 +195,13 @@ function AssessmentsScreen({ navigation }: Props) {
       >
         <Plus size={28} color="white" />
       </Pressable>
+
+      {/* Quick Start Checklist */}
+      <QuickStartChecklist
+        visible={showChecklist}
+        onClose={handleChecklistClose}
+        onNavigate={handleNavigateFromChecklist}
+      />
     </View>
   );
 }
