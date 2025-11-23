@@ -231,6 +231,7 @@ const ReportsScreen = () => {
           return (
             <Pressable
               key={report.id}
+              onPress={() => navigation.navigate("ReportDetail", { reportId: report.id })}
               className="bg-white rounded-2xl p-4 mb-3 active:opacity-70"
               style={{
                 shadowColor: "#000",

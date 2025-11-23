@@ -69,12 +69,33 @@ A professional mobile application for Occupational Therapists and Allied Health 
     - **Operational Reports**: Assessment metrics, appointment statistics, daily activity tracking, and workflow analytics
     - **Clinical Reports**: Client demographics, equipment recommendations analysis, assessment type distribution, and clinical outcomes
     - **Custom Reports**: Build your own reports with selected metrics and date ranges
+  - **AI-Powered Analysis** 🤖:
+    - **Executive Summary**: AI-generated 2-3 sentence summary of report findings
+    - **Key Insights**: 3-5 data-driven insights extracted from report metrics
+    - **Actionable Recommendations**: 3-5 specific suggestions for improving business performance
+    - **Trends & Patterns**: 2-3 notable trends identified across the data
+    - Powered by Claude 3.5 Sonnet for intelligent business intelligence
+    - Automatic analysis generation for every report
+  - **Report Storage**:
+    - Reports saved to `/uploads/reports/` directory as JSON files
+    - Persistent storage for all generated reports
+    - Download and share functionality
+  - **Report Detail Screen**:
+    - Beautiful card-based layout for AI insights
+    - Executive summary prominently displayed
+    - Numbered key insights with visual indicators
+    - Trend analysis with icons
+    - Recommendations with action-oriented formatting
+    - Report metadata and details
+    - Download button for exporting reports
+    - Share functionality for collaboration
   - **Report Features**:
     - Date range selection for flexible time periods
     - Visual report type cards with color-coded icons
     - Quick report generation with one tap
     - Report history with easy access to past reports
     - Delete unwanted reports
+    - Tap any report to view detailed AI analysis
   - **Financial Report Metrics**:
     - Total, paid, pending, and overdue revenue
     - Average invoice value
@@ -98,13 +119,14 @@ A professional mobile application for Occupational Therapists and Allied Health 
     - Date picker for custom ranges
     - Empty state with call-to-action
     - Dashboard integration with Reports card
+    - Back button navigation
   - **Backend API**:
     - GET `/api/reports` - List all reports
-    - GET `/api/reports/:id` - Get single report
-    - POST `/api/reports/generate` - Generate new report
+    - GET `/api/reports/:id` - Get single report with AI analysis
+    - POST `/api/reports/generate` - Generate new report with AI insights
     - DELETE `/api/reports/:id` - Delete report
-  - **Database**: Full report history with filters and metadata
-  - Access via Dashboard or Settings
+  - **Database**: Full report history with filters, metadata, and file URLs
+  - Access via Dashboard or direct navigation
 
 ### November 23, 2025 - COMPREHENSIVE DASHBOARD ✅
 - **New**: Beautiful consolidated dashboard for practice overview

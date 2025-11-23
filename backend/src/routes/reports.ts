@@ -3,8 +3,19 @@ import { db } from "../db";
 import type { AppType } from "../types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+import { env } from "../env";
+import fs from "fs";
+import path from "path";
+import Anthropic from "@anthropic-ai/sdk";
 
 const reportsRouter = new Hono<AppType>();
+
+// Ensure reports directory exists
+const REPORTS_DIR = path.join(process.cwd(), "uploads", "reports");
+if (!fs.existsSync(REPORTS_DIR)) {
+  fs.mkdirSync(REPORTS_DIR, { recursive: true });
+  console.log("📁 Created reports directory:", REPORTS_DIR);
+}
 
 // Validation schemas
 const generateReportSchema = z.object({
@@ -122,6 +133,19 @@ reportsRouter.post("/generate", zValidator("json", generateReportSchema), async 
         return c.json({ error: "Invalid report type" }, 400);
     }
 
+    // Generate AI insights and analysis
+    console.log("🤖 [Reports] Generating AI analysis for report...");
+    const aiAnalysis = await generateAIAnalysis(body.reportType, reportData, startDate, endDate);
+    reportData.aiAnalysis = aiAnalysis;
+
+    // Generate report file (PDF/JSON)
+    const fileName = `${body.reportType}_${Date.now()}.json`;
+    const filePath = path.join(REPORTS_DIR, fileName);
+    fs.writeFileSync(filePath, JSON.stringify(reportData, null, 2));
+    const fileUrl = `/uploads/reports/${fileName}`;
+
+    console.log("💾 [Reports] Report file saved:", fileUrl);
+
     // Save report to database
     const report = await db.report.create({
       data: {
@@ -134,6 +158,7 @@ reportsRouter.post("/generate", zValidator("json", generateReportSchema), async 
         data: JSON.stringify(reportData),
         filters: body.filters ? JSON.stringify(body.filters) : null,
         columns: body.columns ? JSON.stringify(body.columns) : null,
+        fileUrl,
         status: "generated",
       },
     });
@@ -194,6 +219,91 @@ reportsRouter.delete("/:id", async (c) => {
 // =================
 // REPORT GENERATORS
 // =================
+
+// AI Analysis Helper
+async function generateAIAnalysis(
+  reportType: string,
+  reportData: any,
+  startDate: Date,
+  endDate: Date
+): Promise<{
+  summary: string;
+  keyInsights: string[];
+  recommendations: string[];
+  trends: string[];
+}> {
+  try {
+    if (!env.ANTHROPIC_API_KEY) {
+      console.warn("⚠️  [Reports] No Anthropic API key found, skipping AI analysis");
+      return {
+        summary: "AI analysis unavailable - no API key configured",
+        keyInsights: [],
+        recommendations: [],
+        trends: [],
+      };
+    }
+
+    const anthropic = new Anthropic({
+      apiKey: env.ANTHROPIC_API_KEY,
+      baseURL: env.ANTHROPIC_BASE_URL,
+    });
+
+    // Create a prompt based on report type and data
+    const prompt = `You are a business intelligence analyst analyzing a ${reportType} report for a healthcare occupational therapy business.
+
+Report Period: ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}
+
+Report Data:
+${JSON.stringify(reportData, null, 2)}
+
+Please analyze this data and provide:
+1. A concise executive summary (2-3 sentences)
+2. 3-5 key insights from the data
+3. 3-5 actionable recommendations for improving business performance
+4. 2-3 notable trends or patterns
+
+Format your response as JSON with the following structure:
+{
+  "summary": "Executive summary here",
+  "keyInsights": ["insight 1", "insight 2", ...],
+  "recommendations": ["recommendation 1", "recommendation 2", ...],
+  "trends": ["trend 1", "trend 2", ...]
+}`;
+
+    const message = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 2000,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    // Parse the AI response
+    const responseText = message.content[0].type === "text" ? message.content[0].text : "";
+
+    // Extract JSON from response (handle cases where AI adds markdown code blocks)
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("Failed to parse AI response");
+    }
+
+    const analysis = JSON.parse(jsonMatch[0]);
+    console.log("✅ [Reports] AI analysis generated successfully");
+
+    return analysis;
+  } catch (error) {
+    console.error("❌ [Reports] AI analysis error:", error);
+    return {
+      summary: "AI analysis encountered an error",
+      keyInsights: [],
+      recommendations: [],
+      trends: [],
+    };
+  }
+}
 
 async function generateFinancialReport(
   userId: string,
