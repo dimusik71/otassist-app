@@ -129,13 +129,16 @@ export async function speakText(text: string, options?: TTSOptions): Promise<boo
     const player = createAudioPlayer(result.audioUri);
     await player.play();
 
-    // Clean up when finished - wait for playback to complete
-    // Note: expo-audio player stays paused at end after play() completes
+    // Get duration and calculate cleanup time
+    // Add 1 second buffer to ensure playback completes
+    const cleanupDelay = player.duration ? Math.ceil(player.duration * 1000) + 1000 : 5000;
+
+    // Clean up when finished
     setTimeout(() => {
       player.remove();
       // Delete temp file
       FileSystem.deleteAsync(result.audioUri!, { idempotent: true });
-    }, 5000); // Give it 5 seconds buffer for most TTS audio
+    }, cleanupDelay);
 
     return true;
   } catch (error) {

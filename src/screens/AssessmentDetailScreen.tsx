@@ -249,7 +249,8 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
         playsInSilentMode: true,
       });
 
-      await recorder.record();
+      await recorder.prepareToRecordAsync();
+      recorder.record();
       setIsRecording(true);
     } catch (err) {
       Alert.alert("Error", "Failed to start recording");
