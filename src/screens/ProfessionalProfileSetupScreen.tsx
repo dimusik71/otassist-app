@@ -59,20 +59,22 @@ const ProfessionalProfileSetupScreen = ({ onComplete, onSkip }: Props) => {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      // Save profile data
-      const profileData = {
-        ahpraNumber: ahpraNumber.trim() || null,
-        profession: profession.trim() || null,
-        businessName: businessName.trim() || null,
-        abn: abn.trim() || null,
-        businessPhone: businessPhone.trim() || null,
-        businessEmail: businessEmail.trim() || null,
-        businessAddress: businessAddress.trim() || null,
+      // Save profile data - only send non-empty fields
+      const profileData: any = {
         defaultHourlyRate: parseFloat(hourlyRate) || 150,
         assessmentFee: parseFloat(assessmentFee) || 250,
         reportFee: parseFloat(reportFee) || 180,
         travelRate: parseFloat(travelRate) || 85,
       };
+
+      // Only add string fields if they have values (prevents empty string regex validation failures)
+      if (ahpraNumber.trim()) profileData.ahpraNumber = ahpraNumber.trim();
+      if (profession.trim()) profileData.profession = profession.trim();
+      if (businessName.trim()) profileData.businessName = businessName.trim();
+      if (abn.trim()) profileData.abn = abn.trim();
+      if (businessPhone.trim()) profileData.businessPhone = businessPhone.trim();
+      if (businessEmail.trim()) profileData.businessEmail = businessEmail.trim();
+      if (businessAddress.trim()) profileData.businessAddress = businessAddress.trim();
 
       // Send to backend API
       await api.post("/api/profile", profileData);
