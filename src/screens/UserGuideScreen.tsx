@@ -59,12 +59,20 @@ const UserGuideScreen = ({ navigation }: Props) => {
       content: "Welcome to the OT/AH Assessment App! This guide will help you get started with conducting professional assessments.",
       subsections: [
         {
+          title: "First Time Setup",
+          content: "When you first open the app, you'll see a welcome tour introducing key features. After the tour, use the Quick Start Checklist (✓ icon in header) to complete essential setup steps.",
+        },
+        {
           title: "Creating Your First Client",
           content: "Tap the '+' button on the home screen, enter client details including name, contact information, and address. You can also add photos and notes.",
         },
         {
           title: "Starting an Assessment",
           content: "Select a client, tap 'New Assessment', choose the assessment type (Home Environmental, Mobility Scooter, Falls Risk, Movement & Mobility, or Assistive Technology), then tap 'Start Assessment'.",
+        },
+        {
+          title: "Quick Start Checklist",
+          content: "Access the checklist anytime by tapping the ✓ icon in the assessments screen header. Track your progress through essential setup tasks and get direct links to each feature.",
         },
       ],
     },

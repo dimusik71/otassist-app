@@ -5,6 +5,7 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Extended**: Database schema with professional profile fields (AHPRA, ABN, business details, customizable rates)
 - **Added**: Complete onboarding experience for new users (src/screens/OnboardingScreen.tsx)
   - Beautiful 5-slide welcome tour introducing key features
   - Interactive animations and smooth transitions
@@ -18,6 +19,7 @@ A professional mobile application for Occupational Therapists and Allied Health 
   - Comprehensive guide covering all features with expandable sections
   - Real-time AI assistant using GPT-4o-mini for personalized help
   - Accessible from help icon in assessments screen header
+  - Updated with onboarding and Quick Start Checklist documentation
 - **Migrated**: Upgraded from deprecated expo-av to expo-audio for audio recording and playback (SDK 54 compatibility)
 - **Fixed**: Audio recording now properly calls `prepareToRecordAsync()` before recording (src/screens/AssessmentDetailScreen.tsx:252)
 - **Improved**: Text-to-speech cleanup now uses actual audio duration instead of fixed 5-second timeout (src/lib/textToSpeech.ts:134)
