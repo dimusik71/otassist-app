@@ -123,37 +123,52 @@ const DashboardScreen = () => {
         )}
 
         {/* Revenue Overview */}
-        <View className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 mb-4"
+        <LinearGradient
+          colors={["#10B981", "#059669"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
           style={{
+            borderRadius: 16,
+            padding: 24,
+            marginBottom: 16,
             shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 6,
           }}
         >
           <View className="flex-row items-center mb-3">
-            <TrendingUp size={24} color="white" />
-            <Text className="text-white font-bold text-lg ml-2">Revenue Overview</Text>
+            <View className="w-10 h-10 bg-white/20 rounded-full items-center justify-center">
+              <TrendingUp size={22} color="white" />
+            </View>
+            <Text className="text-white font-bold text-xl ml-3">Revenue Overview</Text>
           </View>
-          <Text className="text-white text-4xl font-bold mb-2">
+          <Text className="text-white text-5xl font-bold mb-1">
             ${stats.invoices.totalRevenue.toLocaleString()}
           </Text>
-          <View className="flex-row justify-between mt-3">
-            <View>
-              <Text className="text-green-100 text-sm">Paid</Text>
-              <Text className="text-white font-bold text-lg">
+          <Text style={{ color: "rgba(255, 255, 255, 0.8)" }} className="text-sm mb-4">
+            Total Revenue
+          </Text>
+          <View className="flex-row justify-between mt-2">
+            <View className="flex-1 bg-white/10 rounded-xl p-4 mr-2">
+              <Text style={{ color: "rgba(255, 255, 255, 0.9)" }} className="text-xs font-semibold mb-1">
+                PAID
+              </Text>
+              <Text className="text-white font-bold text-2xl">
                 ${stats.invoices.paidRevenue.toLocaleString()}
               </Text>
             </View>
-            <View>
-              <Text className="text-green-100 text-sm">Pending</Text>
-              <Text className="text-white font-bold text-lg">
+            <View className="flex-1 bg-white/10 rounded-xl p-4 ml-2">
+              <Text style={{ color: "rgba(255, 255, 255, 0.9)" }} className="text-xs font-semibold mb-1">
+                PENDING
+              </Text>
+              <Text className="text-white font-bold text-2xl">
                 ${stats.invoices.pendingRevenue.toLocaleString()}
               </Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
 
         {/* Stats Grid */}
         <View className="flex-row flex-wrap justify-between mb-4">
