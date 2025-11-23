@@ -87,9 +87,15 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
 
   const queryClient = useQueryClient();
 
+  // Log when assessmentId changes for debugging
+  React.useEffect(() => {
+    console.log('[AssessmentDetail] Assessment ID changed to:', assessmentId);
+  }, [assessmentId]);
+
   const { data: assessment, isLoading } = useQuery<AssessmentDetail>({
     queryKey: ["assessment", assessmentId],
     queryFn: async () => {
+      console.log('[AssessmentDetail] Fetching assessment:', assessmentId);
       const data = await api.get<AssessmentDetail>(`/api/assessments/${assessmentId}`);
       // Initialize form data when assessment loads
       setEditFormData({
