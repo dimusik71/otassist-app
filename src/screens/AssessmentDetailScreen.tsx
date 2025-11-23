@@ -87,15 +87,9 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
 
   const queryClient = useQueryClient();
 
-  // Log when assessmentId changes for debugging
-  React.useEffect(() => {
-    console.log('[AssessmentDetail] Assessment ID changed to:', assessmentId);
-  }, [assessmentId]);
-
   const { data: assessment, isLoading } = useQuery<AssessmentDetail>({
     queryKey: ["assessment", assessmentId],
     queryFn: async () => {
-      console.log('[AssessmentDetail] Fetching assessment:', assessmentId);
       const data = await api.get<AssessmentDetail>(`/api/assessments/${assessmentId}`);
       // Initialize form data when assessment loads
       setEditFormData({
@@ -531,9 +525,21 @@ const AssessmentDetailScreen = ({ navigation, route }: Props) => {
             className="p-5 flex-row items-center justify-between"
           >
             <View className="flex-1">
-              <Text className="text-white font-bold text-lg mb-1">Environmental Assessment Form</Text>
+              <Text className="text-white font-bold text-lg mb-1">
+                {assessment.assessmentType === "home" ? "Environmental Assessment Form" :
+                 assessment.assessmentType === "mobility_scooter" ? "Mobility Scooter Assessment Form" :
+                 assessment.assessmentType === "falls_risk" ? "Falls Risk Assessment Form" :
+                 assessment.assessmentType === "movement_mobility" ? "Movement & Mobility Assessment Form" :
+                 assessment.assessmentType === "assistive_tech" ? "Assistive Technology Assessment Form" :
+                 "Assessment Form"}
+              </Text>
               <Text className="text-white/80 text-sm">
-                Complete structured OT home assessment with AI guidance
+                {assessment.assessmentType === "home" ? "Complete structured OT home assessment with AI guidance" :
+                 assessment.assessmentType === "mobility_scooter" ? "NDIS-compliant scooter prescription assessment (AS 3695)" :
+                 assessment.assessmentType === "falls_risk" ? "Comprehensive falls risk evaluation (FRAT-based)" :
+                 assessment.assessmentType === "movement_mobility" ? "Functional mobility assessment (FIM/Barthel Index)" :
+                 assessment.assessmentType === "assistive_tech" ? "Technology and equipment evaluation" :
+                 "Complete structured assessment with AI guidance"}
               </Text>
             </View>
             <View className="bg-white/20 w-12 h-12 rounded-full items-center justify-center">

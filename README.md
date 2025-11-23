@@ -2,6 +2,13 @@
 
 A professional mobile application for Occupational Therapists and Allied Health professionals to streamline client assessments, equipment recommendations, and invoicing workflows.
 
+## Recent Updates
+
+### November 23, 2025
+- **Fixed**: Database schema synchronization - Added archival tracking fields (`isArchived`, `archivedAt`, etc.) to Client and Assessment tables
+- **Fixed**: Assessment detail button now correctly displays the assessment type (e.g., "Mobility Scooter Assessment Form" instead of always showing "Environmental Assessment Form")
+- **Fixed**: Navigation issue where clicking different assessments would show cached data
+
 ## Overview
 
 This app enables OT/AH professionals to:

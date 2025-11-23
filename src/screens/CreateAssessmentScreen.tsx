@@ -38,7 +38,9 @@ const CreateAssessmentScreen = ({ navigation, route }: Props) => {
       api.post<CreateAssessmentResponse>("/api/assessments", data),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["assessments"] });
-      navigation.replace("ConductAssessment", {
+      // Navigate to conduct assessment instead of replace
+      // This ensures proper navigation stack management
+      navigation.navigate("ConductAssessment", {
         assessmentId: response.assessment.id,
         assessmentType: assessmentType
       });
