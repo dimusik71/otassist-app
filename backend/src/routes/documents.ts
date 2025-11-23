@@ -11,8 +11,8 @@ const documents = new Hono<AppType>();
 // Get all documents for a client
 documents.get("/", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -28,7 +28,7 @@ documents.get("/", async (c) => {
     const client = await db.client.findFirst({
       where: {
         id: clientId,
-        userId: session.user.id,
+        userId: user.id,
       },
     });
 
@@ -62,8 +62,8 @@ documents.get("/", async (c) => {
 // Get single document by ID
 documents.get("/:id", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -81,7 +81,7 @@ documents.get("/:id", async (c) => {
     }
 
     // Verify document belongs to user's client
-    if (document.client.userId !== session.user.id) {
+    if (document.client.userId !== user.id) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
@@ -101,8 +101,8 @@ documents.get("/:id", async (c) => {
 // Create new document
 documents.post("/", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -113,7 +113,7 @@ documents.post("/", async (c) => {
     const client = await db.client.findFirst({
       where: {
         id: validatedData.clientId,
-        userId: session.user.id,
+        userId: user.id,
       },
     });
 
@@ -156,8 +156,8 @@ documents.post("/", async (c) => {
 // Update document
 documents.put("/:id", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -175,7 +175,7 @@ documents.put("/:id", async (c) => {
       return c.json({ error: "Document not found" }, 404);
     }
 
-    if (existingDocument.client.userId !== session.user.id) {
+    if (existingDocument.client.userId !== user.id) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
@@ -205,8 +205,8 @@ documents.put("/:id", async (c) => {
 // Delete document
 documents.delete("/:id", async (c) => {
   try {
-    const session = c.get("session");
-    if (!session?.user?.id) {
+    const user = c.get("user");
+    if (!user?.id) {
       return c.json({ error: "Unauthorized" }, 401);
     }
 
@@ -222,7 +222,7 @@ documents.delete("/:id", async (c) => {
       return c.json({ error: "Document not found" }, 404);
     }
 
-    if (document.client.userId !== session.user.id) {
+    if (document.client.userId !== user.id) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 
