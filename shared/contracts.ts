@@ -934,3 +934,81 @@ export const getProfileResponseSchema = z.object({
 });
 
 export type GetProfileResponse = z.infer<typeof getProfileResponseSchema>;
+
+// ====================
+// DOCUMENT CONTRACTS
+// ====================
+
+// Document schema
+export const documentSchema = z.object({
+  id: z.string(),
+  clientId: z.string(),
+  assessmentId: z.string().nullable(),
+  documentType: z.enum(["invoice", "quote", "report", "house_map", "assessment_summary"]),
+  title: z.string(),
+  content: z.string(), // JSON string
+  format: z.string(),
+  metadata: z.string().nullable(), // JSON string
+  fileUrl: z.string().nullable(),
+  status: z.enum(["draft", "final", "archived"]),
+  version: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type Document = z.infer<typeof documentSchema>;
+
+// GET /api/documents?clientId=xxx
+export const getDocumentsResponseSchema = z.object({
+  documents: z.array(documentSchema),
+});
+export type GetDocumentsResponse = z.infer<typeof getDocumentsResponseSchema>;
+
+// GET /api/documents/:id
+export const getDocumentResponseSchema = z.object({
+  document: documentSchema,
+});
+export type GetDocumentResponse = z.infer<typeof getDocumentResponseSchema>;
+
+// POST /api/documents
+export const createDocumentRequestSchema = z.object({
+  clientId: z.string(),
+  assessmentId: z.string().optional(),
+  documentType: z.enum(["invoice", "quote", "report", "house_map", "assessment_summary"]),
+  title: z.string().min(1),
+  content: z.string(), // JSON string
+  format: z.string().default("json"),
+  metadata: z.string().optional(), // JSON string
+  fileUrl: z.string().optional(),
+  status: z.enum(["draft", "final", "archived"]).default("draft"),
+});
+export type CreateDocumentRequest = z.infer<typeof createDocumentRequestSchema>;
+
+export const createDocumentResponseSchema = z.object({
+  success: z.boolean(),
+  document: documentSchema,
+});
+export type CreateDocumentResponse = z.infer<typeof createDocumentResponseSchema>;
+
+// PUT /api/documents/:id
+export const updateDocumentRequestSchema = z.object({
+  title: z.string().min(1).optional(),
+  content: z.string().optional(),
+  metadata: z.string().optional(),
+  fileUrl: z.string().optional(),
+  status: z.enum(["draft", "final", "archived"]).optional(),
+});
+export type UpdateDocumentRequest = z.infer<typeof updateDocumentRequestSchema>;
+
+export const updateDocumentResponseSchema = z.object({
+  success: z.boolean(),
+  document: documentSchema,
+});
+export type UpdateDocumentResponse = z.infer<typeof updateDocumentResponseSchema>;
+
+// DELETE /api/documents/:id
+export const deleteDocumentResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteDocumentResponse = z.infer<typeof deleteDocumentResponseSchema>;
+

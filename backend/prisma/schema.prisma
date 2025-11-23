@@ -148,6 +148,7 @@ model Client {
   userId            String
   user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   assessments       Assessment[]
+  documents         Document[]
 
   @@map("client")
 }
@@ -413,6 +414,29 @@ model IoTDevicePlacement {
   updatedAt       DateTime          @updatedAt
 
   @@map("iot_device_placement")
+}
+
+// Document Management System
+// Stores all generated documents (invoices, quotes, reports, maps, assessments)
+model Document {
+  id              String     @id @default(cuid())
+  clientId        String
+  client          Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessmentId    String?    // Optional link to specific assessment
+  documentType    String     // "invoice", "quote", "report", "house_map", "assessment_summary"
+  title           String     // Human-readable title
+  content         String     // JSON content of the document
+  format          String     @default("json") // "json", "pdf", "html"
+  metadata        String?    // JSON: {invoiceNumber, quoteNumber, generatedBy, etc}
+  fileUrl         String?    // URL if exported as file
+  status          String     @default("draft") // "draft", "final", "archived"
+  version         Int        @default(1)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([clientId, documentType])
+  @@index([assessmentId])
+  @@map("document")
 }
 
 // Audit Log for Healthcare Compliance (APP 11, APP 13)

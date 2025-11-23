@@ -28,6 +28,8 @@ export type RootStackParamList = {
   VideoWalkthrough: { assessmentId: string };
   UserGuide: undefined;
   Settings: undefined;
+  Documents: { clientId: string; clientName: string };
+  DocumentViewer: { documentId: string; clientId: string; clientName: string };
 };
 
 export type BottomTabParamList = {

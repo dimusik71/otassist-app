@@ -18,6 +18,7 @@ import aiRouter from "./routes/ai";
 import houseMapRouter from "./routes/houseMap";
 import iotDevicesRouter from "./routes/iotDevices";
 import profileRouter from "./routes/profile";
+import documentsRouter from "./routes/documents";
 import { type AppType } from "./types";
 
 // AppType context adds user and session to the context, will be null if the user or session is null
@@ -134,6 +135,9 @@ app.route("/api", iotDevicesRouter);
 
 console.log("👤 Mounting profile routes at /api/profile");
 app.route("/api/profile", profileRouter);
+
+console.log("📄 Mounting documents routes at /api/documents");
+app.route("/api/documents", documentsRouter);
 
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running
