@@ -74,10 +74,52 @@ model Verification {
 }
 
 model Profile {
-  id     Int    @id @default(autoincrement())
-  handle String @unique
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @unique
+  id                    Int      @id @default(autoincrement())
+  handle                String   @unique
+  user                  User     @relation(fields: [userId], references: [id])
+  userId                String   @unique
+
+  // Professional Registration
+  ahpraNumber           String?  // AHPRA registration number
+  profession            String?  // "Occupational Therapist", "Physiotherapist", etc.
+  registrationExpiry    DateTime?
+
+  // Business Details
+  businessName          String?
+  abn                   String?  // Australian Business Number
+  acn                   String?  // Australian Company Number (if applicable)
+
+  // Contact & Address
+  businessPhone         String?
+  businessEmail         String?
+  businessAddress       String?
+  businessSuburb        String?
+  businessState         String?
+  businessPostcode      String?
+
+  // Rates & Pricing
+  defaultHourlyRate     Float?   @default(150)
+  assessmentFee         Float?   @default(250)
+  reportFee             Float?   @default(180)
+  travelRate            Float?   @default(85)
+
+  // Additional Professional Info
+  qualifications        String?  // JSON array of qualifications
+  specializations       String?  // JSON array of specializations
+  yearsExperience       Int?
+
+  // Invoice/Quote Details
+  paymentTerms          String?  @default("Payment due within 14 days")
+  bankAccountName       String?
+  bsb                   String?
+  accountNumber         String?
+
+  // Logo & Branding
+  logoUrl               String?
+  brandColor            String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 // OT/AH Assessment App Models
