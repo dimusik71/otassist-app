@@ -11,7 +11,7 @@ import {
   Linking,
 } from "react-native";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Edit2, Save, X, Trash2, MapPin, Navigation } from "lucide-react-native";
+import { ArrowLeft, Edit2, Save, X, Trash2, MapPin, Navigation, Plus } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { RootStackScreenProps } from "@/navigation/types";
@@ -402,51 +402,111 @@ const ClientDetailScreen = ({ navigation, route }: Props) => {
 
         {/* Assessment History */}
         <View className="bg-white rounded-2xl p-5 mb-6">
-          <Text className="text-base font-bold text-gray-900 mb-4">
-            Assessment History ({assessments?.length || 0})
-          </Text>
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-base font-bold text-gray-900">
+              Assessments ({assessments?.length || 0})
+            </Text>
+            <Pressable
+              onPress={() => navigation.navigate("CreateAssessment", { clientId })}
+              className="bg-blue-600 px-4 py-2 rounded-lg flex-row items-center"
+            >
+              <Plus size={16} color="white" />
+              <Text className="text-white font-semibold ml-1 text-sm">New</Text>
+            </Pressable>
+          </View>
+
           {assessments && assessments.length > 0 ? (
-            assessments.map((assessment) => (
-              <Pressable
-                key={assessment.id}
-                onPress={() => navigation.navigate("AssessmentDetail", { assessmentId: assessment.id })}
-                className="border-b border-gray-200 py-3 last:border-b-0"
-              >
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-1">
-                    <Text className="text-base font-semibold text-gray-900 capitalize">
-                      {assessment.assessmentType.replace("_", " ")}
-                    </Text>
-                    <Text className="text-sm text-gray-500">
-                      {new Date(assessment.assessmentDate).toLocaleDateString()} • {assessment.mediaCount} media
-                    </Text>
-                  </View>
-                  <View
-                    className={`px-3 py-1 rounded-full ${
-                      assessment.status === "completed"
-                        ? "bg-green-100"
-                        : assessment.status === "approved"
-                          ? "bg-blue-100"
-                          : "bg-gray-100"
-                    }`}
-                  >
-                    <Text
-                      className={`text-xs font-semibold ${
-                        assessment.status === "completed"
-                          ? "text-green-700"
-                          : assessment.status === "approved"
-                            ? "text-blue-700"
-                            : "text-gray-700"
-                      }`}
-                    >
-                      {assessment.status}
-                    </Text>
-                  </View>
-                </View>
-              </Pressable>
-            ))
+            <>
+              {/* Ongoing Assessments */}
+              {assessments.filter(a => a.status === "draft" || a.status === "in_progress").length > 0 && (
+                <>
+                  <Text className="text-sm font-semibold text-gray-600 mb-2 mt-2">
+                    Ongoing ({assessments.filter(a => a.status === "draft" || a.status === "in_progress").length})
+                  </Text>
+                  {assessments
+                    .filter(a => a.status === "draft" || a.status === "in_progress")
+                    .map((assessment) => (
+                      <Pressable
+                        key={assessment.id}
+                        onPress={() => navigation.navigate("AssessmentDetail", { assessmentId: assessment.id })}
+                        className="border-b border-gray-200 py-3"
+                      >
+                        <View className="flex-row justify-between items-center">
+                          <View className="flex-1">
+                            <Text className="text-base font-semibold text-gray-900 capitalize">
+                              {assessment.assessmentType.replace("_", " ")}
+                            </Text>
+                            <Text className="text-sm text-gray-500">
+                              {new Date(assessment.assessmentDate).toLocaleDateString()} • {assessment.mediaCount} media
+                            </Text>
+                          </View>
+                          <View className="px-3 py-1 rounded-full bg-gray-100">
+                            <Text className="text-xs font-semibold text-gray-700">
+                              {assessment.status}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    ))}
+                </>
+              )}
+
+              {/* Completed Assessments */}
+              {assessments.filter(a => a.status === "completed" || a.status === "approved").length > 0 && (
+                <>
+                  <Text className="text-sm font-semibold text-gray-600 mb-2 mt-4">
+                    Completed ({assessments.filter(a => a.status === "completed" || a.status === "approved").length})
+                  </Text>
+                  {assessments
+                    .filter(a => a.status === "completed" || a.status === "approved")
+                    .map((assessment) => (
+                      <Pressable
+                        key={assessment.id}
+                        onPress={() => navigation.navigate("AssessmentDetail", { assessmentId: assessment.id })}
+                        className="border-b border-gray-200 py-3 last:border-b-0"
+                      >
+                        <View className="flex-row justify-between items-center">
+                          <View className="flex-1">
+                            <Text className="text-base font-semibold text-gray-900 capitalize">
+                              {assessment.assessmentType.replace("_", " ")}
+                            </Text>
+                            <Text className="text-sm text-gray-500">
+                              {new Date(assessment.assessmentDate).toLocaleDateString()} • {assessment.mediaCount} media
+                            </Text>
+                          </View>
+                          <View
+                            className={`px-3 py-1 rounded-full ${
+                              assessment.status === "completed"
+                                ? "bg-green-100"
+                                : "bg-blue-100"
+                            }`}
+                          >
+                            <Text
+                              className={`text-xs font-semibold ${
+                                assessment.status === "completed"
+                                  ? "text-green-700"
+                                  : "text-blue-700"
+                              }`}
+                            >
+                              {assessment.status}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    ))}
+                </>
+              )}
+            </>
           ) : (
-            <Text className="text-gray-500 text-center py-4">No assessments yet</Text>
+            <View className="py-4">
+              <Text className="text-gray-500 text-center mb-3">No assessments yet</Text>
+              <Pressable
+                onPress={() => navigation.navigate("CreateAssessment", { clientId })}
+                className="bg-blue-600 px-6 py-3 rounded-xl items-center"
+              >
+                <Text className="text-white font-semibold">Create First Assessment</Text>
+              </Pressable>
+            </View>
           )}
         </View>
 

@@ -5,6 +5,9 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Improved**: Client Detail screen now groups assessments into "Ongoing" and "Completed" sections for better organization
+- **Added**: "New" button in Client Detail screen to quickly add assessments to the current client without re-selecting
+- **Added**: Empty state button to create first assessment when a client has no assessments
 - **Fixed**: Database schema synchronization - Added archival tracking fields (`isArchived`, `archivedAt`, etc.) to Client and Assessment tables
 - **Fixed**: Assessment detail button now correctly displays the assessment type (e.g., "Mobility Scooter Assessment Form" instead of always showing "Environmental Assessment Form")
 - **Fixed**: Navigation issue where clicking different assessments would show cached data
