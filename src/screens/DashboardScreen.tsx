@@ -139,7 +139,7 @@ const DashboardScreen = () => {
           }}
         >
           <View className="flex-row items-center mb-3">
-            <View className="w-10 h-10 bg-white/20 rounded-full items-center justify-center">
+            <View style={{ width: 40, height: 40, backgroundColor: "rgba(255, 255, 255, 0.2)", borderRadius: 20 }} className="items-center justify-center">
               <TrendingUp size={22} color="white" />
             </View>
             <Text className="text-white font-bold text-xl ml-3">Revenue Overview</Text>
@@ -151,7 +151,7 @@ const DashboardScreen = () => {
             Total Revenue
           </Text>
           <View className="flex-row justify-between mt-2">
-            <View className="flex-1 bg-white/10 rounded-xl p-4 mr-2">
+            <View style={{ flex: 1, backgroundColor: "rgba(255, 255, 255, 0.1)", borderRadius: 12, padding: 16, marginRight: 8 }}>
               <Text style={{ color: "rgba(255, 255, 255, 0.9)" }} className="text-xs font-semibold mb-1">
                 PAID
               </Text>
@@ -159,7 +159,7 @@ const DashboardScreen = () => {
                 ${stats.invoices.paidRevenue.toLocaleString()}
               </Text>
             </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-4 ml-2">
+            <View style={{ flex: 1, backgroundColor: "rgba(255, 255, 255, 0.1)", borderRadius: 12, padding: 16, marginLeft: 8 }}>
               <Text style={{ color: "rgba(255, 255, 255, 0.9)" }} className="text-xs font-semibold mb-1">
                 PENDING
               </Text>
