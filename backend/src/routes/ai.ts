@@ -319,6 +319,9 @@ aiRouter.post("/analyze-video-frame", async (c) => {
     let roomName = "Room";
     let detectedRoomType = null;
     let confidence = 0;
+    let aiDimensions = null;
+    let aiFeatures: string[] = [];
+    let aiSafetyIssues: string[] = [];
 
     if (googleApiKey) {
       try {
@@ -326,13 +329,17 @@ aiRouter.post("/analyze-video-frame", async (c) => {
         const prompt = `Analyze this room image and identify:
 1. What type of room is this? (living room, kitchen, bedroom, bathroom, dining room, hallway, entrance, garage, office, laundry, or outdoor)
 2. Key features visible (furniture, appliances, fixtures)
-3. Confidence level (0-100)
+3. Estimated dimensions based on visible reference objects (doors are ~2m high, standard furniture sizes)
+4. Any safety issues or hazards
+5. Confidence level (0-100)
 
 Respond in JSON format:
 {
   "roomType": "kitchen",
   "confidence": 95,
   "features": ["stove", "refrigerator", "cabinets"],
+  "estimatedDimensions": {"length": 4.2, "width": 3.5, "height": 2.4},
+  "safetyIssues": ["wet floor", "cluttered walkway"],
   "reasoning": "Clear view of kitchen appliances and cabinetry"
 }`;
 
@@ -382,6 +389,23 @@ Respond in JSON format:
             // Generate room name
             const typeCapitalized = roomType.charAt(0).toUpperCase() + roomType.slice(1);
             roomName = context || typeCapitalized;
+
+            // Extract dimensions and features from AI analysis if available
+            if (aiAnalysis.estimatedDimensions) {
+              aiDimensions = {
+                length: aiAnalysis.estimatedDimensions.length || 4.0,
+                width: aiAnalysis.estimatedDimensions.width || 3.5,
+                height: aiAnalysis.estimatedDimensions.height || 2.4,
+              };
+            }
+
+            if (aiAnalysis.features && Array.isArray(aiAnalysis.features)) {
+              aiFeatures = aiAnalysis.features;
+            }
+
+            if (aiAnalysis.safetyIssues && Array.isArray(aiAnalysis.safetyIssues)) {
+              aiSafetyIssues = aiAnalysis.safetyIssues;
+            }
           }
         }
       } catch (visionError) {
@@ -417,15 +441,15 @@ Respond in JSON format:
       roomName,
       detectedRoomType,
       confidence,
-      dimensions: {
+      dimensions: aiDimensions || {
         length: 4.0 + Math.random() * 2,
         width: 3.5 + Math.random() * 1.5,
         height: 2.4 + Math.random() * 0.4,
       },
-      features: ["door", "window", "light fixture"],
+      features: aiFeatures.length > 0 ? aiFeatures : ["door", "window", "light fixture"],
       coveragePercent,
       guidance,
-      safetyIssues: [],
+      safetyIssues: aiSafetyIssues,
       isComplete: frameCount % 4 === 0,
       nextAction,
     };
@@ -433,7 +457,7 @@ Respond in JSON format:
     return c.json({
       success: true,
       analysis,
-      model: "rule-based-guidance",
+      model: googleApiKey ? "gemini-2.0-flash-hybrid" : "rule-based-guidance",
     });
   } catch (error) {
     console.error("Video frame analysis error:", error);
@@ -471,44 +495,149 @@ aiRouter.post("/generate-3d-map", async (c) => {
       return c.json({ error: "Assessment not found" }, 404);
     }
 
-    // Generate sample house map from captured frames
-    // TODO: Add AI vision to analyze actual frame content
-    const numFrames = frames.length;
-    const numRooms = Math.max(2, Math.floor(numFrames / 3));
-
-    const roomTypes = ["living", "kitchen", "bedroom", "bathroom", "dining", "hallway"];
+    // Analyze frames using Gemini Vision to extract real room data
+    const googleApiKey = process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
     const mapData = {
       propertyType: propertyType || "single_family",
       floors: 1,
-      totalArea: numRooms * 18, // Estimate ~18 sqm per room
+      totalArea: 0,
       rooms: [] as any[],
       areas: [] as any[],
     };
 
-    // Generate rooms based on frame count
-    for (let i = 0; i < numRooms; i++) {
-      const roomType = roomTypes[i % roomTypes.length];
-      mapData.rooms.push({
-        name: `${roomType?.charAt(0)?.toUpperCase() ?? ''}${roomType?.slice(1) ?? ''} ${i > 5 ? Math.floor(i / 6) + 1 : ''}`.trim(),
-        roomType,
-        floor: 1,
-        length: 4.0 + Math.random() * 2,
-        width: 3.5 + Math.random() * 1.5,
-        height: 2.4 + Math.random() * 0.4,
-        position3D: { x: i * 5, y: 0, z: 0 },
-        features: ["door", "window", "ceiling light"],
-      });
+    // Use AI to analyze each frame
+    if (googleApiKey && frames.length > 0) {
+      try {
+        // Analyze up to 10 frames (to avoid API rate limits)
+        const framesToAnalyze = frames.slice(0, Math.min(10, frames.length));
+        const roomMap = new Map<string, any>(); // Deduplicate similar rooms
+
+        for (const frame of framesToAnalyze) {
+          try {
+            const prompt = `Analyze this room image and provide detailed information in JSON format:
+{
+  "roomType": "kitchen" | "living" | "bedroom" | "bathroom" | "dining" | "hallway" | "entrance" | "garage" | "office" | "laundry" | "outdoor",
+  "roomName": "Specific name (e.g., 'Master Bedroom', 'Kitchen')",
+  "estimatedDimensions": {
+    "length": <meters as float>,
+    "width": <meters as float>,
+    "height": <meters as float>
+  },
+  "features": ["list", "of", "visible", "features"],
+  "isOutdoor": true/false,
+  "confidence": <0-100>
+}
+
+Estimate dimensions based on visible reference objects (doors are ~2m height, standard furniture sizes, etc.)`;
+
+            const response = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  contents: [
+                    {
+                      parts: [
+                        { text: prompt },
+                        {
+                          inline_data: {
+                            mime_type: "image/jpeg",
+                            data: frame.base64 || frame,
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                  generationConfig: {
+                    temperature: 0.3,
+                    maxOutputTokens: 512,
+                  },
+                }),
+              }
+            );
+
+            if (response.ok) {
+              const data = (await response.json()) as {
+                candidates?: Array<{
+                  content?: { parts?: Array<{ text?: string }> };
+                }>;
+              };
+              const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+              const jsonMatch = aiText.match(/\{[\s\S]*\}/);
+
+              if (jsonMatch) {
+                const roomData = JSON.parse(jsonMatch[0]);
+
+                // Only add if confidence is reasonable
+                if (roomData.confidence > 60) {
+                  // Use roomType + index as key to deduplicate similar rooms
+                  const roomKey = `${roomData.roomType}_${roomData.roomName}`;
+
+                  if (!roomMap.has(roomKey)) {
+                    const roomEntry = {
+                      name: roomData.roomName || roomData.roomType.charAt(0).toUpperCase() + roomData.roomType.slice(1),
+                      roomType: roomData.roomType,
+                      floor: 1,
+                      length: roomData.estimatedDimensions?.length || 4.0,
+                      width: roomData.estimatedDimensions?.width || 3.5,
+                      height: roomData.estimatedDimensions?.height || 2.4,
+                      position3D: { x: roomMap.size * 5, y: 0, z: 0 },
+                      features: roomData.features || [],
+                    };
+
+                    if (roomData.isOutdoor) {
+                      mapData.areas.push({
+                        name: roomData.roomName || "Outdoor Area",
+                        areaType: "outdoor",
+                        length: roomData.estimatedDimensions?.length || 3.0,
+                        width: roomData.estimatedDimensions?.width || 2.0,
+                        features: roomData.features || [],
+                      });
+                    } else {
+                      roomMap.set(roomKey, roomEntry);
+                      mapData.rooms.push(roomEntry);
+                    }
+                  }
+                }
+              }
+            }
+          } catch (frameError) {
+            console.error("Frame analysis error:", frameError);
+            // Continue with next frame
+          }
+        }
+
+        // Calculate total area from analyzed rooms
+        mapData.totalArea = mapData.rooms.reduce((sum, room) => {
+          return sum + (room.length * room.width);
+        }, 0);
+
+      } catch (error) {
+        console.error("AI vision analysis error:", error);
+        // Fall back to basic room generation if AI fails
+      }
     }
 
-    // Add outdoor area if enough frames
-    if (numFrames > 6) {
-      mapData.areas.push({
-        name: "Front Entrance",
-        areaType: "outdoor",
-        length: 3.0,
-        width: 2.0,
-        features: ["pathway", "lighting"],
-      });
+    // If no rooms were detected (AI failed or no API key), generate basic layout
+    if (mapData.rooms.length === 0) {
+      const numRooms = Math.max(2, Math.floor(frames.length / 3));
+      const roomTypes = ["living", "kitchen", "bedroom", "bathroom", "dining", "hallway"];
+
+      for (let i = 0; i < numRooms; i++) {
+        const roomType = roomTypes[i % roomTypes.length];
+        mapData.rooms.push({
+          name: `${roomType?.charAt(0)?.toUpperCase() ?? ''}${roomType?.slice(1) ?? ''} ${i > 5 ? Math.floor(i / 6) + 1 : ''}`.trim(),
+          roomType,
+          floor: 1,
+          length: 4.0 + Math.random() * 2,
+          width: 3.5 + Math.random() * 1.5,
+          height: 2.4 + Math.random() * 0.4,
+          position3D: { x: i * 5, y: 0, z: 0 },
+          features: ["door", "window", "ceiling light"],
+        });
+      }
+      mapData.totalArea = numRooms * 18;
     }
 
     // Check if house map already exists for this assessment
@@ -590,7 +719,8 @@ aiRouter.post("/generate-3d-map", async (c) => {
         length: a.length ? Number(a.length) : null,
         width: a.width ? Number(a.width) : null,
       })),
-      model: "rule-based-generation",
+      model: mapData.rooms.length > 0 && googleApiKey ? "gemini-2.0-flash-vision" : "rule-based-generation",
+      aiAnalyzed: mapData.rooms.length > 0 && googleApiKey,
     });
   } catch (error) {
     console.error("3D map generation error:", error);

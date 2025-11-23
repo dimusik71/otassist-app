@@ -5,6 +5,8 @@ A professional mobile application for Occupational Therapists and Allied Health 
 ## Recent Updates
 
 ### November 23, 2025
+- **Upgraded**: 3D House Map Generation now uses real Gemini 2.0 Flash AI vision to analyze frames and extract room types, dimensions, and features
+- **Upgraded**: Video Walkthrough frame analysis enhanced to extract AI-estimated dimensions, features, and safety issues from each frame
 - **Improved**: Client Detail screen now groups assessments into "Ongoing" and "Completed" sections for better organization
 - **Added**: "New" button in Client Detail screen to quickly add assessments to the current client without re-selecting
 - **Added**: Empty state button to create first assessment when a client has no assessments
