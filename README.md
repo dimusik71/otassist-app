@@ -284,8 +284,13 @@ All routes require authentication except `/health` and `/api/auth/*`
 **Update database schema:**
 ```bash
 # Edit backend/prisma/schema.prisma
+# Method 1: Create migration (recommended for production)
 bunx prisma migrate dev --create-only --name <migration-name>
 bunx prisma migrate deploy
+
+# Method 2: Quick push (for development)
+bunx prisma db push --skip-generate
+bunx prisma generate
 ```
 
 **Type check:**
