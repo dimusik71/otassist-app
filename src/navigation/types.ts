@@ -34,6 +34,8 @@ export type RootStackParamList = {
   UploadCatalog: undefined;
   Appointments: undefined;
   AppointmentDetail: { appointmentId: string };
+  Reports: undefined;
+  ReportDetail: { reportId: string };
 };
 
 export type BottomTabParamList = {

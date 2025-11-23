@@ -1270,6 +1270,79 @@ export const deleteAppointmentResponseSchema = z.object({
 export type DeleteAppointmentResponse = z.infer<typeof deleteAppointmentResponseSchema>;
 
 // ====================
+// REPORT CONTRACTS
+// ====================
+
+// Report schema
+export const reportSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  reportType: z.enum(["financial", "operational", "clinical", "custom"]),
+  title: z.string(),
+  description: z.string().nullable(),
+  startDate: z.string(),
+  endDate: z.string(),
+  data: z.string(), // JSON string
+  filters: z.string().nullable(),
+  columns: z.string().nullable(),
+  format: z.string(),
+  fileUrl: z.string().nullable(),
+  isShared: z.boolean(),
+  shareToken: z.string().nullable(),
+  status: z.string(),
+  isScheduled: z.boolean(),
+  scheduleFrequency: z.string().nullable(),
+  nextRunDate: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type Report = z.infer<typeof reportSchema>;
+
+// GET /api/reports
+export const getReportsResponseSchema = z.object({
+  success: z.boolean(),
+  reports: z.array(reportSchema),
+});
+export type GetReportsResponse = z.infer<typeof getReportsResponseSchema>;
+
+// GET /api/reports/:id
+export const getReportResponseSchema = z.object({
+  success: z.boolean(),
+  report: reportSchema.extend({
+    data: z.any(), // Parsed JSON data
+  }),
+});
+export type GetReportResponse = z.infer<typeof getReportResponseSchema>;
+
+// POST /api/reports/generate
+export const generateReportRequestSchema = z.object({
+  reportType: z.enum(["financial", "operational", "clinical", "custom"]),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  startDate: z.string(),
+  endDate: z.string(),
+  filters: z.record(z.string(), z.any()).optional(),
+  columns: z.array(z.string()).optional(),
+});
+export type GenerateReportRequest = z.infer<typeof generateReportRequestSchema>;
+
+export const generateReportResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+  report: reportSchema.extend({
+    data: z.any(), // Parsed JSON data
+  }),
+});
+export type GenerateReportResponse = z.infer<typeof generateReportResponseSchema>;
+
+// DELETE /api/reports/:id
+export const deleteReportResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type DeleteReportResponse = z.infer<typeof deleteReportResponseSchema>;
+
+// ====================
 // DASHBOARD CONTRACTS
 // ====================
 

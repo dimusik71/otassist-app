@@ -17,6 +17,7 @@ import {
   XCircle,
   Calendar,
   CalendarClock,
+  BarChart3,
 } from "lucide-react-native";
 import type { RootStackParamList } from "@/navigation/types";
 import { api } from "@/lib/api";
@@ -264,6 +265,21 @@ const DashboardScreen = () => {
               --
             </Text>
             <Text className="text-gray-600">Appointments</Text>
+          </Pressable>
+
+          {/* Reports */}
+          <Pressable
+            onPress={() => navigation.navigate("Reports")}
+            className="bg-white rounded-2xl p-5 mb-3 active:opacity-80"
+            style={{ width: "48%", shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }}
+          >
+            <View className="w-12 h-12 bg-blue-100 rounded-full items-center justify-center mb-3">
+              <BarChart3 size={24} color="#3B82F6" />
+            </View>
+            <Text className="text-3xl font-bold text-gray-900 mb-1">
+              --
+            </Text>
+            <Text className="text-gray-600">Reports</Text>
           </Pressable>
         </View>
 

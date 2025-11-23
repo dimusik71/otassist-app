@@ -28,6 +28,7 @@ model User {
   businessDocuments BusinessDocument[]
   sentInvoices  SentInvoice[]
   appointments  Appointment[]
+  reports       Report[]
 
   @@map("user")
 }
@@ -559,5 +560,45 @@ model Appointment {
   @@index([status, startTime])
   @@index([consentGiven])
   @@map("appointment")
+}
+
+// Report Management System
+// Manages business reports (financial, operational, clinical, custom)
+model Report {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reportType    String   // "financial", "operational", "clinical", "custom"
+  title         String
+  description   String?
+
+  // Date range for the report
+  startDate     DateTime
+  endDate       DateTime
+
+  // Report data and metadata
+  data          String   // JSON string containing report data
+  filters       String?  // JSON string containing applied filters
+  columns       String?  // JSON string for custom report columns
+
+  // Export and sharing
+  format        String   @default("json") // "json", "pdf", "csv", "excel"
+  fileUrl       String?  // URL to exported file if generated
+  isShared      Boolean  @default(false)
+  shareToken    String?  @unique // Token for sharing reports
+
+  // Status and scheduling
+  status        String   @default("generated") // "generating", "generated", "failed", "scheduled"
+  isScheduled   Boolean  @default(false)
+  scheduleFrequency String? // "daily", "weekly", "monthly", "quarterly"
+  nextRunDate   DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId, reportType])
+  @@index([userId, createdAt])
+  @@index([status])
+  @@map("report")
 }
 

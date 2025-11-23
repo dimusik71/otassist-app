@@ -62,6 +62,50 @@ A professional mobile application for Occupational Therapists and Allied Health 
   - **Backend API**: POST `/api/appointments/:id/consent` for recording consent
   - Access all features via appointment creation/edit modal
 
+### November 23, 2025 - BUSINESS REPORTING SYSTEM ✅
+- **New**: Comprehensive reporting and analytics system for business intelligence
+  - **Four Report Types**:
+    - **Financial Reports**: Revenue analytics, invoice tracking, payment status, monthly trends, and top clients by revenue
+    - **Operational Reports**: Assessment metrics, appointment statistics, daily activity tracking, and workflow analytics
+    - **Clinical Reports**: Client demographics, equipment recommendations analysis, assessment type distribution, and clinical outcomes
+    - **Custom Reports**: Build your own reports with selected metrics and date ranges
+  - **Report Features**:
+    - Date range selection for flexible time periods
+    - Visual report type cards with color-coded icons
+    - Quick report generation with one tap
+    - Report history with easy access to past reports
+    - Delete unwanted reports
+  - **Financial Report Metrics**:
+    - Total, paid, pending, and overdue revenue
+    - Average invoice value
+    - Monthly revenue breakdown
+    - Top 10 clients by revenue
+    - Invoice count by status
+  - **Operational Report Metrics**:
+    - Assessment counts by type and status
+    - Appointment statistics
+    - New client acquisition
+    - Daily activity tracking
+    - Recent assessment history
+  - **Clinical Report Metrics**:
+    - Client demographics and age analysis
+    - Equipment recommendation patterns
+    - Assessment type distribution
+    - Media capture statistics
+  - **UI Features**:
+    - Beautiful blue gradient theme
+    - Report type selection with icons
+    - Date picker for custom ranges
+    - Empty state with call-to-action
+    - Dashboard integration with Reports card
+  - **Backend API**:
+    - GET `/api/reports` - List all reports
+    - GET `/api/reports/:id` - Get single report
+    - POST `/api/reports/generate` - Generate new report
+    - DELETE `/api/reports/:id` - Delete report
+  - **Database**: Full report history with filters and metadata
+  - Access via Dashboard or Settings
+
 ### November 23, 2025 - COMPREHENSIVE DASHBOARD ✅
 - **New**: Beautiful consolidated dashboard for practice overview
   - **Real-time metrics** with auto-refresh every minute
