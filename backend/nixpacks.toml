@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["bun"]
+
+[phases.install]
+cmds = ["bun install", "bunx prisma generate"]
+
+[phases.build]
+cmds = ["bunx prisma migrate deploy", "bun run build"]
+
+[start]
+cmd = "bun run start"
