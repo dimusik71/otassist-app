@@ -262,6 +262,16 @@ model AssessmentEquipment {
   recommended  Boolean       @default(true)
   priority     String?       // "high", "medium", "low"
   notes        String?
+
+  // AI Justification and Approval Analysis
+  aiJustification     String?  // AI-generated clinical justification for this equipment
+  ndisApproved        Boolean  @default(false) // Whether item is on NDIS Assistive Technology List
+  ndisCategory        String?  // NDIS category/reference if approved
+  sahApproved         Boolean  @default(false) // Whether item is approved under SAH (Seniors at Home)
+  sahCategory         String?  // SAH category/reference if approved
+  fundingEligibility  String?  // JSON: Details about funding eligibility and requirements
+  clinicalRationale   String?  // Clinical reasoning for recommendation
+
   createdAt    DateTime      @default(now())
 
   @@map("assessment_equipment")
@@ -273,13 +283,18 @@ model Quote {
   assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
   quoteNumber  String     @unique
   optionName   String     // "Option 1", "Option 2", "Option 3"
-  items        String     // JSON string of items
+  items        String     // JSON string of items with justifications
   subtotal     Decimal    @default(0)
   tax          Decimal    @default(0)
   total        Decimal    @default(0)
   notes        String?
   validUntil   DateTime?
   status       String     @default("draft") // "draft", "sent", "accepted", "rejected"
+
+  // AI Justification Summary
+  overallJustification String? // Overall justification for this quote package
+  fundingSummary       String? // Summary of NDIS/SAH funding eligibility
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

@@ -471,6 +471,21 @@ export const addEquipmentRecommendationRequestSchema = z.object({
   priority: z.enum(["essential", "recommended", "optional"]),
   quantity: z.number().min(1),
   notes: z.string().optional(),
+  // AI Justification fields
+  aiJustification: z.string().optional(),
+  ndisApproved: z.boolean().optional(),
+  ndisCategory: z.string().optional(),
+  sahApproved: z.boolean().optional(),
+  sahCategory: z.string().optional(),
+  fundingEligibility: z.object({
+    ndisEligible: z.boolean().optional(),
+    ndisRequirements: z.array(z.string()).optional(),
+    sahEligible: z.boolean().optional(),
+    sahRequirements: z.array(z.string()).optional(),
+    privatePayRecommended: z.boolean().optional(),
+    estimatedFunding: z.string().optional(),
+  }).optional(),
+  clinicalRationale: z.string().optional(),
 });
 export type AddEquipmentRecommendationRequest = z.infer<typeof addEquipmentRecommendationRequestSchema>;
 
@@ -483,6 +498,14 @@ export const getEquipmentRecommendationsResponseSchema = z.object({
       priority: z.string(),
       quantity: z.number(),
       notes: z.string().nullable(),
+      // AI Justification fields
+      aiJustification: z.string().nullable(),
+      ndisApproved: z.boolean(),
+      ndisCategory: z.string().nullable(),
+      sahApproved: z.boolean(),
+      sahCategory: z.string().nullable(),
+      fundingEligibility: z.string().nullable(), // JSON string
+      clinicalRationale: z.string().nullable(),
       createdAt: z.string(),
       equipment: z.object({
         id: z.string(),

@@ -4,6 +4,44 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 24, 2025 - AI EQUIPMENT JUSTIFICATION & NDIS/SAH APPROVAL ANALYSIS ✅
+- **New**: Comprehensive AI-powered equipment justification system with funding approval analysis
+  - **AI Justification Generation**:
+    - Powered by Claude Sonnet 4.5 for expert clinical reasoning
+    - Generates 2-3 paragraph justifications linking client needs to equipment recommendations
+    - Analyzes assessment data, client information, and equipment specifications
+    - Professional clinical rationale suitable for funding applications
+  - **NDIS Approval Analysis**:
+    - Automatic verification against NDIS Assistive Technology List
+    - NDIS category identification and funding eligibility assessment
+    - Specific requirements checklist for NDIS funding
+    - Estimated funding amounts where applicable
+  - **SAH (Seniors at Home) Approval Analysis**:
+    - Verification against SAH program guidelines
+    - SAH category and eligibility determination
+    - Requirements for SAH funding applications
+  - **Comprehensive Funding Eligibility**:
+    - NDIS eligibility status with specific requirements
+    - SAH eligibility status with specific requirements
+    - Private pay recommendations when appropriate
+    - Estimated funding ranges based on approval status
+  - **Database Fields Added**:
+    - `aiJustification` - AI-generated clinical justification
+    - `ndisApproved` - NDIS approval status (boolean)
+    - `ndisCategory` - NDIS category/reference code
+    - `sahApproved` - SAH approval status (boolean)
+    - `sahCategory` - SAH category/reference
+    - `fundingEligibility` - JSON object with detailed eligibility data
+    - `clinicalRationale` - Clinical reasoning for recommendation
+  - **Backend API**:
+    - POST `/api/ai/generate-equipment-justification` - Generate AI justification with approval analysis
+    - Updated `/api/assessments/:id/equipment` - Save and retrieve justifications
+  - **Integration Points**:
+    - Equipment recommendations screen - Display justifications and approval badges
+    - Quote generation - Include justifications in quote details
+    - Assessment detail screen - Show justifications for all recommended equipment
+    - Professional documentation suitable for funding submissions
+
 ### November 24, 2025 - APPLE TEAM ID CONFIGURATION ✅
 - **Updated**: Added Apple Team ID (Z3MHL22LAF) to eas.json for App Store submissions
 - **Improved**: Enhanced API error logging for better debugging of network issues

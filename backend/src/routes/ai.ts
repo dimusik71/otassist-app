@@ -1177,4 +1177,154 @@ Return ONLY a valid JSON object with this structure:
   }
 });
 
+// POST /api/ai/generate-equipment-justification - Generate AI justification for equipment with NDIS/SAH approval analysis
+aiRouter.post("/generate-equipment-justification", async (c) => {
+  const user = c.get("user");
+  if (!user?.id) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const body = await c.req.json();
+  const { equipmentId, assessmentId } = body;
+
+  if (!equipmentId || !assessmentId) {
+    return c.json({ error: "Missing equipmentId or assessmentId" }, 400);
+  }
+
+  try {
+    // Get assessment and equipment details
+    const assessment = await db.assessment.findFirst({
+      where: { id: assessmentId, userId: user.id },
+      include: {
+        client: true,
+        responses: true,
+        media: true,
+      },
+    });
+
+    if (!assessment) {
+      return c.json({ error: "Assessment not found" }, 404);
+    }
+
+    const equipment = await db.equipmentItem.findUnique({
+      where: { id: equipmentId },
+    });
+
+    if (!equipment) {
+      return c.json({ error: "Equipment not found" }, 404);
+    }
+
+    // Use Claude Sonnet for comprehensive justification analysis
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY || "",
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-5-20250929",
+        max_tokens: 2048,
+        messages: [
+          {
+            role: "user",
+            content: `You are an expert Occupational Therapist and assistive technology specialist in Australia. Generate a comprehensive justification for recommending the following equipment.
+
+EQUIPMENT DETAILS:
+- Name: ${equipment.name}
+- Description: ${equipment.description || "N/A"}
+- Category: ${equipment.category}
+- Price: $${equipment.price}
+- Brand/Model: ${equipment.brand || "N/A"} ${equipment.model || ""}
+- Government Approved: ${equipment.governmentApproved ? "Yes" : "No"}
+- Approval Reference: ${equipment.approvalReference || "N/A"}
+
+CLIENT & ASSESSMENT:
+- Client Name: ${assessment.client.name}
+- Assessment Type: ${assessment.assessmentType}
+- Assessment Date: ${assessment.assessmentDate}
+- Location: ${assessment.location || "N/A"}
+- Assessment Notes: ${assessment.notes || "N/A"}
+- Media Captured: ${assessment.media.length} items
+- Responses: ${assessment.responses.length} assessment questions answered
+
+TASK:
+Provide a detailed JSON response with the following structure:
+
+{
+  "aiJustification": "2-3 paragraph clinical justification for why this equipment is recommended based on the assessment",
+  "clinicalRationale": "Specific clinical reasoning linking client needs to equipment features",
+  "ndisApproved": true/false,
+  "ndisCategory": "NDIS category code/name if approved, or null",
+  "ndisJustification": "Explanation of NDIS eligibility and funding category if applicable",
+  "sahApproved": true/false,
+  "sahCategory": "SAH category if approved, or null",
+  "sahJustification": "Explanation of SAH (Seniors at Home) eligibility if applicable",
+  "fundingEligibility": {
+    "ndisEligible": true/false,
+    "ndisRequirements": ["list of requirements"],
+    "sahEligible": true/false,
+    "sahRequirements": ["list of requirements"],
+    "privatePayRecommended": true/false,
+    "estimatedFunding": "Amount or range if applicable"
+  },
+  "riskAssessment": "Any safety considerations or contraindications",
+  "alternatives": ["Alternative equipment options if applicable"]
+}
+
+IMPORTANT GUIDELINES:
+1. Base approval status on actual NDIS Assistive Technology List and SAH guidelines
+2. Be conservative - only mark as approved if you're confident it meets criteria
+3. Consider the client's specific needs from the assessment
+4. Reference relevant NDIS practice standards and SAH criteria
+5. Include specific evidence for funding justification
+6. Be clinically accurate and professional
+
+Return ONLY valid JSON, no other text.`,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Claude API request failed: ${errorText}`);
+    }
+
+    const data = (await response.json()) as {
+      content: Array<{ type: string; text: string }>;
+    };
+
+    const responseText = data.content?.[0]?.text || "{}";
+
+    // Parse the JSON response
+    let justificationData;
+    try {
+      justificationData = JSON.parse(responseText);
+    } catch (parseError) {
+      // Try to extract JSON from markdown code blocks if present
+      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
+      if (jsonMatch) {
+        justificationData = JSON.parse(jsonMatch[1]);
+      } else {
+        throw new Error("Failed to parse AI response as JSON");
+      }
+    }
+
+    return c.json({
+      success: true,
+      ...justificationData,
+    });
+  } catch (error) {
+    console.error("Equipment justification generation error:", error);
+    return c.json(
+      {
+        error: "Failed to generate equipment justification",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      500
+    );
+  }
+});
+
 export default aiRouter;

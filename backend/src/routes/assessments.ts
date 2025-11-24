@@ -549,6 +549,14 @@ assessmentsRouter.post(
         priority: body.priority,
         quantity: body.quantity,
         notes: body.notes,
+        // AI Justification fields
+        aiJustification: body.aiJustification,
+        ndisApproved: body.ndisApproved || false,
+        ndisCategory: body.ndisCategory,
+        sahApproved: body.sahApproved || false,
+        sahCategory: body.sahCategory,
+        fundingEligibility: body.fundingEligibility ? JSON.stringify(body.fundingEligibility) : null,
+        clinicalRationale: body.clinicalRationale,
       },
     });
 
@@ -603,6 +611,14 @@ assessmentsRouter.get("/:id/equipment", async (c) => {
       priority: rec.priority,
       quantity: rec.quantity,
       notes: rec.notes,
+      // AI Justification fields
+      aiJustification: rec.aiJustification,
+      ndisApproved: rec.ndisApproved,
+      ndisCategory: rec.ndisCategory,
+      sahApproved: rec.sahApproved,
+      sahCategory: rec.sahCategory,
+      fundingEligibility: rec.fundingEligibility,
+      clinicalRationale: rec.clinicalRationale,
       createdAt: rec.createdAt.toISOString(),
       equipment: {
         ...rec.equipment,
