@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: otassist-backend
+    runtime: docker
+    repo: https://github.com/YOUR_USERNAME/YOUR_REPO
+    branch: main
+    rootDir: backend
+    dockerfilePath: ./Dockerfile.render
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        value: file:/data/production.db
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+        length: 64
+      - key: BACKEND_URL
+        sync: false
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /health
+    autoDeploy: true
