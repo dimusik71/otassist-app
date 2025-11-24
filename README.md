@@ -4,6 +4,13 @@ A professional mobile application for Occupational Therapists and Allied Health 
 
 ## Recent Updates
 
+### November 24, 2025 - APPLE TEAM ID CONFIGURATION ✅
+- **Updated**: Added Apple Team ID (Z3MHL22LAF) to eas.json for App Store submissions
+- **Improved**: Enhanced API error logging for better debugging of network issues
+  - Added detailed logging of API request URLs and response status codes
+  - Improved error messages when server returns non-JSON responses
+  - Better tracking of which specific endpoints are failing
+
 ### November 23, 2025 - AI-POWERED ROUTE OPTIMIZATION WITH APPLE MAPS 🗺️✅
 - **New**: Intelligent route optimization for appointment scheduling with real-time navigation
   - **AI Route Optimization**:

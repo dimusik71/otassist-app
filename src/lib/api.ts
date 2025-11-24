@@ -96,7 +96,10 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
   // Step 2: Make the HTTP request
   try {
     // Construct the full URL by combining the base backend URL with the endpoint path
-    const response = await fetch(`${BACKEND_URL}${path}`, {
+    const fullUrl = `${BACKEND_URL}${path}`;
+    console.log(`[api.ts]: ${method} ${fullUrl}`);
+
+    const response = await fetch(fullUrl, {
       method,
       headers: {
         // Always send JSON content type since our API uses JSON
@@ -111,10 +114,22 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
       credentials: "omit",
     });
 
+    console.log(`[api.ts]: ${method} ${path} -> ${response.status}`);
+
     // Step 3: Error handling - Check if the response was successful
     if (!response.ok) {
-      // Parse the error details from the response body
-      const errorData = await response.json();
+      // Try to parse the error details from the response body
+      const responseText = await response.text();
+      let errorData: any;
+      try {
+        errorData = JSON.parse(responseText);
+      } catch (parseError) {
+        // If JSON parsing fails, log the raw text to see what we're receiving
+        console.log(`[api.ts]: Failed to parse error response for ${path}. Status: ${response.status}, Raw response: ${responseText.substring(0, 200)}`);
+        throw new Error(
+          `[api.ts]: ${response.status} ${response.statusText} - Server returned non-JSON response`,
+        );
+      }
       // Throw a descriptive error with status code, status text, and server error data
       throw new Error(
         `[api.ts]: ${response.status} ${response.statusText} ${JSON.stringify(errorData)}`,
@@ -123,7 +138,15 @@ const fetchFn = async <T>(path: string, options: FetchOptions): Promise<T> => {
 
     // Step 4: Parse and return the successful response as JSON
     // The response is cast to the expected type T for type safety
-    const data = await response.json() as T;
+    const responseText = await response.text();
+    let data: T;
+    try {
+      data = JSON.parse(responseText) as T;
+    } catch (parseError) {
+      // If JSON parsing fails on success response, log it
+      console.log(`[api.ts]: Failed to parse success response for ${path}. Status: ${response.status}, Raw response: ${responseText.substring(0, 200)}`);
+      throw new Error(`[api.ts]: Server returned non-JSON response: ${responseText.substring(0, 100)}`);
+    }
 
     // Cache GET responses for offline access
     if (method === 'GET') {
