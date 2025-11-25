@@ -1,26 +1,75 @@
+# Render Blueprint for OTAssist Backend
+# This file enables one-click deployment via Render Blueprint
+# Learn more: https://render.com/docs/blueprint-spec
+
 services:
   - type: web
     name: otassist-backend
     runtime: docker
-    repo: https://github.com/YOUR_USERNAME/YOUR_REPO
-    branch: main
-    rootDir: backend
     dockerfilePath: ./Dockerfile.render
+    region: oregon # Change to your preferred region: oregon, frankfurt, singapore, etc.
+    plan: free # Options: free, starter ($7/month), standard, pro
+
+    # Build settings
+    buildCommand: ""
+    startCommand: ""
+
+    # Environment variables
     envVars:
       - key: NODE_ENV
         value: production
+
       - key: PORT
         value: 3000
+
       - key: DATABASE_URL
         value: file:/data/production.db
+
+      - key: BACKEND_URL
+        sync: false # You'll need to set this manually after deployment
+        generateValue: false
+
       - key: BETTER_AUTH_SECRET
         generateValue: true
-        length: 64
-      - key: BACKEND_URL
         sync: false
+
+      # Optional: Add your AI API keys here or set them manually
+      # - key: ANTHROPIC_API_KEY
+      #   sync: false
+
+      # - key: OPENAI_API_KEY
+      #   sync: false
+
+      # - key: GOOGLE_API_KEY
+      #   sync: false
+
+      # - key: XAI_API_KEY
+      #   sync: false
+
+      # - key: ELEVENLABS_API_KEY
+      #   sync: false
+
+    # Health check endpoint
+    healthCheckPath: /health
+
+    # Persistent disk for SQLite database
     disk:
       name: sqlite-data
       mountPath: /data
       sizeGB: 1
-    healthCheckPath: /health
+
+    # Auto-deploy on git push
     autoDeploy: true
+
+    # Branch to deploy from
+    branch: main
+
+# Instructions for using this blueprint:
+# 1. Go to: https://dashboard.render.com/select-repo?type=blueprint
+# 2. Connect your GitHub repository
+# 3. Render will detect this render.yaml file
+# 4. Review the configuration
+# 5. Click "Apply" to create all services
+# 6. After deployment, manually add:
+#    - BACKEND_URL (your actual Render URL)
+#    - Any AI API keys you're using
