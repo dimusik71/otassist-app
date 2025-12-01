@@ -17,8 +17,8 @@ WORKDIR /app
 COPY backend/package.json backend/bun.lock* ./
 COPY backend/prisma ./prisma/
 
-# Install dependencies
-RUN bun install --frozen-lockfile
+# Install dependencies (without frozen-lockfile due to native module compilation)
+RUN bun install
 
 # Generate Prisma client
 RUN bunx prisma generate
