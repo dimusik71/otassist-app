@@ -4,6 +4,9 @@ FROM oven/bun:1.2.19
 # Set working directory
 WORKDIR /app
 
+# Debug: Show what files are available
+RUN pwd && ls -la
+
 # Copy package files
 COPY package.json bun.lock* ./
 COPY prisma ./prisma/
