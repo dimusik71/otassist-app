@@ -23,9 +23,6 @@ COPY . .
 # Create data directory for SQLite
 RUN mkdir -p /data
 
-# Build the application (creates dist/index.js)
-RUN bun build src/index.ts --outdir dist --target bun
-
 # Expose port
 EXPOSE 3000
 
