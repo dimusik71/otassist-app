@@ -17,6 +17,9 @@ RUN bun install --frozen-lockfile
 # Generate Prisma client
 RUN bunx prisma generate
 
+# Copy shared types folder (needed for imports)
+COPY shared /shared
+
 # Copy all backend source code
 COPY backend ./
 
