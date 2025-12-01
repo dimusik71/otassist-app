@@ -7,70 +7,16 @@ $ prisma generate
 Environment variables loaded from .env
 Prisma schema loaded from prisma/schema.prisma
 
-✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 334ms
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 261ms
 
 Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
 
-Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
 
 
-Checked 769 installs across 703 packages (no changes) [1.71s]
+Checked 769 installs across 703 packages (no changes) [1.62s]
 Starting server in dev mode with hot reload...
 $ NODE_ENV=development bun run --hot src/index.ts
-Failed to find Response internal state key
-✅ Environment variables validated successfully
-🔐 [Auth] Initializing Better Auth...
-✅ [Auth] Better Auth initialized with 2FA
-🔗 [Auth] Base URL: https://preview-kvgfvnfnkbup.share.sandbox.dev
-🌐 [Auth] Trusted origins: vibecode://, http://localhost:3000, https://preview-kvgfvnfnkbup.share.sandbox.dev
-📁 [Upload] Uploads directory exists: /home/user/workspace/backend/uploads
-🔧 Initializing Hono application...
-⏱️  Adding session timeout headers
-🛡️  Applying rate limiting to auth endpoints
-🛡️  Applying rate limiting to AI endpoints
-🛡️  Applying rate limiting to upload endpoints
-🔐 Mounting Better Auth handler at /api/auth/*
-📁 Serving static files from uploads/ directory (authenticated)
-📤 Mounting upload routes at /api/upload
-👥 Mounting clients routes at /api/clients
-📋 Mounting assessments routes at /api/assessments
-🛠️  Mounting equipment routes at /api/equipment
-💰 Mounting quotes routes at /api/quotes
-📄 Mounting invoices routes at /api/invoices
-🤖 Mounting AI routes at /api/ai
-🏠 Mounting house map routes at /api
-📱 Mounting IoT devices routes at /api
-👤 Mounting profile routes at /api/profile
-📄 Mounting documents routes at /api/documents
-💼 Mounting business documents routes at /api/business-documents
-📨 Mounting sent invoices routes at /api/sent-invoices
-📊 Mounting dashboard routes at /api/dashboard
-📅 Mounting appointments routes at /api/appointments
-📊 Mounting reports routes at /api/reports
-🛡️  Applying rate limiting to route optimization endpoints
-🗺️  Mounting route optimization routes at /api/route-optimization
-⚙️  Starting server...
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📍 Environment: development
-🚀 Server is running on port 3000
-🔗 Base URL: http://localhost:3000
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📚 Available endpoints:
-  🔐 Auth:       /api/auth/*
-  📤 Upload:     POST /api/upload/image
-  👥 Clients:    GET/POST /api/clients
-  📋 Assess:     GET/POST /api/assessments
-  🛠️  Equipment:  GET/POST /api/equipment
-  💰 Quotes:     POST /api/quotes
-  📄 Invoices:   POST /api/invoices
-  🤖 AI:         POST /api/ai/*
-  🏠 House Maps: GET/POST /api/house-maps
-  📱 IoT:        GET/POST /api/iot-devices
-  👤 Profile:    GET/POST /api/profile
-  💚 Health:     GET /health
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Failed to find Response internal state key
 ✅ Environment variables validated successfully
 🔐 [Auth] Initializing Better Auth...
