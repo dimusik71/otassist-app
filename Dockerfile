@@ -1,13 +1,15 @@
 # Render Dockerfile for Bun + SQLite backend
 FROM oven/bun:1.2.19
 
-# Install Python and build tools needed for better-sqlite3
+# Install Python, Node.js, and build tools needed for better-sqlite3
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
     gcc \
     build-essential \
+    nodejs \
+    npm \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory to backend
@@ -17,8 +19,8 @@ WORKDIR /app
 COPY backend/package.json backend/bun.lock* ./
 COPY backend/prisma ./prisma/
 
-# Install dependencies (without frozen-lockfile due to native module compilation)
-RUN bun install
+# Install dependencies using npm (better node-gyp compatibility)
+RUN npm install --legacy-peer-deps
 
 # Generate Prisma client
 RUN bunx prisma generate
