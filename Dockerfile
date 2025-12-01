@@ -1,6 +1,9 @@
 # Render Dockerfile for Bun + SQLite backend
 FROM oven/bun:1.2.19
 
+# Install Python and build tools needed for better-sqlite3
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 # Set working directory to backend
 WORKDIR /app
 
