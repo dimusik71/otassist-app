@@ -26,5 +26,5 @@ RUN bun build src/index.ts --outdir dist --target bun
 # Expose port
 EXPOSE 3000
 
-# Run migrations and start server
-CMD bunx prisma migrate deploy && NODE_ENV=production bun run dist/index.js
+# Run migrations and start server directly from source
+CMD bunx prisma migrate deploy && NODE_ENV=production bun run src/index.ts
